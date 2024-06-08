@@ -1,0 +1,50 @@
+﻿@model amazon.Models.Usuario
+
+@{
+    ViewData["Title"] = "Editar Usuario";
+    var roles = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "1", Text = "Administrador" },
+        new SelectListItem { Value = "2", Text = "Mecánico" },
+        new SelectListItem { Value = "3", Text = "Cliente" }
+    };
+}
+
+<h1 class="text-center my-4">Editar Usuario</h1>
+
+<div class="card mx-auto" style="max-width: 600px;">
+    <div class="card-body">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Usuario1" class="form-label"></label>
+                <input asp-for="Usuario1" class="form-control" />
+                <span asp-validation-for="Usuario1" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Clave" class="form-label"></label>
+                <input asp-for="Clave" type="password" class="form-control" />
+                <span asp-validation-for="Clave" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Nombre" class="form-label"></label>
+                <input asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Rol" class="form-label"></label>
+                @Html.DropDownListFor(m => m.Rol, roles, "Seleccione un rol", new { @class = "form-select" })
+                <span asp-validation-for="Rol" class="text-danger"></span>
+            </div>
+
+            <div class="text-center">
+                <input type="submit" value="Guardar" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary ml-2">Volver a la lista</a>
+            </div>
+        </form>
+    </div>
+</div>

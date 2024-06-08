@@ -1,0 +1,51 @@
+﻿@model amazon.Models.Usuario
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<style>
+    .background-image {
+        position: relative;
+        min-height: 100vh;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Ajusta el último valor (0.5) para cambiar la opacidad */
+    }
+</style>
+
+<div class="background-image" style="background-image: url('../images/fon.jpg'); background-size: cover; background-position: center;">
+    <div class="overlay"></div>
+    <br /><br /><br /><br />
+    <div class="card shadow-sm" style="max-width: 400px; margin: auto;">
+        <div class="card-body">
+            <h5 class="card-title mb-4 text-center">Registrarse</h5>
+            <form asp-action="Register" method="post">
+                <div class="mb-3">
+                    <label asp-for="Nombre" class="form-label">Nombre</label>
+                    <input asp-for="Nombre" class="form-control" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Usuario1" class="form-label">Usuario</label>
+                    <input asp-for="Usuario1" class="form-control" />
+                    <span asp-validation-for="Usuario1" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Clave" class="form-label">Contraseña</label>
+                    <input asp-for="Clave" type="password" class="form-control" />
+                    <span asp-validation-for="Clave" class="text-danger"></span>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Registrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
