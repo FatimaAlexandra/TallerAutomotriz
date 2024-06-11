@@ -32,6 +32,25 @@
             <dd class="col-sm-8">
                 @Html.DisplayFor(model => model.Rol)
             </dd>
+            <!-- Agregar nuevos campos -->
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Telefono)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.Telefono)
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Correo)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.Correo)
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Dui)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.Dui)
+            </dd>
         </dl>
 
         <form asp-action="Delete">

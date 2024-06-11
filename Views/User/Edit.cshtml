@@ -4,7 +4,6 @@
     ViewData["Title"] = "Editar Usuario";
     var roles = new List<SelectListItem>
     {
-        new SelectListItem { Value = "1", Text = "Administrador" },
         new SelectListItem { Value = "2", Text = "Mecánico" },
         new SelectListItem { Value = "3", Text = "Cliente" }
     };
@@ -25,7 +24,7 @@
 
             <div class="form-group mb-3">
                 <label asp-for="Clave" class="form-label"></label>
-                <input asp-for="Clave" type="password" class="form-control" />
+                <input asp-for="Clave" class="form-control" />
                 <span asp-validation-for="Clave" class="text-danger"></span>
             </div>
 
@@ -39,6 +38,24 @@
                 <label asp-for="Rol" class="form-label"></label>
                 @Html.DropDownListFor(m => m.Rol, roles, "Seleccione un rol", new { @class = "form-select" })
                 <span asp-validation-for="Rol" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Telefono" class="form-label"></label>
+                <input asp-for="Telefono" class="form-control" />
+                <span asp-validation-for="Telefono" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Correo" class="form-label"></label>
+                <input asp-for="Correo" class="form-control" />
+                <span asp-validation-for="Correo" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Dui" class="form-label"></label>
+                <input asp-for="Dui" class="form-control" />
+                <span asp-validation-for="Dui" class="text-danger"></span>
             </div>
 
             <div class="text-center">

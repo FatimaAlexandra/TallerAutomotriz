@@ -21,6 +21,13 @@ namespace amazon.Models
         public int Rol { get; set; } = 3; // Rol por defecto igual a 3 para registrarse como cliente
 
         public string Clave { get; set; } = null!;
+
+        // Nuevos campos
+        public string Telefono { get; set; } = null!;
+
+        public string Correo { get; set; } = null!;
+
+        public string Dui { get; set; } = null!;   
     }
 
 }
