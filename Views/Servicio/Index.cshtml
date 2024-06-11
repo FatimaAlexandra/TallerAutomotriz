@@ -1,0 +1,49 @@
+﻿@model IEnumerable<amazon.Models.Servicio>
+
+@{
+    ViewData["Title"] = "Lista de Servicios";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Marland</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="container">
+        <h2 class="my-4">Lista de Servicios</h2>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Categoría</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var servicio in Model)
+                    {
+                        <tr>
+                            <td>@servicio.Id</td>
+                            <td>@servicio.Nombre</td>
+                            <td>@servicio.Descripcion</td>
+                            <td>@servicio.Categoria</td>
+                            <td>
+                                <a href="@Url.Action("Details", "Servicio", new { id = servicio.Id })">Detalles</a>
+                                <!-- Agrega enlaces para editar o eliminar según tus necesidades -->
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
