@@ -44,8 +44,18 @@
                     <td>@user.Correo</td>
                     <td>@user.Dui</td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning">Editar</a>
-                        <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                        @if (user.Rol == 1)
+                        {
+                            <a class="btn btn-sm btn-warning disabled" aria-disabled="true">Editar</a>
+                            <a class="btn btn-sm btn-danger disabled" aria-disabled="true">Eiminar</a>
+
+                        }
+                        else
+                        {
+                            <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                        }
+                        
                     </td>
                 </tr>
             }

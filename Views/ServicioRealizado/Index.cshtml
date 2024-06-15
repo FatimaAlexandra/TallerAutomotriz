@@ -4,32 +4,38 @@
     ViewData["Title"] = "Servicios Realizados";
 }
 
-<h2 class="mb-4">Servicios Realizados</h2>
+<div class="container">
+    <h2 class="mb-4">Servicios Realizados - Clientes</h2>
 
-<div class="table-responsive">
-    <table id="serviciosRealizadosTable" class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>ID del Servicio</th>
-                <th>Precio</th>
-                <th>ID del Usuario</th>
-                <th>Fecha</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var servicioRealizado in Model)
-            {
+    <div class="mb-3">
+        <a asp-action="Create" class="btn btn-primary">Registrar Servicio Realizado</a>
+    </div>
+
+    <div class="table-responsive">
+        <table id="serviciosRealizadosTable" class="table table-striped table-bordered">
+            <thead>
                 <tr>
-                    <td>@servicioRealizado.Id</td>
-                    <td>@servicioRealizado.ServicioId</td>
-                    <td>@servicioRealizado.Precio</td>
-                    <td>@servicioRealizado.UsuarioId</td>
-                    <td>@servicioRealizado.Fecha</td>
+                    <th style="display:none;">ID</th>
+                    <th>Servicio Realizado</th>
+                    <th>Precio</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var servicioRealizado in Model)
+                {
+                    <tr>
+                        <td style="display:none;">@servicioRealizado.Id</td>
+                        <td>@servicioRealizado.Servicio?.Nombre</td> <!-- Mostrar nombre del servicio -->
+                        <td>@servicioRealizado.Precio</td>
+                        <td>@servicioRealizado.Usuario?.Nombre</td> <!-- Mostrar nombre del usuario -->
+                        <td>@servicioRealizado.Fecha</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @section Scripts {

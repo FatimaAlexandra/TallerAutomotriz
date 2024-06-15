@@ -19,6 +19,7 @@ namespace amazon.Models
         public virtual DbSet<ServicioRealizado> ServicioRealizado { get; set; }
         public virtual DbSet<Servicio> Servicios { get; set; }
 
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code.
