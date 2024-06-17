@@ -20,6 +20,7 @@
                     <th>Precio</th>
                     <th>Cliente</th>
                     <th>Fecha</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -30,7 +31,12 @@
                         <td>@servicioRealizado.Servicio?.Nombre</td> <!-- Mostrar nombre del servicio -->
                         <td>@servicioRealizado.Precio</td>
                         <td>@servicioRealizado.Usuario?.Nombre</td> <!-- Mostrar nombre del usuario -->
-                        <td>@servicioRealizado.Fecha</td>
+                        <td>@servicioRealizado.Fecha</td> <!-- Mostrar fecha (ya es un string) -->
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@servicioRealizado.Id" class="btn btn-sm btn-primary">Editar</a>
+                            <a asp-action="Details" asp-route-id="@servicioRealizado.Id" class="btn btn-sm btn-info">Detalles</a>
+                            <a asp-action="Delete" asp-route-id="@servicioRealizado.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                        </td>
                     </tr>
                 }
             </tbody>
