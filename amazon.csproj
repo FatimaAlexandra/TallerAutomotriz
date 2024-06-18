@@ -22,13 +22,21 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\Fotos\Castrol.png" />
+    <None Include="wwwroot\Fotos\Mobil.png" />
+    <None Include="wwwroot\Fotos\Valvoline.png" />
     <None Include="wwwroot\images\1.jpg" />
     <None Include="wwwroot\images\2.jpg" />
     <None Include="wwwroot\images\3.jpg" />
     <None Include="wwwroot\images\4.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 
 </Project>

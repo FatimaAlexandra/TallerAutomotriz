@@ -1,0 +1,65 @@
+﻿@{
+    ViewData["Title"] = "Lista de Productos";
+}
+
+<h2 class="mb-4">Catálogo de Productos</h2>
+
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-primary">Crear un producto</a>
+</div>
+
+<div class="row">
+    @foreach (var producto in Model)
+    {
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="~/Fotos/Valvoline.png" class="card-img-top" alt="@producto.Nombre">
+                <div class="card-body">
+                    <h5 class="card-title">@producto.Nombre</h5>
+                    <p class="card-text">@producto.Descripcion</p>
+                    <p class="card-text"><strong>Precio: $@producto.Precio</strong></p>
+
+                    @if (User.IsInRole("1"))
+                    {
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Edit" asp-route-id="@producto.Id" class="btn btn-sm btn-warning me-2">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@producto.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+</style>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/DataTables/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#productosTable').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "Nada encontrado - lo sentimos",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                }
+            });
+        });
+    </script>
+}

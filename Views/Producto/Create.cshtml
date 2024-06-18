@@ -1,0 +1,37 @@
+﻿<!-- Path: Views/Producto/Create.cshtml -->
+@model amazon.Models.Producto
+
+@{
+    ViewData["Title"] = "Crear Nuevo Producto";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="card p-4 shadow-lg col-md-6">
+        <h2 class="text-center mb-4">Crear Nuevo Producto</h2>
+        <form asp-action="Create" method="post">
+            <div class="form-group mb-3">
+                <label for="Nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="Nombre" name="Nombre" asp-for="Nombre" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label for="Descripcion" class="form-label">Descripción</label>
+                <textarea class="form-control" id="Descripcion" name="Descripcion" asp-for="Descripcion" rows="3"></textarea>
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label for="Precio" class="form-label">Precio</label>
+                <input type="text" class="form-control" id="Precio" name="Precio" asp-for="Precio" />
+                <span asp-validation-for="Precio" class="text-danger"></span>
+            </div>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a asp-action="Index" class="btn btn-secondary me-md-2">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
