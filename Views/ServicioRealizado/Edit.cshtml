@@ -9,7 +9,7 @@
     <div class="card shadow-sm" style="max-width: 400px; margin: auto;">
         <div class="card-body">
             <form asp-action="Edit">
-                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="id" />
                 <div class="form-group mb-3">
                     <label asp-for="ServicioId" class="control-label">Servicio</label>
                     <select asp-for="ServicioId" class="form-control" asp-items="ViewBag.ServicioId"></select>

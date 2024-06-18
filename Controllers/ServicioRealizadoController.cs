@@ -37,7 +37,7 @@ namespace amazon.Controllers
         // POST: ServicioRealizado/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ServicioId,UsuarioId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
+        public async Task<IActionResult> Create([Bind("id,ServicioId,UsuarioId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
         {
             if (ModelState.IsValid)
             {
@@ -60,7 +60,7 @@ namespace amazon.Controllers
             }
 
             var servicioRealizado = _context.ServicioRealizado
-                .FirstOrDefault(sr => sr.Id == id);
+                .FirstOrDefault(sr => sr.id == id);
 
             if (servicioRealizado == null)
             {
@@ -88,7 +88,7 @@ namespace amazon.Controllers
 
         private bool ServicioRealizadoExists(int id)
         {
-            return _context.ServicioRealizado.Any(sr => sr.Id == id);
+            return _context.ServicioRealizado.Any(sr => sr.id == id);
         }
     }
 }
