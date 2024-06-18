@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using amazon.Models;
-using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 
 namespace amazon.Controllers
 {
@@ -20,17 +21,16 @@ namespace amazon.Controllers
         public IActionResult Index()
         {
             var serviciosRealizados = _context.ServicioRealizado
+                .Include(s => s.Servicio)
                 .ToList();
 
             return View(serviciosRealizados);
         }
 
-        
         // GET: ServicioRealizado/Create
         public IActionResult Create()
         {
-            
-
+            ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre");
             return View();
         }
 
@@ -41,14 +41,20 @@ namespace amazon.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Obtener el ID del usuario que ha iniciado sesión
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                // Asignar el ID del usuario y estado por defecto
+                servicioRealizado.UsuarioId = int.Parse(userId); // Asegúrate de que el ID del usuario es un entero
+                servicioRealizado.Estado = 1;
+
                 _context.Add(servicioRealizado);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
             return View(servicioRealizado);
         }
-
-
 
 
         // GET: ServicioRealizado/Delete/5
