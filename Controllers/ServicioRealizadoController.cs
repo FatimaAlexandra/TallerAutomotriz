@@ -20,22 +20,71 @@ namespace amazon.Controllers
         public IActionResult Index()
         {
             var serviciosRealizados = _context.ServicioRealizado
-                .Include(sr => sr.Servicio)
-                .Include(sr => sr.Usuario)
                 .ToList();
 
             return View(serviciosRealizados);
         }
 
+        
         // GET: ServicioRealizado/Create
         public IActionResult Create()
         {
-            ViewBag.ServicioId = new SelectList(_context.Servicios, "Id", "Nombre");
+            
+
             return View();
         }
 
-        
+        // POST: ServicioRealizado/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,ServicioId,UsuarioId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(servicioRealizado);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(servicioRealizado);
+        }
 
+
+
+
+        // GET: ServicioRealizado/Delete/5
+        public IActionResult Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var servicioRealizado = _context.ServicioRealizado
+                .FirstOrDefault(sr => sr.Id == id);
+
+            if (servicioRealizado == null)
+            {
+                return NotFound();
+            }
+
+            return View(servicioRealizado);
+        }
+
+        // POST: ServicioRealizado/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var servicioRealizado = _context.ServicioRealizado.Find(id);
+            if (servicioRealizado == null)
+            {
+                return NotFound();
+            }
+
+            _context.ServicioRealizado.Remove(servicioRealizado);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
+        }
 
         private bool ServicioRealizadoExists(int id)
         {

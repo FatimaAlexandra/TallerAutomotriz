@@ -11,8 +11,6 @@ namespace amazon.Models
         public String Fecha { get; set; }
         public int Estado { get; set; } = 1; //Valor por defecto
 
-        // Propiedades de navegación
-        public Servicio Servicio { get; set; }
-        public Usuario Usuario { get; set; }
+        
     }
 }
