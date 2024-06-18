@@ -1,5 +1,4 @@
-﻿<!-- Path: Views/Producto/Edit.cshtml -->
-@model amazon.Models.Producto
+﻿@model amazon.Models.Producto
 
 @{
     ViewData["Title"] = "Editar Producto";
@@ -21,6 +20,19 @@
                 <label for="Descripcion" class="form-label">Descripción</label>
                 <textarea class="form-control" id="Descripcion" asp-for="Descripcion" rows="3" required></textarea>
                 <span asp-validation-for="Descripcion" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="Tipo" class="form-label">Tipo</label>
+                <select class="form-control" id="Tipo" asp-for="Tipo" required>
+                    <option value="">Selecciona el tipo</option>
+                    <option value="Aceite Valvoline">Aceite Valvoline</option>
+                    <option value="Aceite Mobil">Aceite Mobil</option>
+                    <option value="Aceite Castrol">Aceite Castrol</option>
+                    <option value="Bateria LTH">Bateria LTH</option>
+                    <option value="Refrigerante Motul">Refrigerante Motul</option>
+                </select>
+                <span asp-validation-for="Tipo" class="text-danger"></span>
             </div>
 
             <div class="mb-3">

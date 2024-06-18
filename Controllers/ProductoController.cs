@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using amazon.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace amazon.Controllers
 {
@@ -40,20 +41,21 @@ namespace amazon.Controllers
             return View(producto);
         }
 
-        // GET: Producto/Create
+        // GET: Productos/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Producto/Create
+        // POST: Productos/Create
         [HttpPost]
-        public IActionResult Create(Producto producto)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Nombre,Descripcion,Tipo,Precio")] Producto producto)
         {
             if (ModelState.IsValid)
             {
-                _context.Productos.Add(producto);
-                _context.SaveChanges();
+                _context.Add(producto);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(producto);
@@ -72,15 +74,35 @@ namespace amazon.Controllers
 
         // POST: Producto/Edit/5
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Edit(Producto producto)
         {
             if (ModelState.IsValid)
             {
-                _context.Productos.Update(producto);
-                _context.SaveChanges();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Entry(producto).State = EntityState.Modified;
+                    _context.SaveChanges();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ProductoExists(producto.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
             }
             return View(producto);
+        }
+
+        private bool ProductoExists(int id)
+        {
+            return _context.Productos.Any(e => e.Id == id);
         }
 
         // GET: Producto/Delete/5

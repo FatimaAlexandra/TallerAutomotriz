@@ -1,32 +1,48 @@
-﻿<!-- Path: Views/Producto/Create.cshtml -->
-@model amazon.Models.Producto
+﻿@model amazon.Models.Producto
 
 @{
-    ViewData["Title"] = "Crear Nuevo Producto";
+    ViewData["Title"] = "Crear Producto";
 }
 
 <div class="container d-flex justify-content-center align-items-center" style="height: 80vh;">
     <div class="card p-4 shadow-lg col-md-6">
-        <h2 class="text-center mb-4">Crear Nuevo Producto</h2>
-        <form asp-action="Create" method="post">
-            <div class="form-group mb-3">
+        <h2 class="text-center mb-4">Crear Producto</h2>
+        <form asp-action="Create">
+            <div class="mb-3">
                 <label for="Nombre" class="form-label">Nombre</label>
-                <input type="text" class="form-control" id="Nombre" name="Nombre" asp-for="Nombre" />
+                <input type="text" class="form-control" id="Nombre" asp-for="Nombre" required>
                 <span asp-validation-for="Nombre" class="text-danger"></span>
             </div>
-            <div class="form-group mb-3">
+
+            <div class="mb-3">
                 <label for="Descripcion" class="form-label">Descripción</label>
-                <textarea class="form-control" id="Descripcion" name="Descripcion" asp-for="Descripcion" rows="3"></textarea>
+                <textarea class="form-control" id="Descripcion" asp-for="Descripcion" rows="3" required></textarea>
                 <span asp-validation-for="Descripcion" class="text-danger"></span>
             </div>
-            <div class="form-group mb-3">
+
+            <div class="mb-3">
+                <label for="Tipo" class="form-label">Tipo</label>
+                <select class="form-control" id="Tipo" asp-for="Tipo" required>
+                    <option value="">Selecciona el tipo</option>
+                    <option value="Aceite Valvoline">Aceite Valvoline</option>
+                    <option value="Aceite Mobil">Aceite Mobil</option>
+                    <option value="Aceite Castrol">Aceite Castrol</option>
+                    <option value="Bateria LTH">Bateria LTH</option>
+                    <option value="Refrigerante Motul">Refrigerante Motul</option>
+                    
+                </select>
+                <span asp-validation-for="Tipo" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
                 <label for="Precio" class="form-label">Precio</label>
-                <input type="text" class="form-control" id="Precio" name="Precio" asp-for="Precio" />
+                <input type="text" class="form-control" id="Precio" asp-for="Precio" required>
                 <span asp-validation-for="Precio" class="text-danger"></span>
             </div>
+
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <a asp-action="Index" class="btn btn-secondary me-md-2">Cancelar</a>
-                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="submit" class="btn btn-primary me-md-2">Crear</button>
+                <a asp-action="Index" class="btn btn-secondary">Volver al listado</a>
             </div>
         </form>
     </div>
@@ -35,3 +51,4 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+
