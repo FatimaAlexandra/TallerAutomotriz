@@ -261,11 +261,21 @@ namespace amazon.Controllers
             var serviciosRealizados = await _context.ServicioRealizado
                 .Include(sr => sr.Servicio)
                 .Where(sr => sr.UsuarioId == userId)
+                .Select(sr => new ServicioRealizado
+                {
+                    id = sr.id,
+                    ServicioId = sr.ServicioId,
+                    Servicio = sr.Servicio,
+                    Precio = sr.Precio,
+                    Fecha = sr.Fecha,
+                    Estado = sr.Estado
+                })
                 .ToListAsync();
 
             // Renderizar la vista con los servicios filtrados
             return View("~/Views/ServicioRealizado/Historial.cshtml", serviciosRealizados);
         }
+
 
     }
 

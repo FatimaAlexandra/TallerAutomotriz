@@ -107,8 +107,34 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Login">Login</a>
                         </li>
                     }
+
                 </ul>
             </div>
+        </div>
+        <div >
+            @if (User.Identity.IsAuthenticated)
+            {
+                <p class="card-text">
+                    Usuario: @User.Identity.Name 
+                    @if (User.IsInRole("1"))
+                    {
+                        <span>Administrador</span>
+                    }
+                    else if (User.IsInRole("2"))
+                    {
+                        <span>Empleado</span>
+                    }
+                    else if (User.IsInRole("3"))
+                    {
+                        <span>Cliente</span>
+                    }
+                </p>
+
+            }
+            else
+            {
+                <p class="card-text">No hay usuario autenticado.</p>
+            }
         </div>
     </nav>
 
