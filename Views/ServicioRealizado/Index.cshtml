@@ -34,10 +34,11 @@
                         <td>@servicioRealizado.Usuario.Nombre</td>
                         <td>@servicioRealizado.Fecha</td>
                         <td>
-                            @if (servicioRealizado.Estado == 1)
-                            {
-                                @:En Proceso
-                            }
+                              @if (servicioRealizado.Estado == 1)
+                                {
+                                    @:En Proceso
+                                }
+                        
                         </td>
                         <td>
                             <a asp-action="Edit" asp-route-id="@servicioRealizado.id" class="btn btn-sm btn-warning">Editar</a>

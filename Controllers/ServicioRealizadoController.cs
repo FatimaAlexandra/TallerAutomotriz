@@ -37,10 +37,6 @@ namespace amazon.Controllers
             //Obtener usuario
             var user_id = User.FindFirst(ClaimTypes.NameIdentifier);
             var name = User.FindFirst(ClaimTypes.Name);
-            if (name != null)
-            {
-                TempData["user_id"] = name.Value;
-            }
 
 
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre");
@@ -55,11 +51,84 @@ namespace amazon.Controllers
         public async Task<IActionResult> Create([Bind("id,ServicioId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
         {
            
+            try
+            {
+                // Obtener el ID del usuario que ha iniciado sesión
+                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (userIdClaim == null)
+                {
+                    ModelState.AddModelError(string.Empty, "User ID not found.");
+                    ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
+                    return View(servicioRealizado);
+                }
+
+                // Asignar el ID del usuario y estado por defecto
+                servicioRealizado.UsuarioId = int.Parse(userIdClaim); // Asegúrate de que el ID del usuario es un entero
+                servicioRealizado.Estado = 1;
+
+                _context.Add(servicioRealizado);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Servicio realizado creado correctamente.";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
+            }
+            
+     
+
+            ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
+            return View(servicioRealizado);
+        }
+
+
+        // GET: ServicioRealizado/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var servicioRealizado = await _context.ServicioRealizado.FindAsync(id);
+            if (servicioRealizado == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
+
+            // Agregar los estados disponibles al ViewBag
+            var estados = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "1", Text = "En Proceso" },
+        new SelectListItem { Value = "2", Text = "Completado" },
+        // Agregar otros estados según sea necesario
+    };
+            ViewBag.Estados = new SelectList(estados, "Value", "Text", servicioRealizado.Estado);
+
+            return View(servicioRealizado);
+        }
+
+        // POST: ServicioRealizado/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("id,ServicioId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
+        {
+            if (id != servicioRealizado.id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
                 try
                 {
-                    // Obtener el ID del usuario que ha iniciado sesión
                     var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
                     if (userIdClaim == null)
                     {
                         ModelState.AddModelError(string.Empty, "User ID not found.");
@@ -67,27 +136,52 @@ namespace amazon.Controllers
                         return View(servicioRealizado);
                     }
 
-                    // Asignar el ID del usuario y estado por defecto
-                    servicioRealizado.UsuarioId = int.Parse(userIdClaim); // Asegúrate de que el ID del usuario es un entero
-                    servicioRealizado.Estado = 1;
+                    servicioRealizado.UsuarioId = int.Parse(userIdClaim);
 
-                    _context.Add(servicioRealizado);
+                    _context.Update(servicioRealizado);
                     await _context.SaveChangesAsync();
-
-                    TempData["SuccessMessage"] = "Servicio realizado creado correctamente.";
-
-                    return RedirectToAction(nameof(Index));
+                    TempData["SuccessMessage"] = "Servicio realizado actualizado correctamente.";
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ServicioRealizadoExists(servicioRealizado.id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
                 catch (Exception ex)
                 {
                     ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
                 }
-            
-            TempData["user_id"] = "sds";
+
+                return RedirectToAction(nameof(Index));
+            }
 
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
+
+            var estados = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "1", Text = "En Proceso" },
+        new SelectListItem { Value = "2", Text = "Completado" },
+    };
+            ViewBag.Estados = new SelectList(estados, "Value", "Text", servicioRealizado.Estado);
+
             return View(servicioRealizado);
         }
+
+        private bool ServicioRealizadoExists(int id)
+        {
+            return _context.ServicioRealizado.Any(e => e.id == id);
+        }
+
+
+
+
+
 
 
         // GET: ServicioRealizado/Delete/5
@@ -125,10 +219,7 @@ namespace amazon.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ServicioRealizadoExists(int id)
-        {
-            return _context.ServicioRealizado.Any(sr => sr.id == id);
-        }
+        
 
         // GET: ServicioRealizado/Historial
         [Authorize]

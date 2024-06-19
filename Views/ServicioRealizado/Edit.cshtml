@@ -12,14 +12,10 @@
                 <input type="hidden" asp-for="id" />
                 <div class="form-group mb-3">
                     <label asp-for="ServicioId" class="control-label">Servicio</label>
-                    <select asp-for="ServicioId" class="form-control" asp-items="ViewBag.ServicioId"></select>
+                    <select asp-for="ServicioId" class="form-control" asp-items="ViewBag.Servicios"></select>
                     <span asp-validation-for="ServicioId" class="text-danger"></span>
                 </div>
-                <div class="form-group mb-3">
-                    <label asp-for="UsuarioId" class="control-label">Usuario</label>
-                    <select asp-for="UsuarioId" class="form-control" asp-items="ViewBag.UsuarioId"></select>
-                    <span asp-validation-for="UsuarioId" class="text-danger"></span>
-                </div>
+
                 <div class="form-group mb-3">
                     <label asp-for="Precio" class="control-label">Precio</label>
                     <input asp-for="Precio" class="form-control" />
@@ -29,6 +25,11 @@
                     <label asp-for="Fecha" class="control-label">Fecha</label>
                     <input asp-for="Fecha" class="form-control" />
                     <span asp-validation-for="Fecha" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Estado" class="control-label">Estado</label>
+                    <select asp-for="Estado" class="form-control" asp-items="ViewBag.Estados"></select>
+                    <span asp-validation-for="Estado" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <input type="submit" value="Guardar" class="btn btn-primary" />
