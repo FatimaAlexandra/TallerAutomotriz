@@ -29,11 +29,16 @@
                 {
                     <tr>
                         <td style="display:none;">@servicioRealizado.id</td>
-                        <td>@servicioRealizado.ServicioId</td>
+                        <td>@servicioRealizado.Servicio.Nombre</td>
                         <td>@servicioRealizado.Precio</td>
-                        <td>@servicioRealizado.UsuarioId</td>
+                        <td>@servicioRealizado.Usuario.Nombre</td>
                         <td>@servicioRealizado.Fecha</td>
-                        <td>@servicioRealizado.Estado</td>
+                        <td>
+                            @if (servicioRealizado.Estado == 1)
+                            {
+                                @:En Proceso
+                            }
+                        </td>
                         <td>
                             <a asp-action="Edit" asp-route-id="@servicioRealizado.id" class="btn btn-sm btn-warning">Editar</a>
                             <a asp-action="Delete" asp-route-id="@servicioRealizado.id" class="btn btn-sm btn-danger">Eliminar</a>

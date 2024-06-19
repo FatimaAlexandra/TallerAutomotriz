@@ -34,7 +34,6 @@
 
                     @if (User.Identity.IsAuthenticated)
                     {
-
                         @if (User.IsInRole("1"))
                         {
                             <li class="nav-item">
@@ -89,11 +88,15 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Acuerdo" asp-action="Index">Facturación</a>
                             </li>
                         }
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Historial" asp-action="Index">Historial</a>
+                        </li>
+
+
                         <li class="nav-item text-end">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Logout">Logout</a>
                         </li>
                     }
-
                     else
                     {
                         <li class="nav-item">
