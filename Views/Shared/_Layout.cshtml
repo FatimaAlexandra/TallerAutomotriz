@@ -45,15 +45,15 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Servicio" asp-action="Index">Servicios</a>
                             </li>
-                            <li class="nav-item">
+                            @* <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Acuerdo" asp-action="Index">Facturación</a>
-                            </li>
+                            </li> *@
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Pais" asp-action="Index">Clientes</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Clientes" asp-action="Index">Clientes</a>
                             </li>
-                            <li class="nav-item">
+                            @* <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Sede" asp-action="Index">Vehiculos</a>
-                            </li>
+                            </li> *@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Index">Usuarios</a>
                             </li>
@@ -69,11 +69,14 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Servicio" asp-action="Index">Servicios</a>
                             </li>
-                            <li class="nav-item">
+                            @* <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Acuerdo" asp-action="Index">Facturación</a>
+                            </li> *@
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Clientes" asp-action="Index">Clientes</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Pais" asp-action="Index">Clientes</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="ServicioRealizado" asp-action="Historial">Historial de Servicios</a>
                             </li>
                         }
                         else if (User.IsInRole("3"))
@@ -82,15 +85,16 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="File" asp-action="Create">Productos</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Empleado" asp-action="Index">Servicios realizados</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="ServicioRealizado" asp-action="Index">Servicios realizados</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Acuerdo" asp-action="Index">Facturación</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="ServicioRealizado" asp-action="Historial">Historial de Servicios</a>
                             </li>
+                            @* <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Acuerdo" asp-action="Index">Facturación</a>
+                            </li> *@
                         }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Historial" asp-action="Index">Historial</a>
-                        </li>
+ 
 
 
                         <li class="nav-item text-end">

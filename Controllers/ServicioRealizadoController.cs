@@ -34,37 +34,39 @@ namespace amazon.Controllers
         // GET: ServicioRealizado/Create
         public IActionResult Create()
         {
-            //Obtener usuario
-            var user_id = User.FindFirst(ClaimTypes.NameIdentifier);
-            var name = User.FindFirst(ClaimTypes.Name);
+            try
+            {
+                // Obtener usuarios con rol 3
+                var usuarios = _context.Usuarios
+                    .Where(u => u.Rol == 3)
+                    .Select(u => new { u.Id, u.Nombre })
+                    .ToList();
 
+                ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre");
+                ViewBag.Usuarios = new SelectList(usuarios, "Id", "Nombre");
+            }
+            catch (Exception ex)
+            {
+                // Manejar la excepción
+                ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
+                ViewBag.Servicios = new SelectList(new List<Servicio>(), "Id", "Nombre");
+                ViewBag.Usuarios = new SelectList(new List<Usuario>(), "Id", "Nombre");
+            }
 
-            ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre");
             return View();
         }
 
-    
 
-        // POST: ServicioRealizado/Create
+
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,ServicioId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
+        public async Task<IActionResult> Create([Bind("id,ServicioId,UsuarioId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
         {
-           
             try
             {
-                // Obtener el ID del usuario que ha iniciado sesión
-                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                if (userIdClaim == null)
-                {
-                    ModelState.AddModelError(string.Empty, "User ID not found.");
-                    ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
-                    return View(servicioRealizado);
-                }
-
-                // Asignar el ID del usuario y estado por defecto
-                servicioRealizado.UsuarioId = int.Parse(userIdClaim); // Asegúrate de que el ID del usuario es un entero
+                // Asignar estado por defecto
                 servicioRealizado.Estado = 1;
 
                 _context.Add(servicioRealizado);
@@ -78,12 +80,13 @@ namespace amazon.Controllers
             {
                 ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
             }
-            
-     
 
+            // Asegúrate de que ViewBag.Servicios y ViewBag.Usuarios estén inicializados
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
+            ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Rol == 3).ToList(), "Id", "Nombre", servicioRealizado.UsuarioId);
             return View(servicioRealizado);
         }
+
 
 
         // GET: ServicioRealizado/Edit/5
@@ -111,13 +114,22 @@ namespace amazon.Controllers
     };
             ViewBag.Estados = new SelectList(estados, "Value", "Text", servicioRealizado.Estado);
 
+            // Obtener usuarios con rol 3
+            var usuarios = _context.Usuarios
+                .Where(u => u.Rol == 3)
+                .Select(u => new { u.Id, u.Nombre })
+                .ToList();
+            ViewBag.Usuarios = new SelectList(usuarios, "Id", "Nombre", servicioRealizado.UsuarioId);
+
             return View(servicioRealizado);
         }
 
-        // POST: ServicioRealizado/Edit/5
+
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("id,ServicioId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
+        public async Task<IActionResult> Edit(int id, [Bind("id,ServicioId,UsuarioId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
         {
             if (id != servicioRealizado.id)
             {
@@ -170,8 +182,18 @@ namespace amazon.Controllers
     };
             ViewBag.Estados = new SelectList(estados, "Value", "Text", servicioRealizado.Estado);
 
+            var usuarios = _context.Usuarios
+                .Where(u => u.Rol == 3)
+                .Select(u => new { u.Id, u.Nombre })
+                .ToList();
+            ViewBag.Usuarios = new SelectList(usuarios, "Id", "Nombre", servicioRealizado.UsuarioId);
+
             return View(servicioRealizado);
         }
+
+
+
+
 
         private bool ServicioRealizadoExists(int id)
         {
@@ -219,7 +241,7 @@ namespace amazon.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        
+
 
         // GET: ServicioRealizado/Historial
         [Authorize]
@@ -235,13 +257,16 @@ namespace amazon.Controllers
 
             var userId = int.Parse(userIdClaim);
 
+            // Obtener los servicios realizados por el usuario autenticado
             var serviciosRealizados = await _context.ServicioRealizado
                 .Include(sr => sr.Servicio)
                 .Where(sr => sr.UsuarioId == userId)
                 .ToListAsync();
 
-            return View("~/Views/Historial/Historial.cshtml", serviciosRealizados);
+            // Renderizar la vista con los servicios filtrados
+            return View("~/Views/ServicioRealizado/Historial.cshtml", serviciosRealizados);
         }
+
     }
 
 }
