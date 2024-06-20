@@ -29,6 +29,14 @@
         <div class="card p-4 shadow-sm" style="width: 24rem;">
             <div class="card-body">
                 <h3 class="card-title text-center mb-4">Login</h3>
+
+                @if (ViewData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @ViewData["ErrorMessage"]
+                    </div>
+                }
+
                 <form asp-action="Login">
                     <div class="form-group mb-3">
                         <label asp-for="Usuario1" class="form-label">Usuario</label>

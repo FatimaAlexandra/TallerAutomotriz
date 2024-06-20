@@ -48,12 +48,9 @@ namespace amazon.Controllers
                         new ClaimsPrincipal(claimsIdentity), properties);
                 return RedirectToAction("Index", "Home");
             }
-                ModelState.AddModelError(string.Empty, "Usuario o contraseña incorrectos");
-
+            ViewData["ErrorMessage"] = "Usuario o contraseña incorrectos";
             return View(usuario);
         }
-
-
 
         public IActionResult Register()
         {
@@ -72,7 +69,6 @@ namespace amazon.Controllers
 
             return View("~/Views/Registro/Index.cshtml", usuario);
         }
-
 
         public IActionResult Logout()
         {

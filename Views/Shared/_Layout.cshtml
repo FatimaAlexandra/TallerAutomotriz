@@ -7,16 +7,46 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/amazon.styles.css" asp-append-version="true" />
-    @* DataTables *@
+    <!-- DataTables -->
     <link rel="stylesheet" href="~/lib/DataTables/datatables.min.css" />
-    @* Select2 *@
+    <!-- Select2 -->
     <link rel="stylesheet" href="~/lib/select2/select2.min.css" />
-
     <!-- Font awesome -->
     <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" />
-
     <!-- SweetAlert -->
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <style>
+        .navbar-nav {
+            display: flex;
+            justify-content: center; /* Centrar las opciones */
+            gap: 1rem; /* Espacio entre elementos */
+        }
+
+            .navbar-nav .nav-link {
+                color: #ffffff; /* Color del texto (blanco) */
+                font-weight: bold; /* Fuente en negrita */
+                padding: 1rem; /* Espaciado interno */
+                text-decoration: none; /* Quitar subrayado */
+                transition: all 0.3s ease; /* Transición suave */
+                font-size: 1.1rem; /* Tamaño de fuente */
+            }
+
+                .navbar-nav .nav-link:hover {
+                    background-color: rgba(255, 255, 255, 0.2); /* Color de fondo al pasar el mouse */
+                    color: #ffffff; /* Color del texto al pasar el mouse (blanco) */
+                    border-radius: 0.5rem; /* Borde redondeado */
+                }
+
+                .navbar-nav .nav-link.active {
+                    background-color: #ffffff; /* Color de fondo activo (blanco) */
+                    color: #000000; /* Color del texto activo (negro) */
+                }
+
+        .navbar-collapse {
+            justify-content: center; /* Centrar el contenido del navbar */
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
@@ -26,10 +56,10 @@
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse d-flex justify-content-end">
-                <ul class="navbar-nav me-auto">
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto" >
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                     </li>
 
                     @if (User.Identity.IsAuthenticated)
@@ -37,81 +67,64 @@
                         @if (User.IsInRole("1"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Producto" asp-action="Index">Productos</a>
+                                <a class="nav-link" asp-area="" asp-controller="Producto" asp-action="Index">Productos</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="ServicioRealizado" asp-action="Index">Servicios realizados</a>
+                                <a class="nav-link" asp-area="" asp-controller="ServicioRealizado" asp-action="Index">Servicios realizados</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Servicio" asp-action="Index">Servicios</a>
+                                <a class="nav-link" asp-area="" asp-controller="Servicio" asp-action="Index">Servicios</a>
                             </li>
-                            @* <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Acuerdo" asp-action="Index">Facturación</a>
-                            </li> *@
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Clientes" asp-action="Index">Clientes</a>
+                                <a class="nav-link" asp-area="" asp-controller="Clientes" asp-action="Index">Clientes</a>
                             </li>
-                            @* <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Sede" asp-action="Index">Vehiculos</a>
-                            </li> *@
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Index">Usuarios</a>
+                                <a class="nav-link" asp-area="" asp-controller="User" asp-action="Index">Usuarios</a>
                             </li>
                         }
                         else if (User.IsInRole("2"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Producto" asp-action="Index">Productos</a>
+                                <a class="nav-link" asp-area="" asp-controller="Producto" asp-action="Index">Productos</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="ServicioRealizado" asp-action="Index">Servicios realizados</a>
+                                <a class="nav-link" asp-area="" asp-controller="ServicioRealizado" asp-action="Index">Servicios realizados</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Servicio" asp-action="Index">Servicios</a>
+                                <a class="nav-link" asp-area="" asp-controller="Servicio" asp-action="Index">Servicios</a>
                             </li>
-                            @* <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Acuerdo" asp-action="Index">Facturación</a>
-                            </li> *@
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Clientes" asp-action="Index">Clientes</a>
+                                <a class="nav-link" asp-area="" asp-controller="Clientes" asp-action="Index">Clientes</a>
                             </li>
-                            
                         }
                         else if (User.IsInRole("3"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Producto" asp-action="Index">Productos</a>
+                                <a class="nav-link" asp-area="" asp-controller="Producto" asp-action="Index">Productos</a>
                             </li>
-                            
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="ServicioRealizado" asp-action="Historial">Historial de Servicios</a>
+                                <a class="nav-link" asp-area="" asp-controller="ServicioRealizado" asp-action="Historial">Historial de Servicios</a>
                             </li>
-                            @* <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Acuerdo" asp-action="Index">Facturación</a>
-                            </li> *@
                         }
- 
-
 
                         <li class="nav-item text-end">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Logout">Logout</a>
+                            <a class="nav-link" asp-area="" asp-controller="Auth" asp-action="Logout">Salir</a>
                         </li>
                     }
                     else
                     {
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Login">Login</a>
+                            <a class="nav-link" asp-area="" asp-controller="Auth" asp-action="Login">Login</a>
                         </li>
                     }
-
                 </ul>
             </div>
         </div>
-        <div >
+        <div>
             @if (User.Identity.IsAuthenticated)
             {
                 <p class="card-text">
-                    Usuario: @User.Identity.Name 
+                    Usuario: @User.Identity.Name
                     @if (User.IsInRole("1"))
                     {
                         <span>Administrador</span>
@@ -148,10 +161,9 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    @* Select2 *@
+    <!-- Select2 -->
     <script src="~/lib/select2/select2.full.min.js"></script>
-
-    @* Datatables *@
+    <!-- Datatables -->
     <script src="~/lib/DataTables/datatables.min.js"></script>
     <script src="~/lib/DataTables/DataTables-1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script src="~/lib/DataTables/Responsive-2.4.1/js/responsive.bootstrap5.min.js"></script>
