@@ -21,15 +21,13 @@
             <img src="~/images/4.jpg" alt="MARLAND - Taller Automotriz" class="img-fluid">
         </div>
     </div>
+
+    @if (TempData["UserIdMessage"] != null)
+    {
+        <div class="alert alert-info mt-4">
+            @TempData["UserIdMessage"]
+        </div>
+    }
 </div>
 
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            var successMessage = '@TempData["SuccessMessage"]';
-            if (successMessage) {
-                swal("Success", successMessage, "success");
-            }
-        });
-    </script>
-}
+

@@ -24,7 +24,7 @@ namespace amazon.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index([Bind("Id,Nombre,Usuario1,Rol,Clave")] Usuario usuario)
+        public async Task<IActionResult> Index([Bind("id,Nombre,Usuario1,Rol,Clave")] Usuario usuario)
         {
             if (ModelState.IsValid)
             {
