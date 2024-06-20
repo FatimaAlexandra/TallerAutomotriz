@@ -25,7 +25,7 @@ namespace amazon.Models
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code.
-            optionsBuilder.UseSqlServer("Server=DESKTOP-D3TL7H7; Database=dbtaller; Trusted_Connection=True; Encrypt=false");
+            optionsBuilder.UseSqlServer("Server=LAPTOP-VSG1OMFT\\SQLEXPRESS; Database=dbtaller; Trusted_Connection=True; Encrypt=false");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
