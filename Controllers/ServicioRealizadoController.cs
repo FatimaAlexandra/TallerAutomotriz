@@ -88,7 +88,6 @@ namespace amazon.Controllers
         }
 
 
-
         // GET: ServicioRealizado/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -105,15 +104,6 @@ namespace amazon.Controllers
 
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
 
-            // Agregar los estados disponibles al ViewBag
-            var estados = new List<SelectListItem>
-    {
-        new SelectListItem { Value = "1", Text = "En Proceso" },
-        new SelectListItem { Value = "2", Text = "Completado" },
-        // Agregar otros estados según sea necesario
-    };
-            ViewBag.Estados = new SelectList(estados, "Value", "Text", servicioRealizado.Estado);
-
             // Obtener usuarios con rol 3
             var usuarios = _context.Usuarios
                 .Where(u => u.Rol == 3)
@@ -121,11 +111,17 @@ namespace amazon.Controllers
                 .ToList();
             ViewBag.Usuarios = new SelectList(usuarios, "Id", "Nombre", servicioRealizado.UsuarioId);
 
+            // Agregar los estados disponibles al ViewBag
+            var estados = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "1", Text = "En Proceso" },
+                new SelectListItem { Value = "2", Text = "Completado" },
+                // Agregar otros estados según sea necesario
+            };
+            ViewBag.Estados = new SelectList(estados, "Value", "Text", servicioRealizado.Estado);
+
             return View(servicioRealizado);
         }
-
-
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -136,50 +132,36 @@ namespace amazon.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                    if (userIdClaim == null)
-                    {
-                        ModelState.AddModelError(string.Empty, "User ID not found.");
-                        ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
-                        return View(servicioRealizado);
-                    }
-
-                    servicioRealizado.UsuarioId = int.Parse(userIdClaim);
-
-                    _context.Update(servicioRealizado);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Servicio realizado actualizado correctamente.";
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ServicioRealizadoExists(servicioRealizado.id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
-                }
-
+                _context.Update(servicioRealizado);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Servicio realizado actualizado correctamente.";
                 return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ServicioRealizadoExists(servicioRealizado.id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
             }
 
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
 
             var estados = new List<SelectListItem>
-    {
-        new SelectListItem { Value = "1", Text = "En Proceso" },
-        new SelectListItem { Value = "2", Text = "Completado" },
-    };
+            {
+                new SelectListItem { Value = "1", Text = "En Proceso" },
+                new SelectListItem { Value = "2", Text = "Completado" },
+            };
             ViewBag.Estados = new SelectList(estados, "Value", "Text", servicioRealizado.Estado);
 
             var usuarios = _context.Usuarios
@@ -190,6 +172,9 @@ namespace amazon.Controllers
 
             return View(servicioRealizado);
         }
+
+
+
 
 
 
