@@ -20,6 +20,48 @@
     }
 </style>
 
+<script>
+    // Función para aplicar la máscara al campo DUI
+    function applyDuiMask() {
+        var duiInput = document.getElementById("Dui");
+
+        duiInput.addEventListener("input", function () {
+            var value = duiInput.value.replace(/\D/g, "");
+
+            if (value.length > 8) {
+                value = value.slice(0, 8) + "-" + value.slice(8, 9);
+            }
+
+            duiInput.value = value;
+        });
+    }
+
+
+    // Función para aplicar la máscara al campo Teléfono
+    function applyTelefonoMask() {
+        var telefonoInput = document.getElementById("Telefono");
+
+        telefonoInput.addEventListener("input", function () {
+            var value = telefonoInput.value.replace(/\D/g, ""); // Remover caracteres no numéricos
+
+            // Aplicar la máscara: 4 números + '-' + 4 números
+            if (value.length > 4) {
+                value = value.slice(0, 4) + '-' + value.slice(4, 8);
+            }
+
+            telefonoInput.value = value;
+        });
+    }
+
+    // Llamar a las funciones al cargar la página
+    document.addEventListener("DOMContentLoaded", function () {
+        applyDuiMask();
+
+        applyTelefonoMask();
+    });
+
+</script>
+
 <div class="background-image" style="background-image: url('../images/fon.jpg'); background-size: cover; background-position: center;">
     <div class="overlay"></div>
     <br /><br /><br /><br />
@@ -44,7 +86,7 @@
                 </div>
                 <div class="mb-3">
                     <label asp-for="Telefono" class="form-label">Teléfono</label>
-                    <input asp-for="Telefono" class="form-control" type="tel" placeholder="0000-0000"/>
+                    <input asp-for="Telefono" class="form-control" type="tel" id="Telefono" placeholder="0000-0000"/>
                     <span asp-validation-for="Telefono" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
@@ -54,7 +96,7 @@
                 </div>
                 <div class="mb-3">
                     <label asp-for="Dui" class="form-label">DUI</label>
-                    <input asp-for="Dui" class="form-control" placeholder="0000000-0" />
+                    <input asp-for="Dui" class="form-control" id="Dui" placeholder="0000000-0" />
                     <span asp-validation-for="Dui" class="text-danger"></span>
                 </div>
                 <div class="d-grid">
