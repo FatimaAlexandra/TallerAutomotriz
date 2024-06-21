@@ -16,6 +16,11 @@ namespace amazon.Models
         }
 
         public virtual DbSet<Usuario> Usuarios { get; set; }
+        public virtual DbSet<ServicioRealizado> ServicioRealizado { get; set; }
+        public virtual DbSet<Servicio> Servicios { get; set; }
+
+        public virtual DbSet<Producto> Productos { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

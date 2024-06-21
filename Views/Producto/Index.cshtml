@@ -1,0 +1,144 @@
+﻿@{
+    ViewData["Title"] = "Lista de Productos";
+}
+
+<div class="mb-4 marca-section">
+    <h2 class="text-center">NUESTRAS MARCAS</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-2 mb-3">
+            <img src="~/Fotos/valvolineLogo.jpeg" class="img-fluid" alt="Aceite Valvoline">
+        </div>
+        <div class="col-md-2 mb-3">
+            <img src="~/Fotos/mobilLogo.jpeg" class="img-fluid" alt="Aceite Mobil">
+        </div>
+        <div class="col-md-2 mb-3">
+            <img src="~/Fotos/castrolLogo.jpeg" class="img-fluid" alt="Aceite Castrol">
+        </div>
+        <div class="col-md-2 mb-3">
+            <img src="~/Fotos/LTHLogo.jpeg" class="img-fluid" alt="Bateria LTH">
+        </div>
+        <div class="col-md-2 mb-3">
+            <img src="~/Fotos/motulLogo.jpeg" class="img-fluid" alt="Refrigerante Motul">
+        </div>
+    </div>
+</div>
+
+
+
+<h2 class="mb-4 catalogo-title">Catálogo de Productos</h2>
+
+@if (User.IsInRole("1"))
+{
+    <div class="mb-3">
+        <a asp-action="Create" class="btn btn-primary">Crear un producto</a>
+    </div>
+}
+
+
+
+<div class="row">
+    @foreach (var producto in Model)
+    {
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+
+                @if (producto.Tipo == "Aceite Valvoline")
+                {
+                    <img src="~/Fotos/aceiteValvoline.jpeg" class="card-img-top" alt="@producto.Nombre">
+                }
+                @if (producto.Tipo == "Aceite Mobil")
+                {
+                    <img src="~/Fotos/aceiteMobile.jpeg" class="card-img-top" alt="@producto.Nombre">
+                }
+                @if (producto.Tipo == "Aceite Castrol")
+                {
+                    <img src="~/Fotos/aceoteCastrol.jpeg" class="card-img-top" alt="@producto.Nombre">
+                }
+                @if (producto.Tipo == "Bateria LTH")
+                {
+                    <img src="~/Fotos/bateriaLTH.jpeg" class="card-img-top" alt="@producto.Nombre">
+                }
+                @if (producto.Tipo == "Refrigerante Motul")
+                {
+                    <img src="~/Fotos/RefrigeranteMotul.jpeg" class="card-img-top" alt="@producto.Nombre">
+                }
+
+                <div class="card-body">
+                    <h5 class="card-title">@producto.Nombre</h5>
+                    <p class="card-text">@producto.Descripcion</p>
+                    <p class="card-text"><strong>Precio: $@producto.Precio</strong></p>
+
+                    @if (User.IsInRole("1"))
+                    {
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Edit" asp-route-id="@producto.Id" class="btn btn-sm btn-warning me-2">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@producto.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+<style>
+    .card-img-top {
+        max-height: 100%; /* Ajusta esta altura máxima según tus necesidades */
+        width: 100%; /* Asegura que la imagen ocupe el ancho completo del contenedor */
+        object-fit: cover; /* Mantiene la relación de aspecto y recorta la imagen para que quepa */
+    }
+
+    .img-fluid {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .marca-section {
+        background-color: white; /* Color de fondo blanco */
+        padding: 20px; /* Espacio interior */
+        border-radius: 8px; /* Borde redondeado si deseas */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        margin-bottom: 20px; /* Margen inferior para separar de otras secciones */
+        margin-left: auto; /* Alinear a la derecha */
+        margin-right: auto; /* Alinear a la izquierda */
+
+        text-align: center; /* Centrar el texto */
+    }
+
+        .marca-section h2 {
+            margin-bottom: 20px; /* Espacio inferior para separar el título de las imágenes */
+        }
+
+    .catalogo-title {
+        text-align: center; /* Centrar el texto */
+        margin-bottom: 20px; /* Espacio inferior para separar el título de las tarjetas de productos */
+    }
+
+
+</style>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/DataTables/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#productosTable').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "Nada encontrado - lo sentimos",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                }
+            });
+        });
+    </script>
+}

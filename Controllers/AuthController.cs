@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 
 namespace amazon.Controllers
 {
@@ -28,21 +29,26 @@ namespace amazon.Controllers
 
             if (user != null)
             {
-                var claims = new[]
+                List<Claim> claims = new List<Claim>()
                 {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Name, user.Usuario1),
                     new Claim(ClaimTypes.Role, user.Rol.ToString())
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity));
+                AuthenticationProperties properties = new AuthenticationProperties()
+                {
+                    AllowRefresh = true,
+                    IsPersistent = false
+                };
 
+                HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity), properties);
                 return RedirectToAction("Index", "Home");
             }
-
-            ModelState.AddModelError(string.Empty, "Usuario o contraseña incorrectos");
+            ViewData["ErrorMessage"] = "Usuario o contraseña incorrectos";
             return View(usuario);
         }
 

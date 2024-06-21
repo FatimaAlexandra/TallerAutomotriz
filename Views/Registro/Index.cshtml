@@ -1,7 +1,7 @@
 ﻿@model amazon.Models.Usuario
 
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Registrarse";
 }
 
 <style>
@@ -20,41 +20,87 @@
     }
 </style>
 
+<script>
+    // Función para aplicar la máscara al campo DUI
+    function applyDuiMask() {
+        var duiInput = document.getElementById("Dui");
+
+        duiInput.addEventListener("input", function () {
+            var value = duiInput.value.replace(/\D/g, "");
+
+            if (value.length > 8) {
+                value = value.slice(0, 8) + "-" + value.slice(8, 9);
+            }
+
+            duiInput.value = value;
+        });
+    }
+    
+
+    // Función para aplicar la máscara al campo Teléfono
+    function applyTelefonoMask() {
+        var telefonoInput = document.getElementById("Telefono");
+
+        telefonoInput.addEventListener("input", function () {
+            var value = telefonoInput.value.replace(/\D/g, ""); // Remover caracteres no numéricos
+
+            // Aplicar la máscara: 4 números + '-' + 4 números
+            if (value.length > 4) {
+                value = value.slice(0, 4) + '-' + value.slice(4, 8);
+            }
+
+            telefonoInput.value = value;
+        });
+    }
+
+    // Llamar a las funciones al cargar la página
+    document.addEventListener("DOMContentLoaded", function () {
+        applyDuiMask();
+
+        applyTelefonoMask();
+    });
+
+</script>
+
 <div class="background-image" style="background-image: url('../images/fon.jpg'); background-size: cover; background-position: center;">
     <div class="overlay"></div>
     <br /><br /><br /><br />
     <div class="card shadow-sm" style="max-width: 400px; margin: auto;">
         <div class="card-body">
             <h5 class="card-title mb-4 text-center">Registrarse</h5>
-            <form asp-action="Register" method="post">
+
+            <!-- Mostrar errores generales -->
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <form asp-action="Index" method="post">
                 <div class="mb-3">
                     <label asp-for="Nombre" class="form-label">Nombre</label>
-                    <input asp-for="Nombre" class="form-control" />
+                    <input asp-for="Nombre" class="form-control" placeholder="Nombre Apellido"/>
                     <span asp-validation-for="Nombre" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
                     <label asp-for="Usuario1" class="form-label">Usuario</label>
-                    <input asp-for="Usuario1" class="form-control" />
+                    <input asp-for="Usuario1" class="form-control" placeholder="Usuario" />
                     <span asp-validation-for="Usuario1" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
                     <label asp-for="Clave" class="form-label">Contraseña</label>
-                    <input asp-for="Clave" type="password" class="form-control" />
+                    <input asp-for="Clave" type="password" class="form-control" placeholder="********" />
                     <span asp-validation-for="Clave" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
                     <label asp-for="Telefono" class="form-label">Teléfono</label>
-                    <input asp-for="Telefono" class="form-control" />
+                    <input asp-for="Telefono" id="Telefono" placeholder="0000-0000" class="form-control" />
                     <span asp-validation-for="Telefono" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
                     <label asp-for="Correo" class="form-label">Correo</label>
-                    <input asp-for="Correo" class="form-control" />
+                    <input asp-for="Correo" class="form-control" type="email" placeholder="example@gmail.com" />
                     <span asp-validation-for="Correo" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
                     <label asp-for="Dui" class="form-label">DUI</label>
-                    <input asp-for="Dui" class="form-control" />
+                    <input asp-for="Dui" id="Dui" class="form-control" placeholder="########-#" />
                     <span asp-validation-for="Dui" class="text-danger"></span>
                 </div>
                 <div class="d-grid">

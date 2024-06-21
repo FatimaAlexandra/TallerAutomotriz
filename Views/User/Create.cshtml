@@ -3,7 +3,47 @@
 @{
     ViewData["Title"] = "Crear Usuario";
 }
+<script>
+    // Función para aplicar la máscara al campo DUI
+    function applyDuiMask() {
+        var duiInput = document.getElementById("Dui");
 
+        duiInput.addEventListener("input", function () {
+            var value = duiInput.value.replace(/\D/g, "");
+
+            if (value.length > 8) {
+                value = value.slice(0, 8) + "-" + value.slice(8, 9);
+            }
+
+            duiInput.value = value;
+        });
+    }
+
+
+    // Función para aplicar la máscara al campo Teléfono
+    function applyTelefonoMask() {
+        var telefonoInput = document.getElementById("Telefono");
+
+        telefonoInput.addEventListener("input", function () {
+            var value = telefonoInput.value.replace(/\D/g, ""); // Remover caracteres no numéricos
+
+            // Aplicar la máscara: 4 números + '-' + 4 números
+            if (value.length > 4) {
+                value = value.slice(0, 4) + '-' + value.slice(4, 8);
+            }
+
+            telefonoInput.value = value;
+        });
+    }
+
+    // Llamar a las funciones al cargar la página
+    document.addEventListener("DOMContentLoaded", function () {
+        applyDuiMask();
+
+        applyTelefonoMask();
+    });
+
+</script>
 <div class="container">
     <h1 class="text-center mb-4">Crear Nuevo Usuario</h1>
     <div class="card shadow-sm" style="max-width: 400px; margin: auto;">
@@ -11,17 +51,17 @@
             <form asp-action="Create">
                 <div class="form-group mb-3">
                     <label asp-for="Usuario1" class="control-label">Usuario</label>
-                    <input asp-for="Usuario1" class="form-control" />
+                    <input asp-for="Usuario1" class="form-control" placeholder="Usuario" />
                     <span asp-validation-for="Usuario1" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
                     <label asp-for="Clave" class="control-label">Contraseña</label>
-                    <input asp-for="Clave" type="password" class="form-control" />
+                    <input asp-for="Clave" type="password" class="form-control" placeholder="*******" />
                     <span asp-validation-for="Clave" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
                     <label asp-for="Nombre" class="control-label">Nombre</label>
-                    <input asp-for="Nombre" class="form-control" />
+                    <input asp-for="Nombre" class="form-control" placeholder="Nombre Apellido" />
                     <span asp-validation-for="Nombre" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
@@ -36,17 +76,17 @@
                 </div>
                 <div class="form-group mb-3">
                     <label asp-for="Telefono" class="control-label">Teléfono</label>
-                    <input asp-for="Telefono" class="form-control" />
+                    <input asp-for="Telefono" class="form-control" id="Telefono" placeholder="0000-0000"  />
                     <span asp-validation-for="Telefono" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
                     <label asp-for="Correo" class="control-label">Correo Electrónico</label>
-                    <input asp-for="Correo" class="form-control" />
+                    <input asp-for="Correo" class="form-control" type="email" placeholder="example@gmail.com" />
                     <span asp-validation-for="Correo" class="text-danger"></span>
                 </div>
                 <div class="form-group mb-3">
                     <label asp-for="Dui" class="control-label">DUI</label>
-                    <input asp-for="Dui" class="form-control" />
+                    <input asp-for="Dui" class="form-control" id="Dui" placeholder="00000000-0" />
                     <span asp-validation-for="Dui" class="text-danger"></span>
                 </div>
                 <div class="form-group">

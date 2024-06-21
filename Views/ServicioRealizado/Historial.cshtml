@@ -1,0 +1,86 @@
+﻿@model List<amazon.Models.ServicioRealizado>
+
+@{
+    ViewData["Title"] = "Historial de Servicios Realizados";
+}
+
+<div class="container">
+    <h2 class="mb-4">Historial de Servicios Realizados</h2>
+
+    <div class="table-responsive">
+        <table id="serviciosRealizadosTable" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Servicio Realizado</th>
+                    <th>Precio</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var servicioRealizado in Model)
+                {
+                    <tr>
+                        <td>@servicioRealizado.id</td>
+                        <td>@servicioRealizado.Servicio.Nombre</td>
+                        <td>@servicioRealizado.Precio</td>
+                        <td>@servicioRealizado.Fecha</td>
+                        <td>
+                            @{
+                                if (servicioRealizado.Estado == 1)
+                                {
+                                    <span>En Proceso</span>
+                                }
+                                else if (servicioRealizado.Estado == 2)
+                                {
+                                    <span>Completado</span>
+                                }
+                                else
+                                {
+                                    <span>Estado Desconocido</span>
+                                }
+                            }
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-primary" onclick="descargarFactura(@servicioRealizado.id)">Descargar Factura</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/DataTables/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#serviciosRealizadosTable').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "Nada encontrado - lo sentimos",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                }
+            });
+        });
+
+        function descargarFactura(id) {
+            // Aquí puedes implementar la lógica para descargar la factura según el id proporcionado
+            // Por ejemplo, podrías redirigir a una acción del controlador que genere la factura en PDF
+            // window.location.href = '/Factura/Descargar/' + id;
+            alert('Aqui se descargará la factura perteneciente al servicio | se implementará en el siguiente Sprint.  id de servicio ' + id);
+        }
+    </script>
+}
