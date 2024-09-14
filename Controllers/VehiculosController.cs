@@ -23,5 +23,42 @@ namespace amazon.Controllers
                 .ToListAsync();
             return View("Index", vehiculos); // Asegúrate de que el nombre de la vista sea correcto
         }
+
+
+        public IActionResult Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var vehiculo = _context.Vehiculos
+                .FirstOrDefault(v =>v.Id  == id);
+
+            if (vehiculo == null)
+            {
+                return NotFound();
+            }
+
+            return View(vehiculo);
+        }
+
+        // POST: vehiculos/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var vehiculo = _context.Vehiculos.Find(id);
+            if (vehiculo == null)
+            {
+                return NotFound();
+            }
+
+            _context.Vehiculos.Remove(vehiculo);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
+        }
     }
+
+
 }
