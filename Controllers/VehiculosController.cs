@@ -50,7 +50,7 @@ namespace amazon.Controllers
         // POST: Vehiculos/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Marca,Modelo,Año,Placa,Descripcion,UsuarioId")] Vehiculo vehiculo)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,UsuarioId,Marca,Modelo,Año,Placa,Descripcion")] Vehiculo vehiculo)
         {
             if (id != vehiculo.Id)
             {
@@ -68,9 +68,10 @@ namespace amazon.Controllers
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Vehículo actualizado correctamente.";
                     Console.WriteLine("Hasta este punto funciona 3");
+                   
                     return RedirectToAction(nameof(Index));
-                    Console.WriteLine("En teoria aqui editamos ya");
                 }
+
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!VehiculoExists(vehiculo.Id))
@@ -83,6 +84,7 @@ namespace amazon.Controllers
                     }
                 }
             }
+            Console.WriteLine("En teoria aqui editamos ya");
 
             if (!ModelState.IsValid)
             {
@@ -94,6 +96,8 @@ namespace amazon.Controllers
                     }
                 }
             }
+
+            Console.WriteLine(vehiculo.UsuarioId);
 
             Console.WriteLine("El modelo no es valido");
 

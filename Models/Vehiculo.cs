@@ -14,10 +14,11 @@ namespace amazon.Models
         public int Año { get; set; }
         public string Placa { get; set; }
         public string Descripcion { get; set; } // Descripción opcional
+        [Required]
         public int UsuarioId { get; set; }
 
         // Relación con otras tablas
-        public Usuario Usuario { get; set; }
+        public Usuario? Usuario { get; set; }
 
     }
 }
