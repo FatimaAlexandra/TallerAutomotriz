@@ -24,7 +24,9 @@ namespace amazon.Controllers
             var serviciosRealizados = _context.ServicioRealizado
                 .Include(s => s.Servicio)
                 .Include(s => s.Usuario)
+                .Include(s => s.Vehiculo)
                 .ToList();
+
 
 
             return View(serviciosRealizados);
@@ -62,7 +64,7 @@ namespace amazon.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,ServicioId,UsuarioId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
+        public async Task<IActionResult> Create([Bind("id,ServicioId,UsuarioId,VehiculoId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
         {
             try
             {
@@ -81,11 +83,51 @@ namespace amazon.Controllers
                 ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
             }
 
-            // Asegúrate de que ViewBag.Servicios y ViewBag.Usuarios estén inicializados
+            // Asegúrate de que ViewBag.Servicios, ViewBag.Usuarios y los vehículos estén inicializados
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
             ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Rol == 3).ToList(), "Id", "Nombre", servicioRealizado.UsuarioId);
+
+            // Obtén los vehículos del usuario seleccionado
+            if (servicioRealizado.UsuarioId != 0)
+            {
+                ViewBag.Vehiculos = new SelectList(_context.Vehiculos.Where(v => v.UsuarioId == servicioRealizado.UsuarioId).ToList(), "Id", "Placa", servicioRealizado.VehiculoId);
+            }
+            else
+            {
+                ViewBag.Vehiculos = new SelectList(new List<Vehiculo>(), "Id", "Placa");
+            }
+
             return View(servicioRealizado);
         }
+
+
+
+        // GET: ServicioRealizado/GetVehiculosPorUsuario
+        public JsonResult GetVehiculosPorUsuario(int usuarioId)
+        {
+            try
+            {
+                var vehiculos = _context.Vehiculos
+                    .Where(v => v.UsuarioId == usuarioId)
+                    .Select(v => new { v.Id, v.Marca, v.Modelo, v.Placa })
+                    .ToList();
+
+                return Json(vehiculos);
+            }
+            catch (Exception ex)
+            {
+                // Manejar la excepción
+                return Json(new { error = $"Error: {ex.Message}" });
+            }
+        }
+
+
+
+
+
+
+
+
 
 
         // GET: ServicioRealizado/Edit/5
