@@ -60,25 +60,36 @@ namespace amazon.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("Marca,Modelo,Año,Placa,Descripcion,UsuarioId")] Vehiculo vehiculo)
-        {
-            
-                try
-                {
-                    _context.Add(vehiculo);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", $"Error: {ex.Message}");
-                }
-            
+public async Task<IActionResult> Create([Bind("Marca,Modelo,Año,Placa,Descripcion,UsuarioId")] Vehiculo vehiculo)
+{
+    // Verificar si la placa ya está registrada
+    var existePlaca = await _context.Vehiculos.AnyAsync(v => v.Placa == vehiculo.Placa);
+    
+    if (existePlaca)
+    {
+        // Si la placa ya existe, agregar un error al ModelState
+        ModelState.AddModelError("Placa", "La placa ingresada ya está registrada.");
+    }
 
-            // Repoblar el dropdown si hay un error
-            ViewBag.Usuarios = new SelectList(_context.Usuarios, "Id", "Nombre", vehiculo.UsuarioId);
-            return View(vehiculo);
+    else
+    {
+        try
+        {
+            _context.Add(vehiculo);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("", $"Error: {ex.Message}");
+        }
+    }
+
+    // Repoblar el dropdown si hay un error
+    ViewBag.Usuarios = new SelectList(_context.Usuarios, "Id", "Nombre", vehiculo.UsuarioId);
+    return View(vehiculo);
+}
+
 
 
 
