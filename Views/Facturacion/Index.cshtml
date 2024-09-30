@@ -35,6 +35,7 @@
                 <td>
                     <a asp-action="Details" asp-route-id="@facturacion.Id" class="btn btn-info">Ver</a>
                     <a asp-action="Edit" asp-route-id="@facturacion.Id" class="btn btn-warning">Editar</a>
+                    <a asp-action="DownloadPdf" asp-route-id="@facturacion.Id" class="btn btn-success">Descargar PDF</a>
                     <form asp-action="Delete" asp-route-id="@facturacion.Id" method="post" style="display:inline;">
                         <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar esta factura?');">Eliminar</button>
                     </form>
