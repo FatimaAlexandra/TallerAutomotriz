@@ -1,0 +1,35 @@
+﻿@model TuNamespace.Models.Facturacion
+
+@{
+    ViewData["Title"] = "Detalles de Factura";
+}
+
+<h1>Detalles de Factura @Model.Id</h1>
+
+<div>
+    <h4>Usuario: @Model.Usuario.Nombre</h4> <!-- Cambia "Nombre" por la propiedad adecuada en tu modelo Usuario -->
+    <p><strong>Fecha de Facturación:</strong> @Model.FechaFacturacion.ToShortDateString()</p>
+    <p><strong>Monto Total:</strong> @Model.MontoTotal.ToString("C")</p>
+    <p><strong>Método de Pago:</strong> @Model.MetodoPago</p>
+    <p><strong>Estado:</strong> @Model.EstadoFactura</p>
+</div>
+
+<h3>Detalles de la Factura</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Servicio Realizado</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var detalle in Model.DetalleFacturacion)
+        {
+            <tr>
+                <td>@detalle.Subtotal.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Regresar a la lista</a>
