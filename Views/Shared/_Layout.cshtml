@@ -101,6 +101,12 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Clientes" asp-action="Index">Clientes</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Facturacion" asp-action="Index">Facturacion</a>
+                            </li>
                         }
                         else if (User.IsInRole("3"))
                         {
@@ -109,6 +115,9 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="ServicioRealizado" asp-action="Historial">Historial de Servicios</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
                             </li>
                         }
 

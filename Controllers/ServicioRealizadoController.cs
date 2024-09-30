@@ -122,14 +122,6 @@ namespace amazon.Controllers
         }
 
 
-
-
-
-
-
-
-
-
         // GET: ServicioRealizado/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -144,76 +136,67 @@ namespace amazon.Controllers
                 return NotFound();
             }
 
-            ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
-
             // Obtener usuarios con rol 3
             var usuarios = _context.Usuarios
                 .Where(u => u.Rol == 3)
                 .Select(u => new { u.Id, u.Nombre })
                 .ToList();
-            ViewBag.Usuarios = new SelectList(usuarios, "Id", "Nombre", servicioRealizado.UsuarioId);
-
-            // Agregar los estados disponibles al ViewBag
-            var estados = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "1", Text = "En Proceso" },
-                new SelectListItem { Value = "2", Text = "Completado" },
-                // Agregar otros estados según sea necesario
-            };
-            ViewBag.Estados = new SelectList(estados, "Value", "Text", servicioRealizado.Estado);
-
-            return View(servicioRealizado);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("id,ServicioId,UsuarioId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
-        {
-            if (id != servicioRealizado.id)
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                _context.Update(servicioRealizado);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Servicio realizado actualizado correctamente.";
-                return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ServicioRealizadoExists(servicioRealizado.id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
-            }
 
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
-
-            var estados = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "1", Text = "En Proceso" },
-                new SelectListItem { Value = "2", Text = "Completado" },
-            };
-            ViewBag.Estados = new SelectList(estados, "Value", "Text", servicioRealizado.Estado);
-
-            var usuarios = _context.Usuarios
-                .Where(u => u.Rol == 3)
-                .Select(u => new { u.Id, u.Nombre })
-                .ToList();
             ViewBag.Usuarios = new SelectList(usuarios, "Id", "Nombre", servicioRealizado.UsuarioId);
+
+            // Obtener vehículos del usuario seleccionado
+            var vehiculos = _context.Vehiculos
+                .Where(v => v.UsuarioId == servicioRealizado.UsuarioId)
+                .Select(v => new { v.Id, v.Placa })
+                .ToList();
+
+            ViewBag.Vehiculos = new SelectList(vehiculos, "Id", "Placa", servicioRealizado.VehiculoId);
+
+
 
             return View(servicioRealizado);
         }
+
+
+        [HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Edit(int id, [Bind("id,ServicioId,UsuarioId,VehiculoId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
+{
+    if (id != servicioRealizado.id)
+    {
+        return NotFound();
+    }
+
+    try
+    {
+        // Actualizar el servicio realizado
+        _context.Update(servicioRealizado);
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Servicio realizado actualizado correctamente.";
+        return RedirectToAction(nameof(Index));
+    }
+    catch (Exception ex)
+    {
+        ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
+    }
+
+    // Asegúrate de que ViewBag.Servicios, ViewBag.Usuarios y ViewBag.Vehiculos estén inicializados
+    ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
+    ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Rol == 3).ToList(), "Id", "Nombre", servicioRealizado.UsuarioId);
+
+    var vehiculos = _context.Vehiculos
+        .Where(v => v.UsuarioId == servicioRealizado.UsuarioId)
+        .Select(v => new { v.Id, v.Placa })
+        .ToList();
+
+    ViewBag.Vehiculos = new SelectList(vehiculos, "Id", "Placa", servicioRealizado.VehiculoId);
+
+    return View(servicioRealizado);
+}
+
+
 
 
 

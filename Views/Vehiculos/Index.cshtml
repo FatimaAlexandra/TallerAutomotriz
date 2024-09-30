@@ -2,13 +2,16 @@
 
 @{
     ViewData["Title"] = "Lista de Vehículos";
+
+    // Obtener el rol del usuario autenticado desde los Claims
+    var rolUsuario = User.FindFirst("Rol")?.Value; // Asume que el rol se almacena como un claim
 }
 
 <div class="container">
     <h2 class="mb-4">@ViewData["Title"]</h2>
 
     <div class="mb-3">
-        <a asp-action="Create" class="btn btn-primary">Crear un vehículo</a>
+        <a asp-action="Create" class="btn btn-primary">Registrar mi vehículo</a>
     </div>
 
     <div class="table-responsive">
@@ -20,7 +23,7 @@
                     <th>Año</th>
                     <th>Placa</th>
                     <th>Descripción</th>
-                    <th>Usuario</th>
+                    <th>Propietario</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -35,8 +38,17 @@
                         <td>@vehiculo.Descripcion</td>
                         <td>@vehiculo.Usuario?.Nombre</td>
                         <td>
-                            <a asp-action="Edit" asp-route-id="@vehiculo.Id" class="btn btn-sm btn-warning">Editar</a>
-                            <a asp-action="Delete" asp-route-id="@vehiculo.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                            @if (User.IsInRole("3"))
+                            {
+                                <button class="btn btn-sm btn-warning" disabled>Editar</button>
+                                <button class="btn btn-sm btn-danger" disabled>Eliminar</button>
+                            }
+                            else
+                            {
+                                <!-- Si el rol no es 3, mostramos los botones habilitados -->
+                                <a asp-action="Edit" asp-route-id="@vehiculo.Id" class="btn btn-sm btn-warning">Editar</a>
+                                <a asp-action="Delete" asp-route-id="@vehiculo.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                            }
                         </td>
                     </tr>
                 }
