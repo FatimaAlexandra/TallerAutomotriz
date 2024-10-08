@@ -48,6 +48,89 @@ namespace amazon.Controllers
             return View(vehiculos);
         }
 
+        //metodo para editar
+
+        // GET: Vehiculos/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var vehiculo = await _context.Vehiculos.FindAsync(id);
+            if (vehiculo == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.Usuarios = new SelectList(_context.Usuarios, "Id", "Nombre", vehiculo.UsuarioId);
+
+            return View(vehiculo);
+        }
+
+        // POST: Vehiculos/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,UsuarioId,Marca,Modelo,Año,Placa,Descripcion")] Vehiculo vehiculo)
+        {
+            if (id != vehiculo.Id)
+            {
+                return NotFound();
+            }
+            Console.WriteLine("Hasta este punto funciona");
+            if (ModelState.IsValid)
+            {
+                Console.WriteLine("Entramos al if de modelo valido");
+
+                try
+                {
+                    Console.WriteLine("Hasta este punto funciona 2");
+                    _context.Update(vehiculo);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Vehículo actualizado correctamente.";
+                    Console.WriteLine("Hasta este punto funciona 3");
+
+                    return RedirectToAction(nameof(Index));
+                }
+
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!VehiculoExists(vehiculo.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+            Console.WriteLine("En teoria aqui editamos ya");
+
+            if (!ModelState.IsValid)
+            {
+                foreach (var modelState in ModelState.Values)
+                {
+                    foreach (var error in modelState.Errors)
+                    {
+                        Console.WriteLine(error.ErrorMessage);
+                    }
+                }
+            }
+
+            Console.WriteLine(vehiculo.UsuarioId);
+
+            Console.WriteLine("El modelo no es valido");
+
+            ViewBag.Usuarios = new SelectList(_context.Usuarios, "Id", "Nombre", vehiculo.UsuarioId);
+            return View(vehiculo);
+        }
+
+        private bool VehiculoExists(int id)
+        {
+            return _context.Vehiculos.Any(e => e.Id == id);
+        }
 
 
 
