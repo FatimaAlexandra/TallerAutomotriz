@@ -28,26 +28,18 @@ namespace amazon.Controllers
         // GET: Facturacion/Details/5
         public IActionResult Details(int id)
         {
-            var facturacion = _context.Facturacion
-                .Include(f => f.Usuario)
-                .Include(f => f.DetalleFacturacion)
-                    .ThenInclude(d => d.ServicioRealizado)  // Incluye el Servicio Realizado
-                .FirstOrDefault(m => m.Id == id);
+            // Simular que encuentras la factura con el id proporcionado
+            var facturacion = "aqui se mostrará detalle de factura"; // Mensaje simple para mostrar en el modal
 
-            // Añade este log o imprime el contenido de facturacion para debug
             if (facturacion == null)
             {
                 return NotFound();
             }
 
-            // Verifica si hay detalles de facturación
-            if (facturacion.DetalleFacturacion == null || !facturacion.DetalleFacturacion.Any())
-            {
-                throw new Exception("No se encontraron detalles de facturación para esta factura");
-            }
-
+            // Retorna la vista parcial con el contenido
             return PartialView("_DetailsPartial", facturacion);
         }
+
 
 
 
@@ -72,7 +64,7 @@ namespace amazon.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(facturacion);
-                _context.SaveChanges(); // Cambiado a SaveChanges() para no usar asincronía
+                _context.SaveChanges(); 
                 return RedirectToAction(nameof(Index));
             }
             return View(facturacion);
