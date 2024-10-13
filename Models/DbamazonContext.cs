@@ -23,6 +23,7 @@ namespace amazon.Models
         public virtual DbSet<Producto> Productos { get; set; }
 
         public virtual DbSet<Vehiculo> Vehiculos { get; set; }
+        public virtual DbSet<Facturacion> Cliente { get; set; }
 
         public virtual DbSet<Facturacion> Facturacion { get; set; }
         public virtual DbSet<DetalleFacturacion> DetalleFacturacion { get; set; }
