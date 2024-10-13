@@ -1,0 +1,15 @@
+﻿@model amazon.Models.Usuario
+
+@{
+    ViewData["Title"] = "Detalles del Cliente";
+}
+
+<h2>Detalles del Cliente</h2>
+
+<div>
+    <h4>Nombre: @Model.Nombre</h4>
+    <h4>Email: @Model.Correo</h4>
+    <h4>Teléfono: @Model.Telefono</h4>
+</div>
+
+<a href="@Url.Action("Index", "Cliente")" class="btn btn-secondary">Volver a la lista</a>
