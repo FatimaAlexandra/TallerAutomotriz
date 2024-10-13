@@ -31,21 +31,38 @@ namespace amazon.Controllers
             var facturacion = _context.Facturacion
                 .Include(f => f.Usuario)
                 .Include(f => f.DetalleFacturacion)
+                    .ThenInclude(d => d.ServicioRealizado)  // Incluye el Servicio Realizado
                 .FirstOrDefault(m => m.Id == id);
 
+            // Añade este log o imprime el contenido de facturacion para debug
             if (facturacion == null)
             {
                 return NotFound();
             }
 
-            return View(facturacion);
+            // Verifica si hay detalles de facturación
+            if (facturacion.DetalleFacturacion == null || !facturacion.DetalleFacturacion.Any())
+            {
+                throw new Exception("No se encontraron detalles de facturación para esta factura");
+            }
+
+            return PartialView("_DetailsPartial", facturacion);
         }
 
-        // GET: Facturacion/Create
+
+
+
         public IActionResult Create()
         {
+            // Obtener los usuarios con rol = 3 (Cliente)
+            var usuarios = _context.Usuarios
+                .Where(u => u.Rol == 3) // Filtra usuarios con Rol = 3
+                .ToList();
+
+            ViewData["Usuarios"] = usuarios; // Almacena los usuarios en ViewData
             return View();
         }
+
 
         // POST: Facturacion/Create
         [HttpPost]
