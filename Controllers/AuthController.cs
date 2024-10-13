@@ -75,5 +75,7 @@ namespace amazon.Controllers
             HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }
+
+
     }
 }

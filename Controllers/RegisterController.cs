@@ -21,22 +21,20 @@ namespace amazon.Controllers
         {
             return View();
         }
-
+        //modificado
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index([Bind("id,Nombre,Usuario1,Rol,Clave")] Usuario usuario)
+        public async Task<IActionResult> Register([Bind("id,Nombre,Usuario1,Rol,Clave,Telefono,Correo,Dui")] Usuario usuario)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(usuario);
                 await _context.SaveChangesAsync();
-
                 // Autenticar al usuario después del registro
                 await AuthenticateUser(usuario.Usuario1);
-
                 return RedirectToAction("Index", "Home");
             }
-            return View(usuario);
+            return View("~/Views/Registro/Index.cshtml", usuario);
         }
 
         private async Task AuthenticateUser(string userName)
