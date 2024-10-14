@@ -19,8 +19,8 @@ namespace amazon.Controllers
         public IActionResult Index()
         {
             var facturaciones = _context.Facturacion
-                .Include(f => f.Usuario) // Incluir la relación con Usuario
-                .ToList(); 
+                .Include(f => f.Usuario)
+                .ToList();
 
             return View(facturaciones);
         }
@@ -31,6 +31,7 @@ namespace amazon.Controllers
             var facturacion = _context.Facturacion
                 .Include(f => f.Usuario)
                 .Include(f => f.DetalleFacturacion)
+                .ThenInclude(df => df.ServicioRealizado)
                 .FirstOrDefault(m => m.Id == id);
 
             if (facturacion == null)
@@ -55,7 +56,7 @@ namespace amazon.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(facturacion);
-                _context.SaveChanges(); // Cambiado a SaveChanges() para no usar asincronía
+                _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
             return View(facturacion);
@@ -87,7 +88,7 @@ namespace amazon.Controllers
                 try
                 {
                     _context.Update(facturacion);
-                    _context.SaveChanges(); // Cambiado a SaveChanges() para no usar asincronía
+                    _context.SaveChanges();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -128,7 +129,7 @@ namespace amazon.Controllers
             if (facturacion != null)
             {
                 _context.Facturacion.Remove(facturacion);
-                _context.SaveChanges(); // Cambiado a SaveChanges() para no usar asincronía
+                _context.SaveChanges();
             }
             return RedirectToAction(nameof(Index));
         }
@@ -136,6 +137,22 @@ namespace amazon.Controllers
         private bool FacturacionExists(int id)
         {
             return _context.Facturacion.Any(e => e.Id == id);
+        }
+
+        // GET: Facturacion/DownloadPdf/5
+        public IActionResult DownloadPdf(int id)
+        {
+            var facturacion = _context.Facturacion
+                .Include(f => f.Usuario)
+                .Include(f => f.DetalleFacturacion)
+                .FirstOrDefault(m => m.Id == id);
+
+            if (facturacion == null)
+            {
+                return NotFound();
+            }
+
+            return View("DownloadPdf", facturacion);
         }
     }
 }

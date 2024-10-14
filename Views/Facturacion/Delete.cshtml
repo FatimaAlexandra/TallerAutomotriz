@@ -1,0 +1,16 @@
+﻿@model TuNamespace.Models.Facturacion
+
+@{
+    ViewData["Title"] = "Eliminar Factura";
+}
+
+<h1>Eliminar Factura @Model.Id</h1>
+
+<div>
+    <h3>¿Está seguro de que desea eliminar esta factura?</h3>
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

@@ -1,0 +1,28 @@
+﻿@model TuNamespace.Models.Facturacion
+
+@{
+    ViewData["Title"] = "Descargar PDF Factura";
+}
+
+<h1>Descargar PDF de la Factura @Model.Id</h1>
+
+<p>Aquí puedes diseñar la estructura del PDF para descargar.</p>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Id</th>
+        <td>@Model.Id</td>
+    </tr>
+    <tr>
+        <th>Usuario</th>
+        <td>@Model.Usuario?.Nombre</td>
+    </tr>
+    <tr>
+        <th>Fecha de Facturación</th>
+        <td>@Model.FechaFacturacion.ToString("d")</td>
+    </tr>
+    <tr>
+        <th>Monto Total</th>
+        <td>@Model.MontoTotal.ToString("C")</td>
+    </tr>
+</table>

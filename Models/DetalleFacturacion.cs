@@ -20,3 +20,4 @@ namespace TuNamespace.Models
         public virtual ServicioRealizado ServicioRealizado { get; set; }  // Relación con el Servicio Realizado
     }
 }
+

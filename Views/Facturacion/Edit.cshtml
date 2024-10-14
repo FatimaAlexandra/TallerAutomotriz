@@ -1,0 +1,30 @@
+﻿@model TuNamespace.Models.Facturacion
+
+@{
+    ViewData["Title"] = "Editar Factura";
+}
+
+<h1>Editar Factura @Model.Id</h1>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label for="UsuarioId">Usuario</label>
+        <input type="text" class="form-control" asp-for="UsuarioId" />
+    </div>
+    <div class="form-group">
+        <label for="FechaFacturacion">Fecha de Facturación</label>
+        <input type="date" class="form-control" asp-for="FechaFacturacion" />
+    </div>
+    <div class="form-group">
+        <label for="MontoTotal">Monto Total</label>
+        <input type="number" class="form-control" asp-for="MontoTotal" step="0.01" />
+    </div>
+    <div class="form-group">
+        <label for="MetodoPago">Método de Pago</label>
+        <input type="text" class="form-control" asp-for="MetodoPago" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

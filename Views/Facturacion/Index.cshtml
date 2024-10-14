@@ -1,46 +1,45 @@
-﻿@model IEnumerable<TuNamespace.Models.Facturacion>
+﻿model IEnumerable<TuNamespace.Models.Facturacion>
 
-@{
-    ViewData["Title"] = "Facturación";
-}
+    @{
+        ViewData["Title"] = "Facturación";
+    }
 
-<h1>@ViewData["Title"]</h1>
+    <h1>@ViewData["Title"]</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Crear Nueva Factura</a>
-</p>
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Crear Nueva Factura</a>
+    </p>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Usuario</th>
-            <th>Fecha de Facturación</th>
-            <th>Monto Total</th>
-            <th>Método de Pago</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var facturacion in Model)
-        {
+    <table class="table table-bordered">
+        <thead>
             <tr>
-                <td>@facturacion.Id</td>
-                <td>@facturacion.Usuario?.Nombre</td> <!-- Asegúrate de que 'Nombre' exista en tu modelo Usuario -->
-                <td>@facturacion.FechaFacturacion.ToString("d")</td>
-                <td>@facturacion.MontoTotal.ToString("C")</td>
-                <td>@facturacion.MetodoPago</td>
-                <td>@facturacion.EstadoFactura</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@facturacion.Id" class="btn btn-info">Ver</a>
-                    <a asp-action="Edit" asp-route-id="@facturacion.Id" class="btn btn-warning">Editar</a>
-                    <a asp-action="DownloadPdf" asp-route-id="@facturacion.Id" class="btn btn-success">Descargar PDF</a>
-                    <form asp-action="Delete" asp-route-id="@facturacion.Id" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar esta factura?');">Eliminar</button>
-                    </form>
-                </td>
+                <th>Id</th>
+                <th>Usuario</th>
+                <th>Fecha de Facturación</th>
+                <th>Monto Total</th>
+                <th>Método de Pago</th>
+                <th>Estado</th>
+                <th>Acciones</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var facturacion in Model)
+            {
+                <tr>
+                    <td>@facturacion.Id</td>
+                    <td>@facturacion.Usuario?.Nombre</td>
+                    <td>@facturacion.FechaFacturacion.ToString("d")</td>
+                    <td>@facturacion.MontoTotal.ToString("C")</td>
+                    <td>@facturacion.MetodoPago</td>
+                    <td>@facturacion.EstadoFactura</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@facturacion.Id" class="btn btn-info">Ver</a>
+                        <a asp-action="Edit" asp-route-id="@facturacion.Id" class="btn btn-warning">Editar</a>
+                        <a asp-action="Delete" asp-route-id="@facturacion.Id" class="btn btn-danger">Eliminar</a>
+                        <a asp-action="DownloadPdf" asp-route-id="@facturacion.Id" class="btn btn-secondary">Descargar PDF</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
