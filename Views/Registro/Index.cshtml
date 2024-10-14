@@ -72,7 +72,7 @@
             <!-- Mostrar errores generales -->
             <div asp-validation-summary="All" class="text-danger"></div>
 
-            <form asp-action="Index" method="post">
+            <form asp.asp-controller="Auth" asp-action="Register" method="post">
                 <div class="mb-3">
                     <label asp-for="Nombre" class="form-label">Nombre</label>
                     <input asp-for="Nombre" class="form-control" placeholder="Nombre Apellido"/>
