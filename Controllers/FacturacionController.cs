@@ -25,20 +25,21 @@ namespace amazon.Controllers
             return View(facturaciones);
         }
 
-        // GET: Facturacion/Details/5
+  
         public IActionResult Details(int id)
         {
-            // Simular que encuentras la factura con el id proporcionado
-            var facturacion = "aqui se mostrará detalle de factura"; // Mensaje simple para mostrar en el modal
+            var factura = _context.Facturacion
+                                  .Include(f => f.Usuario)  // Incluye el usuario relacionado
+                                  .FirstOrDefault(f => f.Id == id);
 
-            if (facturacion == null)
+            if (factura == null)
             {
                 return NotFound();
             }
 
-            // Retorna la vista parcial con el contenido
-            return PartialView("_DetailsPartial", facturacion);
+            return PartialView("_FacturaDetailsPartial", factura);  // Devolver la vista parcial con los detalles de la factura
         }
+
 
 
 
@@ -70,7 +71,7 @@ namespace amazon.Controllers
             return View(facturacion);
         }
 
-        // GET: Facturacion/Edit/5
+        // GET: Facturacion/Edit
         public IActionResult Edit(int id)
         {
             var facturacion = _context.Facturacion.Find(id);
@@ -81,7 +82,7 @@ namespace amazon.Controllers
             return View(facturacion);
         }
 
-        // POST: Facturacion/Edit/5
+        // POST: Facturacion/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Facturacion facturacion)
@@ -96,7 +97,7 @@ namespace amazon.Controllers
                 try
                 {
                     _context.Update(facturacion);
-                    _context.SaveChanges(); // Cambiado a SaveChanges() para no usar asincronía
+                    _context.SaveChanges(); 
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -114,7 +115,7 @@ namespace amazon.Controllers
             return View(facturacion);
         }
 
-        // GET: Facturacion/Delete/5
+        // GET: Facturacion/Delete
         public IActionResult Delete(int id)
         {
             var facturacion = _context.Facturacion
@@ -128,7 +129,7 @@ namespace amazon.Controllers
             return View(facturacion);
         }
 
-        // POST: Facturacion/Delete/5
+        // POST: Facturacion/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
@@ -137,7 +138,7 @@ namespace amazon.Controllers
             if (facturacion != null)
             {
                 _context.Facturacion.Remove(facturacion);
-                _context.SaveChanges(); // Cambiado a SaveChanges() para no usar asincronía
+                _context.SaveChanges(); 
             }
             return RedirectToAction(nameof(Index));
         }

@@ -10,48 +10,57 @@
     <a asp-action="Create" class="btn btn-primary">Crear Nueva Factura</a>
 </p>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Usuario</th>
-            <th>Fecha de Facturación</th>
-            <th>Monto Total</th>
-            <th>Método de Pago</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var facturacion in Model)
-        {
+<div class="table-responsive">
+    <table id="facturacionTable" class="table table-striped table-bordered">
+        <thead>
             <tr>
-                <td>@facturacion.Id</td>
-                <td>@facturacion.Usuario?.Nombre</td> <!-- Asegúrate de que 'Nombre' exista en tu modelo Usuario -->
-                <td>@facturacion.FechaFacturacion.ToString("d")</td>
-                <td>@facturacion.MontoTotal.ToString("C")</td>
-                <td>@facturacion.MetodoPago</td>
-                <td>@facturacion.EstadoFactura</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@facturacion.Id" class="btn btn-info">Ver</a>
-                    <a asp-action="Edit" asp-route-id="@facturacion.Id" class="btn btn-warning">Editar</a>
-                    <a asp-action="DownloadPdf" asp-route-id="@facturacion.Id" class="btn btn-success">Descargar PDF</a>
-                    <form asp-action="Delete" asp-route-id="@facturacion.Id" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar esta factura?');">Eliminar</button>
-                    </form>
-                </td>
+                <th>Id</th>
+                <th>Usuario</th>
+                <th>Fecha de Facturación</th>
+                <th>Monto Total</th>
+                <th>Método de Pago</th>
+                <th>Estado</th>
+                <th>Acciones</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var facturacion in Model)
+            {
+                <tr>
+                    <td>@facturacion.Id</td>
+                    <td>@facturacion.Usuario?.Nombre</td> <!-- Muestra el nombre del usuario relacionado -->
+                    <td>@facturacion.FechaFacturacion.ToString("d")</td> <!-- Fecha en formato corto -->
+                    <td>@facturacion.MontoTotal.ToString("C")</td> <!-- Monto en formato de moneda -->
+                    <td>@facturacion.MetodoPago</td>
+                    <td>@facturacion.EstadoFactura</td>
+                    <td>
+                        <!-- Botón para ver los detalles de la factura en el modal -->
+                        <button class="btn btn-info btn-sm verFacturaBtn" data-id="@facturacion.Id">Ver Factura</button>
+                        <a asp-action="Edit" asp-route-id="@facturacion.Id" class="btn btn-warning btn-sm">Editar</a>
+                        <form asp-action="Delete" asp-route-id="@facturacion.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar esta factura?');">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
-<!-- Modal para mostrar los detalles de la factura -->
-<div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<!-- Modal para mostrar detalles de la factura -->
+<div class="modal fade" id="facturaModal" tabindex="-1" aria-labelledby="facturaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
-            <!-- Aquí se cargará el contenido de la vista parcial -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="facturaModalLabel">Detalles de la Factura</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
             <div class="modal-body">
-                <p>Cargando...</p>
+                <!-- Aquí se cargarán los detalles de la factura -->
+                <div id="facturaDetalles"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -59,17 +68,29 @@
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script type="text/javascript">
-        $(document).on("click", ".btn-info", function (e) {
-            e.preventDefault();
-            var url = $(this).attr("href");
+        $(document).ready(function () {
+            // Cuando se haga clic en el botón "Ver Factura"
+            $('.verFacturaBtn').on('click', function () {
+                var facturaId = $(this).data('id');
 
-            // Cargar los datos en el modal usando AJAX
-            $.get(url, function (data) {
-                $("#detailsModal .modal-content").html(data);
-                $("#detailsModal").modal("show");
+                // Hacer una solicitud AJAX para obtener los detalles de la factura
+                $.ajax({
+                    url: '/Facturacion/Details/' + facturaId,  // La URL de la acción
+                    type: 'GET',
+                    success: function (data) {
+                        // Cargar los datos en el div del modal
+                        $('#facturaDetalles').html(data);
+
+                        // Mostrar el modal
+                        $('#facturaModal').modal('show');
+                    },
+                    error: function () {
+                        alert('Error al cargar los detalles de la factura.');
+                    }
+                });
             });
         });
     </script>
