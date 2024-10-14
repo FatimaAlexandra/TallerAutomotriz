@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using TuNamespace.Models;
 
 namespace amazon.Models
 {
@@ -19,12 +20,13 @@ namespace amazon.Models
         public virtual DbSet<ServicioRealizado> ServicioRealizado { get; set; }
         public virtual DbSet<Servicio> Servicios { get; set; }
 
+        public virtual DbSet<Producto> Productos { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code.
-            optionsBuilder.UseSqlServer("Server=LAPTOP-VSG1OMFT\\SQLEXPRESS; Database=dbtaller; Trusted_Connection=True; Encrypt=false");
-        }
+        public virtual DbSet<Vehiculo> Vehiculos { get; set; }
+
+        public virtual DbSet<Facturacion> Facturacion { get; set; }
+        public virtual DbSet<DetalleFacturacion> DetallesFacturacion { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

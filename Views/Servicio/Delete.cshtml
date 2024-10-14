@@ -1,0 +1,24 @@
+﻿@model amazon.Models.Servicio
+
+@{
+    ViewData["Title"] = "Eliminar Servicio";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="card p-4 shadow-lg col-md-6 text-center">
+        <h2 class="text-center mb-4">Eliminar Servicio</h2>
+        <h3>¿Está seguro que desea eliminar este servicio?</h3>
+        <div class="my-3">
+            <h4><strong>Nombre:</strong> @Model.Nombre</h4>
+            <p><strong>Descripción:</strong> @Model.Descripcion</p>
+            <p><strong>Categoría:</strong> @Model.Categoria</p>
+        </div>
+        <form asp-action="DeleteConfirmed" asp-route-id="@Model.Id" method="post">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" class="btn btn-danger me-md-2">Eliminar</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+

@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using amazon.Models;
 
 namespace amazon.Controllers
@@ -13,7 +12,6 @@ namespace amazon.Controllers
         {
             _context = context;
         }
-
 
         // GET: Servicio
         public IActionResult Index()
@@ -41,6 +39,73 @@ namespace amazon.Controllers
             return View(servicio);
         }
 
-        // Other CRUD actions like Create, Edit, Delete can be added here
+        // GET: Servicio/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Servicio/Create
+        [HttpPost]
+        public IActionResult Create(Servicio servicio)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Servicios.Add(servicio);
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(servicio);
+        }
+
+        // GET: Servicio/Edit/5
+        public IActionResult Edit(int id)
+        {
+            var servicio = _context.Servicios.Find(id);
+            if (servicio == null)
+            {
+                return NotFound();
+            }
+            return View(servicio);
+        }
+
+        // POST: Servicio/Edit/5
+        [HttpPost]
+        public IActionResult Edit(Servicio servicio)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Servicios.Update(servicio);
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(servicio);
+        }
+
+        // GET: Servicio/Delete/5
+        public IActionResult Delete(int id)
+        {
+            var servicio = _context.Servicios.Find(id);
+            if (servicio == null)
+            {
+                return NotFound();
+            }
+            return View(servicio);
+        }
+
+        // POST: Servicio/DeleteConfirmed/5
+        [HttpPost, ActionName("DeleteConfirmed")]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var servicio = _context.Servicios.FirstOrDefault(m => m.Id == id);
+            if (servicio == null)
+            {
+                return NotFound();
+            }
+
+            _context.Servicios.Remove(servicio);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
