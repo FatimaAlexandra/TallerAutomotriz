@@ -1,0 +1,69 @@
+﻿@model TuNamespace.Models.Facturacion
+
+@{
+    ViewData["Title"] = "Crear Factura";
+}
+
+<h2>Crear Factura</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label for="usuarioId">Seleccionar Usuario (Cliente)</label>
+        <select id="usuarioId" name="UsuarioId" class="form-control" required>
+            <option value="">Seleccione un usuario</option>
+            @foreach (var usuario in ViewData["Usuarios"] as List<TuNamespace.Models.Facturacion>)
+            {
+                <option value="@usuario.Id">@usuario.Usuario</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="fechaFacturacion">Fecha de Facturación</label>
+        <input type="date" id="fechaFacturacion" name="FechaFacturacion" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="metodoPago">Método de Pago</label>
+        <select id="metodoPago" name="MetodoPago" class="form-control" required>
+            <option value="Efectivo">Efectivo</option>
+            <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="servicios">Servicios Realizados</label>
+        <div id="listaServicios">
+            <!-- Aquí se cargarán dinámicamente los servicios realizados -->
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Crear Factura</button>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#usuarioId, #fechaFacturacion').change(function () {
+                var usuarioId = $('#usuarioId').val();
+                var fecha = $('#fechaFacturacion').val();
+
+                if (usuarioId && fecha) {
+                    $.getJSON('@Url.Action("GetServiciosPorFecha", "Facturacion")', { usuarioId: usuarioId, fecha: fecha }, function (data) {
+                        var serviciosHtml = '';
+                        $.each(data, function (i, servicio) {
+                            serviciosHtml += '<div class="form-check">';
+                            serviciosHtml += '<input type="checkbox" class="form-check-input" name="serviciosSeleccionados" value="' + servicio.id + '">';
+                            serviciosHtml += '<label class="form-check-label">' + servicio.nombre + ' - $' + servicio.precio + '</label>';
+                            serviciosHtml += '</div>';
+                        });
+
+                        $('#listaServicios').html(serviciosHtml);
+                    });
+                } else {
+                    $('#listaServicios').html('');
+                }
+            });
+        });
+    </script>
+}

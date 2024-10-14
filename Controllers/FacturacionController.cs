@@ -28,24 +28,33 @@ namespace amazon.Controllers
         // GET: Facturacion/Details/5
         public IActionResult Details(int id)
         {
-            var facturacion = _context.Facturacion
-                .Include(f => f.Usuario)
-                .Include(f => f.DetalleFacturacion)
-                .FirstOrDefault(m => m.Id == id);
+            // Simular que encuentras la factura con el id proporcionado
+            var facturacion = "aqui se mostrará detalle de factura"; // Mensaje simple para mostrar en el modal
 
             if (facturacion == null)
             {
                 return NotFound();
             }
 
-            return View(facturacion);
+            // Retorna la vista parcial con el contenido
+            return PartialView("_DetailsPartial", facturacion);
         }
 
-        // GET: Facturacion/Create
+
+
+
+
         public IActionResult Create()
         {
+            // Obtener los usuarios con rol = 3 (Cliente)
+            var usuarios = _context.Usuarios
+                .Where(u => u.Rol == 3) // Filtra usuarios con Rol = 3
+                .ToList();
+
+            ViewData["Usuarios"] = usuarios; // Almacena los usuarios en ViewData
             return View();
         }
+
 
         // POST: Facturacion/Create
         [HttpPost]
@@ -55,7 +64,7 @@ namespace amazon.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(facturacion);
-                _context.SaveChanges(); // Cambiado a SaveChanges() para no usar asincronía
+                _context.SaveChanges(); 
                 return RedirectToAction(nameof(Index));
             }
             return View(facturacion);

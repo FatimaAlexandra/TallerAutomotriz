@@ -8,7 +8,7 @@ namespace TuNamespace.Models
         public int Id { get; set; }
 
         [Required]
-        public int FacturacionId { get; set; }
+        public int FacturaId { get; set; }
 
         [Required]
         public int ServicioRealizadoId { get; set; }
