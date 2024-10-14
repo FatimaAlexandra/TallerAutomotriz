@@ -1,0 +1,29 @@
+﻿@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).on("click", ".btn-info", function (e) {
+            e.preventDefault();
+            var url = $(this).attr("href");
+
+            // Cargar los datos en el modal usando AJAX
+            $.get(url, function (data) {
+                $("#detailsModal .modal-content").html(data); // Cargar el contenido
+                $("#detailsModal").modal("show"); // Mostrar el modal
+            });
+        });
+    </script>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Mensaje</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@Model</td>
+        </tr>
+    </tbody>
+</table>

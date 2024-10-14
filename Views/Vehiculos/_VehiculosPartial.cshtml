@@ -1,0 +1,17 @@
+﻿@model List<amazon.Models.Vehiculo>
+
+@if (Model != null && Model.Any())
+{
+    <ul>
+        @foreach (var vehiculo in Model)
+        {
+            <li>
+                Marca: @vehiculo.Marca, Modelo: @vehiculo.Modelo, Año: @vehiculo.Año, Placa: @vehiculo.Placa
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No tiene vehículos registrados.</p>
+}

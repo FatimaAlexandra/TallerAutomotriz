@@ -1,0 +1,10 @@
+﻿@model TuNamespace.Models.Facturacion
+
+<div>
+    <h4>Detalles de la Factura</h4>
+    <p><strong>Usuario:</strong> @Model.Usuario?.Nombre</p>
+    <p><strong>Fecha de Facturación:</strong> @Model.FechaFacturacion.ToString("d")</p>
+    <p><strong>Monto Total:</strong> @Model.MontoTotal.ToString("C")</p>
+    <p><strong>Método de Pago:</strong> @Model.MetodoPago</p>
+    <p><strong>Estado:</strong> @Model.EstadoFactura</p>
+</div>

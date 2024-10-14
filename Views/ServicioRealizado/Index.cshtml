@@ -17,6 +17,9 @@
                 <tr>
                     <th style="display:none;">ID</th>
                     <th>Servicio Realizado</th>
+                    <th>Marca</th> <!-- Marca del Vehículo -->
+                    <th>Modelo</th> <!-- Modelo del Vehículo -->
+                    <th>Placa</th> <!-- Placa del Vehículo -->
                     <th>Precio</th>
                     <th>Cliente</th>
                     <th>Fecha</th>
@@ -30,15 +33,21 @@
                     <tr>
                         <td style="display:none;">@servicioRealizado.id</td>
                         <td>@servicioRealizado.Servicio.Nombre</td>
+                        <td>@servicioRealizado.Vehiculo?.Marca</td> <!-- Marca -->
+                        <td>@servicioRealizado.Vehiculo?.Modelo</td> <!-- Modelo -->
+                        <td>@servicioRealizado.Vehiculo?.Placa</td> <!-- Placa -->
                         <td>@servicioRealizado.Precio</td>
                         <td>@servicioRealizado.Usuario.Nombre</td>
                         <td>@servicioRealizado.Fecha</td>
                         <td>
-                              @if (servicioRealizado.Estado == 1)
-                                {
-                                    @:En Proceso
-                                }
-                        
+                            @if (servicioRealizado.Estado == 1)
+                            {
+                                <span style="color: blue;" >En Proceso</span>
+                            }
+                            else if (servicioRealizado.Estado == 2)
+                            {
+                                <span style="color: green;">Completado</span>
+                            }
                         </td>
                         <td>
                             <a asp-action="Edit" asp-route-id="@servicioRealizado.id" class="btn btn-sm btn-warning">Editar</a>
