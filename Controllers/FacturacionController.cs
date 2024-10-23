@@ -57,91 +57,76 @@ namespace amazon.Controllers
         }
 
 
-        // POST: Facturacion/Create
+        // Acción para buscar clientes por DUI
+        [HttpGet]
+        public JsonResult BuscarClientePorDui(string dui)
+        {
+            var cliente = _context.Usuarios.FirstOrDefault(u => u.Dui == dui && u.Rol == 3); // Filtrar solo clientes por DUI
+
+            if (cliente != null)
+            {
+                return Json(new { id = cliente.Id, nombre = cliente.Nombre });
+            }
+            return Json(null);
+        }
+
+        // Acción para obtener los servicios realizados del día actual para un cliente específico
+        [HttpGet]
+        public IActionResult ServiciosDelDia(int usuarioId)
+        {
+            var serviciosDelDia = _context.ServicioRealizado
+                .Include(s => s.Servicio)
+                .Include(s => s.Vehiculo)
+                .Where(s => s.UsuarioId == usuarioId && s.Fecha == DateTime.Now.ToString("yyyy-MM-dd") && s.Estado == 1)
+                .ToList();
+
+            return PartialView("_ServiciosRealizadosPartial", serviciosDelDia);
+        }
+
+        // Acción para crear la factura
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(Facturacion facturacion)
+        public IActionResult Create(Facturacion facturacion, List<int> serviciosSeleccionados)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(facturacion);
-                _context.SaveChanges(); 
-                return RedirectToAction(nameof(Index));
-            }
-            return View(facturacion);
-        }
+                // Guardar la factura
+                _context.Facturacion.Add(facturacion);
+                _context.SaveChanges();
 
-        // GET: Facturacion/Edit
-        public IActionResult Edit(int id)
-        {
-            var facturacion = _context.Facturacion.Find(id);
-            if (facturacion == null)
-            {
-                return NotFound();
-            }
-            return View(facturacion);
-        }
-
-        // POST: Facturacion/Edit
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Facturacion facturacion)
-        {
-            if (id != facturacion.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
+                // Asignar los servicios a la factura y cambiar el estado a completado
+                foreach (var servicioId in serviciosSeleccionados)
                 {
-                    _context.Update(facturacion);
-                    _context.SaveChanges(); 
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!FacturacionExists(facturacion.Id))
+                    var servicio = _context.ServicioRealizado.Find(servicioId);
+                    if (servicio != null)
                     {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
+                        // Crear el detalle de la factura
+                        var detalle = new DetalleFacturacion
+                        {
+                            FacturaId = facturacion.Id,
+                            ServicioRealizadoId = servicio.id,
+                            Subtotal = servicio.Precio
+                        };
+                        _context.DetalleFacturacion.Add(detalle);
+
+                        // Cambiar el estado del servicio a Completado
+                        servicio.Estado = 2; // Estado Completado
+                        _context.Update(servicio);
                     }
                 }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(facturacion);
-        }
 
-        // GET: Facturacion/Delete
-        public IActionResult Delete(int id)
-        {
-            var facturacion = _context.Facturacion
-                .Include(f => f.Usuario)
-                .FirstOrDefault(m => m.Id == id);
-            if (facturacion == null)
-            {
-                return NotFound();
+                _context.SaveChanges();
+
+                return RedirectToAction("Index");
             }
 
             return View(facturacion);
         }
 
-        // POST: Facturacion/Delete
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
-        {
-            var facturacion = _context.Facturacion.Find(id);
-            if (facturacion != null)
-            {
-                _context.Facturacion.Remove(facturacion);
-                _context.SaveChanges(); 
-            }
-            return RedirectToAction(nameof(Index));
-        }
+
+
+
+
+
 
         private bool FacturacionExists(int id)
         {

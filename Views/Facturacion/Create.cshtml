@@ -6,63 +6,94 @@
 
 <h2>Crear Factura</h2>
 
-<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label for="usuarioId">Seleccionar Usuario (Cliente)</label>
-        <select id="usuarioId" name="UsuarioId" class="form-control" required>
-            <option value="">Seleccione un usuario</option>
-            @foreach (var usuario in ViewData["Usuarios"] as List<TuNamespace.Models.Facturacion>)
-            {
-                <option value="@usuario.Id">@usuario.Usuario</option>
-            }
-        </select>
-    </div>
+<!-- Sección para buscar el cliente por DUI -->
+<div class="form-group mb-3">
+    <label for="clienteDui">Buscar Cliente por DUI</label>
+    <input type="text" id="buscarClienteDui" class="form-control" placeholder="Escribe el DUI del cliente" />
+    <input type="hidden" id="clienteId" name="UsuarioId" />
+</div>
 
-    <div class="form-group">
-        <label for="fechaFacturacion">Fecha de Facturación</label>
-        <input type="date" id="fechaFacturacion" name="FechaFacturacion" class="form-control" required />
+<!-- Sección para mostrar los servicios realizados -->
+<div id="serviciosRealizadosSection" class="d-none">
+    <h4>Servicios Realizados del Día</h4>
+    <div id="listaServicios">
+        <!-- Aquí se cargarán dinámicamente los servicios realizados del día actual -->
     </div>
+</div>
 
-    <div class="form-group">
-        <label for="metodoPago">Método de Pago</label>
-        <select id="metodoPago" name="MetodoPago" class="form-control" required>
-            <option value="Efectivo">Efectivo</option>
-            <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="servicios">Servicios Realizados</label>
-        <div id="listaServicios">
-            <!-- Aquí se cargarán dinámicamente los servicios realizados -->
+<!-- Sección para generar factura -->
+<div id="generarFacturaSection" class="d-none">
+    <form asp-action="Create" method="post">
+        <div class="form-group">
+            <label for="fechaFacturacion">Fecha de Facturación</label>
+            <input type="date" id="fechaFacturacion" name="FechaFacturacion" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" readonly />
         </div>
-    </div>
 
-    <button type="submit" class="btn btn-primary">Crear Factura</button>
-</form>
+        <div class="form-group">
+            <label for="metodoPago">Método de Pago</label>
+            <select id="metodoPago" name="MetodoPago" class="form-control">
+                <option value="Efectivo">Efectivo</option>
+                <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+            </select>
+        </div>
+
+        <input type="hidden" name="UsuarioId" id="usuarioIdSeleccionado" />
+
+        <div id="detalleFactura">
+            <!-- Aquí se mostrarán los servicios seleccionados para la factura -->
+        </div>
+
+        <button type="submit" class="btn btn-primary">Generar Factura</button>
+    </form>
+</div>
 
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $('#usuarioId, #fechaFacturacion').change(function () {
-                var usuarioId = $('#usuarioId').val();
-                var fecha = $('#fechaFacturacion').val();
+            // Buscar cliente por DUI
+            $('#buscarClienteDui').on('input', function () {
+                var clienteDui = $(this).val();
 
-                if (usuarioId && fecha) {
-                    $.getJSON('@Url.Action("GetServiciosPorFecha", "Facturacion")', { usuarioId: usuarioId, fecha: fecha }, function (data) {
-                        var serviciosHtml = '';
-                        $.each(data, function (i, servicio) {
-                            serviciosHtml += '<div class="form-check">';
-                            serviciosHtml += '<input type="checkbox" class="form-check-input" name="serviciosSeleccionados" value="' + servicio.id + '">';
-                            serviciosHtml += '<label class="form-check-label">' + servicio.nombre + ' - $' + servicio.precio + '</label>';
-                            serviciosHtml += '</div>';
-                        });
-
-                        $('#listaServicios').html(serviciosHtml);
+                if (clienteDui.length === 10) { // DUI debe tener 10 caracteres
+                    $.ajax({
+                        url: '/Facturacion/BuscarClientePorDui',
+                        type: 'GET',
+                        data: { dui: clienteDui },
+                        success: function (data) {
+                            if (data) {
+                                $('#clienteId').val(data.id); // Guardar el ID del cliente
+                                $('#usuarioIdSeleccionado').val(data.id);
+                                mostrarServiciosRealizados(data.id); // Cargar servicios realizados del cliente
+                            } else {
+                                alert("No se encontró un cliente con ese DUI.");
+                            }
+                        }
                     });
-                } else {
-                    $('#listaServicios').html('');
                 }
+            });
+
+            // Mostrar los servicios realizados del cliente
+            function mostrarServiciosRealizados(clienteId) {
+                $.ajax({
+                    url: '/Facturacion/ServiciosDelDia',
+                    type: 'GET',
+                    data: { usuarioId: clienteId },
+                    success: function (data) {
+                        $('#listaServicios').html(data); // Cargar la lista de servicios en el DOM
+                        $('#serviciosRealizadosSection').removeClass('d-none');
+                        $('#generarFacturaSection').removeClass('d-none');
+                    }
+                });
+            }
+
+            // Cuando se seleccione un servicio realizado, añadirlo a la factura
+            $(document).on('click', '.seleccionarServicio', function () {
+                var servicioId = $(this).data('id');
+                var servicioNombre = $(this).data('nombre');
+                var servicioPrecio = $(this).data('precio');
+
+                // Añadir el servicio al listado de detalle de la factura
+                $('#detalleFactura').append('<p>' + servicioNombre + ' - $' + servicioPrecio + '</p>');
             });
         });
     </script>
