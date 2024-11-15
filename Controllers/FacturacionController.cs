@@ -6,19 +6,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using amazon.Services;
 
 namespace amazon.Controllers
 {
     public class FacturacionController : Controller
     {
         private readonly DbamazonContext _context;
+        private readonly PdfService _pdfService;
 
         public FacturacionController(DbamazonContext context)
         {
             _context = context;
+            _pdfService = new PdfService();
         }
 
-        // GET: Facturacion
         public async Task<IActionResult> Index()
         {
             var facturaciones = await _context.Facturacion
@@ -32,7 +37,6 @@ namespace amazon.Controllers
             return View(facturaciones);
         }
 
-        // GET: Facturacion/Details/5
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -58,16 +62,11 @@ namespace amazon.Controllers
             }
         }
 
-
-
-
-        // GET: Facturacion/Create
         [HttpGet]
         public IActionResult Create()
         {
             try
             {
-                // Obtener usuarios con rol 3 (clientes)
                 var usuarios = _context.Usuarios
                     .Where(u => u.Rol == 3)
                     .Select(u => new { u.Id, u.Nombre, u.Telefono, u.Correo })
@@ -142,21 +141,12 @@ namespace amazon.Controllers
             }
         }
 
-
-
-
-
-
-
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(int UsuarioId, DateTime FechaFacturacion, string MetodoPago, decimal MontoTotal, string serviciosSeleccionados)
         {
             try
             {
-                // Verificar qué validaciones están fallando
                 if (!ModelState.IsValid)
                 {
                     var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
@@ -171,13 +161,11 @@ namespace amazon.Controllers
                 using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
-                    // Convertir los IDs de servicios a enteros de forma segura
                     var serviciosIds = serviciosSeleccionados.Split(',')
                         .Select(id => int.TryParse(id, out int servicioId) ? servicioId : -1)
                         .Where(id => id != -1)
                         .ToList();
 
-                    // Verificar servicios
                     var serviciosValidos = await _context.ServicioRealizado
                         .Where(s => serviciosIds.Contains(s.id) && s.Estado == 1)
                         .ToListAsync();
@@ -187,7 +175,6 @@ namespace amazon.Controllers
                         return Json(new { success = false, message = "No se encontraron servicios válidos" });
                     }
 
-                    // Crear la factura
                     var nuevaFactura = new Facturacion
                     {
                         UsuarioId = UsuarioId,
@@ -200,7 +187,6 @@ namespace amazon.Controllers
                     _context.Facturacion.Add(nuevaFactura);
                     await _context.SaveChangesAsync();
 
-                    // Crear detalles de factura y actualizar estado de servicios
                     foreach (var servicio in serviciosValidos)
                     {
                         var detalle = new DetalleFacturacion
@@ -212,8 +198,7 @@ namespace amazon.Controllers
                         };
                         _context.DetalleFacturacion.Add(detalle);
 
-                        // Actualizar estado del servicio
-                        servicio.Estado = 2; // Facturado
+                        servicio.Estado = 2;
                         _context.Update(servicio);
                     }
 
@@ -239,39 +224,6 @@ namespace amazon.Controllers
             }
         }
 
-
-
-
-
-
-
-
-        private void LogModelStateErrors()
-        {
-            var errors = string.Join("; ", ModelState.Values
-                .SelectMany(x => x.Errors)
-                .Select(x => x.ErrorMessage));
-            System.Diagnostics.Debug.WriteLine($"ModelState Errors: {errors}");
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // GET: Facturacion/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -319,7 +271,6 @@ namespace amazon.Controllers
                     return NotFound();
                 }
 
-                // Actualizar solo los campos permitidos
                 facturaExistente.MetodoPago = facturacion.MetodoPago;
                 facturaExistente.EstadoFactura = facturacion.EstadoFactura;
                 facturaExistente.FechaFacturacion = facturacion.FechaFacturacion;
@@ -343,7 +294,6 @@ namespace amazon.Controllers
             return View(facturacion);
         }
 
-        // GET: Facturacion/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -382,21 +332,17 @@ namespace amazon.Controllers
                     return NotFound();
                 }
 
-                // 1. Actualizar el estado de los servicios realizados a "En Proceso" (1)
                 foreach (var detalle in facturacion.DetalleFacturacion)
                 {
                     var servicio = await _context.ServicioRealizado.FindAsync(detalle.ServicioRealizadoId);
                     if (servicio != null)
                     {
-                        servicio.Estado = 1; // Volver a estado "En Proceso"
+                        servicio.Estado = 1;
                         _context.Update(servicio);
                     }
                 }
 
-                // 2. Eliminar los detalles de facturación
                 _context.DetalleFacturacion.RemoveRange(facturacion.DetalleFacturacion);
-
-                // 3. Eliminar la factura
                 _context.Facturacion.Remove(facturacion);
 
                 await _context.SaveChangesAsync();
@@ -412,10 +358,35 @@ namespace amazon.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> DownloadPdf(int id)
+        {
+            var factura = await _context.Facturacion
+                .Include(f => f.Usuario)
+                .Include(f => f.DetalleFacturacion)
+                    .ThenInclude(d => d.ServicioRealizado)
+                        .ThenInclude(s => s.Servicio)
+                .FirstOrDefaultAsync(f => f.Id == id);
+            if (factura == null)
+                return NotFound();
+            var pdfBytes = _pdfService.GenerateInvoicePdf(factura);
+            return File(pdfBytes, "application/pdf", $"Factura-{factura.Id}.pdf");
+        }
+
+
+
 
         private bool FacturacionExists(int id)
         {
             return _context.Facturacion.Any(e => e.Id == id);
+        }
+
+        private void LogModelStateErrors()
+        {
+            var errors = string.Join("; ", ModelState.Values
+                .SelectMany(x => x.Errors)
+                .Select(x => x.ErrorMessage));
+            System.Diagnostics.Debug.WriteLine($"ModelState Errors: {errors}");
         }
     }
 }

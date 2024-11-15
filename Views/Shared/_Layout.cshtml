@@ -7,15 +7,10 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/amazon.styles.css" asp-append-version="true" />
-    <!-- DataTables -->
     <link rel="stylesheet" href="~/lib/DataTables/datatables.min.css" />
-    <!-- Select2 -->
     <link rel="stylesheet" href="~/lib/select2/select2.min.css" />
-    <!-- Font awesome -->
     <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" />
-    <!-- SweetAlert2 -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
-
     <style>
         .navbar-nav {
             display: flex;
@@ -80,69 +75,69 @@
                         @if (User.IsInRole("1"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Producto" asp-action="Index">Productos</a>
+                                <a class="nav-link" asp-controller="Producto" asp-action="Index">Productos</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="ServicioRealizado" asp-action="Index">Servicios realizados</a>
+                                <a class="nav-link" asp-controller="ServicioRealizado" asp-action="Index">Servicios realizados</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Servicio" asp-action="Index">Servicios</a>
+                                <a class="nav-link" asp-controller="Servicio" asp-action="Index">Servicios</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="User" asp-action="Index">Usuarios</a>
+                                <a class="nav-link" asp-controller="User" asp-action="Index">Usuarios</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Cliente" asp-action="Index">Clientes</a>
+                                <a class="nav-link" asp-controller="Cliente" asp-action="Index">Clientes</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
+                                <a class="nav-link" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Facturacion" asp-action="Index">Facturacion</a>
+                                <a class="nav-link" asp-controller="Facturacion" asp-action="Index">Facturación</a>
                             </li>
                         }
                         else if (User.IsInRole("2"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Producto" asp-action="Index">Productos</a>
+                                <a class="nav-link" asp-controller="Producto" asp-action="Index">Productos</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="ServicioRealizado" asp-action="Index">Servicios realizados</a>
+                                <a class="nav-link" asp-controller="ServicioRealizado" asp-action="Index">Servicios realizados</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Servicio" asp-action="Index">Servicios</a>
+                                <a class="nav-link" asp-controller="Servicio" asp-action="Index">Servicios</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Cliente" asp-action="Index">Clientes</a>
+                                <a class="nav-link" asp-controller="Cliente" asp-action="Index">Clientes</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
+                                <a class="nav-link" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Facturacion" asp-action="Index">Facturacion</a>
+                                <a class="nav-link" asp-controller="Facturacion" asp-action="Index">Facturación</a>
                             </li>
                         }
                         else if (User.IsInRole("3"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Producto" asp-action="Index">Productos</a>
+                                <a class="nav-link" asp-controller="Producto" asp-action="Index">Productos</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="ServicioRealizado" asp-action="Historial">Historial de Servicios</a>
+                                <a class="nav-link" asp-controller="ServicioRealizado" asp-action="Historial">Historial de Servicios</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
+                                <a class="nav-link" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
                             </li>
                         }
 
                         <li class="nav-item text-end">
-                            <a class="nav-link" asp-area="" asp-controller="Auth" asp-action="Logout">Salir</a>
+                            <a class="nav-link" asp-controller="Auth" asp-action="Logout">Salir</a>
                         </li>
                     }
                     else
                     {
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Auth" asp-action="Login">Login</a>
+                            <a class="nav-link" asp-controller="Auth" asp-action="Login">Login</a>
                         </li>
                     }
                 </ul>

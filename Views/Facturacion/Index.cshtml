@@ -92,6 +92,17 @@
                                             <i class="fas fa-edit"></i>
                                         </a>
 
+                                        @if (item.EstadoFactura == "Pagado" && (User.IsInRole("1") || User.IsInRole("2")))
+                                        {
+                                            <a href="@Url.Action("DownloadPdf", new { id = item.Id })"
+                                               class="btn btn-secondary btn-sm"
+                                               target="_blank"
+                                               data-bs-toggle="tooltip"
+                                               title="Descargar PDF">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                        }
+
                                         @if (item.EstadoFactura != "Pagado")
                                         {
                                             <button type="button"
@@ -154,7 +165,6 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Inicializar DataTables
             $('#facturacionTable').DataTable({
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
@@ -170,13 +180,11 @@
                 ]
             });
 
-            // Inicializar tooltips
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
-            // Auto cerrar alertas
             setTimeout(function () {
                 $('.alert').alert('close');
             }, 5000);
