@@ -1,0 +1,37 @@
+﻿@model IEnumerable<amazon.Models.ServicioRealizado>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Servicio</th>
+                <th>Vehículo</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var servicio in Model)
+            {
+                <tr>
+                    <td>@servicio.Servicio.Nombre</td>
+                    <td>@servicio.Vehiculo?.Marca @servicio.Vehiculo?.Modelo (@servicio.Vehiculo?.Placa)</td>
+                    <td>@servicio.Precio.ToString("C")</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary seleccionarServicio"
+                                data-id="@servicio.id"
+                                data-nombre="@servicio.Servicio.Nombre"
+                                data-precio="@servicio.Precio">
+                            Añadir a la factura
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hay servicios realizados hoy para este cliente.</p>
+}

@@ -1,5 +1,6 @@
 ﻿using amazon.Models;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TuNamespace.Models
 {
@@ -8,15 +9,21 @@ namespace TuNamespace.Models
         public int Id { get; set; }
 
         [Required]
-        public int FacturacionId { get; set; }
+        public int FacturaId { get; set; }
 
         [Required]
         public int ServicioRealizadoId { get; set; }
 
         [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal PrecioUnitario { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Subtotal { get; set; }
 
-        public virtual Facturacion Facturacion { get; set; }  // Relación con la tabla de Facturación
-        public virtual ServicioRealizado ServicioRealizado { get; set; }  // Relación con el Servicio Realizado
+        public virtual Facturacion Facturacion { get; set; }
+        public virtual ServicioRealizado ServicioRealizado { get; set; }
     }
 }
+

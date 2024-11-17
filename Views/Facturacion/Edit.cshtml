@@ -1,0 +1,137 @@
+﻿@model TuNamespace.Models.Facturacion
+
+@{
+    ViewData["Title"] = "Editar Factura";
+}
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h3>Editar Factura #@Model.Id</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                @* Campos ocultos necesarios *@
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="UsuarioId" value="@ViewBag.Usuario.Id" />
+                <input type="hidden" asp-for="MontoTotal" value="@ViewBag.MontoTotal" />
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Cliente</label>
+                            <input type="text" class="form-control" value="@ViewBag.Usuario.Nombre" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="FechaFacturacion" class="form-label">Fecha de Facturación</label>
+                            <input asp-for="FechaFacturacion" class="form-control" type="date" />
+                            <span asp-validation-for="FechaFacturacion" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="MetodoPago" class="form-label">Método de Pago</label>
+                            <select asp-for="MetodoPago" class="form-select">
+                                @foreach (var metodoPago in ViewBag.MetodosPago)
+                                {
+                                    <option value="@metodoPago" selected="@(Model.MetodoPago == metodoPago)">@metodoPago</option>
+                                }
+                            </select>
+                            <span asp-validation-for="MetodoPago" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="EstadoFactura" class="form-label">Estado</label>
+                            <select asp-for="EstadoFactura" class="form-select">
+                                @foreach (var estado in ViewBag.EstadosFactura)
+                                {
+                                    <option value="@estado" selected="@(Model.EstadoFactura == estado)">@estado</option>
+                                }
+                            </select>
+                            <span asp-validation-for="EstadoFactura" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="MontoTotal" class="form-label">Monto Total</label>
+                            <input class="form-control" value="@Model.MontoTotal.ToString("C")" readonly />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver a la Lista
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.DetalleFacturacion != null && Model.DetalleFacturacion.Any())
+    {
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4>Detalles de la Factura</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Servicio</th>
+                                <th>Precio Unitario</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var detalle in Model.DetalleFacturacion)
+                            {
+                                <tr>
+                                    <td>@detalle.ServicioRealizado.Servicio.Nombre</td>
+                                    <td>@detalle.PrecioUnitario.ToString("C")</td>
+                                    <td>@detalle.Subtotal.ToString("C")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            // Validación del formulario
+            $('form').submit(function (e) {
+                var form = $(this);
+                if (form.valid()) {
+                    return true;
+                }
+                e.preventDefault();
+                return false;
+            });
+        });
+    </script>
+}
+
