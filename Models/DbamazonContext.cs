@@ -28,6 +28,12 @@ namespace amazon.Models
         public virtual DbSet<Facturacion> Facturacion { get; set; }
         public virtual DbSet<DetalleFacturacion> DetalleFacturacion { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code.
+            optionsBuilder.UseSqlServer("Server=FATIMA; Database=dbtaller; Trusted_Connection=True; Encrypt=false");
+        }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
