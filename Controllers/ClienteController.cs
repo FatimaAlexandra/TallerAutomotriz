@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using amazon.Models;
 using System.Linq;
 
@@ -39,4 +39,4 @@ namespace amazon.Controllers
             });
         }
     }
-}
+
