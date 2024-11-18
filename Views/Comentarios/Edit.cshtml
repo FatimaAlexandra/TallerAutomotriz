@@ -1,0 +1,70 @@
+﻿@model amazon.Models.Comentario
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+
+<div class="container-sm mt-4">
+    <h4 class="text-center mb-4">Editar comentario</h4>
+    <hr />
+
+    <!-- Formulario de edición con borde y nivel -->
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="border p-4 rounded shadow-sm">
+                <form asp-action="Edit">
+                    <!-- Resumen de validación de modelo -->
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <!-- Campo para el Id (oculto) -->
+                    <input type="hidden" asp-for="Id" />
+
+                    <!-- Campo para el texto del comentario (usando textarea) -->
+                    <div class="form-group">
+                        <label asp-for="Texto" class="control-label"></label>
+                        <textarea asp-for="Texto" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Texto" class="text-danger"></span>
+                    </div>
+
+                    <!-- Campo para la calificación -->
+                    <div class="form-group">
+                        <label asp-for="Calificacion" class="control-label"></label>
+                        <input asp-for="Calificacion" class="form-control" />
+                        <span asp-validation-for="Calificacion" class="text-danger"></span>
+                    </div>
+
+                    <!-- Campo para el Usuario -->
+                    <div class="form-group">
+                        <label asp-for="UsuarioId" class="control-label"></label>
+                        <select asp-for="UsuarioId" class="form-control" asp-items="ViewBag.UsuarioId"></select>
+                        <span asp-validation-for="UsuarioId" class="text-danger"></span>
+                    </div>
+
+                    <!-- Campo para el Servicio -->
+                    <div class="form-group">
+                        <label asp-for="ServicioId" class="control-label"></label>
+                        <select asp-for="ServicioId" class="form-control" asp-items="ViewBag.ServicioId"></select>
+                        <span asp-validation-for="ServicioId" class="text-danger"></span>
+                    </div>
+
+                    <!-- Botón para guardar -->
+                    <div class="form-group text-center mt-3">
+                        <input type="submit" value="Guardar" class="btn btn-primary btn-lg" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enlace para volver a la lista -->
+    <div class="text-center mt-3">
+        <a asp-action="Index" class="btn btn-secondary btn-lg">Volver</a>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

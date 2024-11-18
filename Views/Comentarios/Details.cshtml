@@ -1,0 +1,48 @@
+﻿@model amazon.Models.Comentario
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+
+<div class="container-sm mt-4">
+    <h4 class="text-center" style="font-size: 1.5rem;">Comentario</h4>
+    <hr />
+
+    <!-- Lista de elementos con diseño de definición -->
+    <dl class="row border p-3 rounded shadow-sm">
+        <dt class="col-sm-3" style="font-size: 1.2rem;">
+            @Html.DisplayNameFor(model => model.Texto)
+        </dt>
+        <dd class="col-sm-9" style="font-size: 1.2rem;">
+            @Html.DisplayFor(model => model.Texto)
+        </dd>
+
+        <dt class="col-sm-3" style="font-size: 1.2rem;">
+            @Html.DisplayNameFor(model => model.Calificacion)
+        </dt>
+        <dd class="col-sm-9" style="font-size: 1.2rem;">
+            @Html.DisplayFor(model => model.Calificacion)
+        </dd>
+
+        <dt class="col-sm-3" style="font-size: 1.2rem;">
+            @Html.DisplayNameFor(model => model.Usuario)
+        </dt>
+        <dd class="col-sm-9" style="font-size: 1.2rem;">
+            @Html.DisplayFor(model => model.Usuario.Id)
+        </dd>
+
+        <dt class="col-sm-3" style="font-size: 1.2rem;">
+            @Html.DisplayNameFor(model => model.Servicio)
+        </dt>
+        <dd class="col-sm-9" style="font-size: 1.2rem;">
+            @Html.DisplayFor(model => model.Servicio.Categoria)
+        </dd>
+    </dl>
+
+    <!-- Botones de acción con clases de Bootstrap -->
+    <div class="text-center mt-3">
+        <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@Model?.Id">Editar</a>
+        <a class="btn btn-secondary btn-sm" asp-action="Index">Volver</a>
+    </div>
+</div>

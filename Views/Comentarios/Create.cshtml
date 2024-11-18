@@ -1,0 +1,59 @@
+﻿@model amazon.Models.Comentario
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1 class="text-center">Crear</h1>
+<h4 class="text-center">Comentario</h4>
+<hr />
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- Formulario con borde y sombra -->
+            <form asp-action="Create" class="border p-4 rounded shadow-sm">
+                <!-- Mostrar errores de validación globales -->
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <!-- Campo Texto -->
+                <div class="form-group">
+                    <label asp-for="Texto" class="control-label">Comentario</label>
+                    <textarea asp-for="Texto" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Texto" class="text-danger"></span>
+                </div>
+
+                <!-- Campo Calificación -->
+                <div class="form-group">
+                    <label asp-for="Calificacion" class="control-label">Calificación</label>
+                    <input asp-for="Calificacion" type="number" class="form-control" min="0" max="5" />
+                    <span asp-validation-for="Calificacion" class="text-danger"></span>
+                </div>
+
+                <!-- Campo UsuarioId (Seleccionar usuario) -->
+                <div class="form-group">
+                    <label asp-for="UsuarioId" class="control-label">Usuario</label>
+                    <select asp-for="UsuarioId" class="form-control" asp-items="ViewBag.UsuarioId"></select>
+                </div>
+
+                <!-- Campo ServicioId (Seleccionar servicio) -->
+                <div class="form-group">
+                    <label asp-for="ServicioId" class="control-label">Servicio</label>
+                    <select asp-for="ServicioId" class="form-control" asp-items="ViewBag.ServicioId"></select>
+                </div>
+
+                <!-- Botón de envío con margen superior -->
+                <div class="form-group mt-3 text-center">
+                    <input type="submit" value="Comentar" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-3">
+    <a asp-action="Index">Volver a la lista</a>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

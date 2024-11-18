@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using TuNamespace.Models;
+using amazon.Models;
 
 namespace amazon.Models
 {
@@ -27,6 +28,9 @@ namespace amazon.Models
 
         public virtual DbSet<Facturacion> Facturacion { get; set; }
         public virtual DbSet<DetalleFacturacion> DetalleFacturacion { get; set; }
+
+        public virtual DbSet<Comentario> Comentarios { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -57,5 +61,7 @@ namespace amazon.Models
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+        public DbSet<amazon.Models.Comentario>? Comentario { get; set; }
     }
 }

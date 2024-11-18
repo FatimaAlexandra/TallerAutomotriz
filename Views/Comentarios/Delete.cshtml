@@ -1,0 +1,55 @@
+﻿@model amazon.Models.Comentario
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+
+<div class="container-sm mt-4">
+    <h3 class="text-center mb-4">¿Desea borrar este comentario?</h3>
+
+    <!-- Información del comentario con estilo -->
+    <div class="border p-4 rounded shadow-sm">
+        <h4 class="text-center mb-3">Comentario</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => model.Texto)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.Texto)
+            </dd>
+
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => model.Calificacion)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.Calificacion)
+            </dd>
+
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => model.Usuario)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.Usuario.Id)
+            </dd>
+
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => model.Servicio)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.Servicio.Categoria)
+            </dd>
+        </dl>
+    </div>
+
+    <!-- Formulario para eliminar el comentario -->
+    <div class="text-center mt-4">
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger btn-lg">Borrar</button> |
+            <a class="btn btn-secondary btn-lg" asp-action="Index">Volver</a>
+        </form>
+    </div>
+</div>
+
