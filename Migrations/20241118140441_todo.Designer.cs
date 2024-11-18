@@ -12,7 +12,7 @@ using amazon.Models;
 namespace amazon.Migrations
 {
     [DbContext(typeof(DbamazonContext))]
-    [Migration("20241118042553_todo")]
+    [Migration("20241118140441_todo")]
     partial class todo
     {
         /// <inheritdoc />
