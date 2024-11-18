@@ -117,6 +117,7 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Cliente" asp-action="Index">Clientes</a>
+
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
@@ -125,9 +126,13 @@
                                 <a class="nav-link" asp-controller="Facturacion" asp-action="Index">Facturación</a>
                             </li>
                             <li class="nav-item">
+
+                                <a class="nav-link" asp-controller="Reporteria" asp-action="Index">Reporteria</a>
+
                                 <a class="nav-link" asp-controller="Comentarios" asp-action="Index">
                                     <i class="fas fa-comments"></i> Comentarios
                                 </a>
+
                             </li>
                         }
                         else if (User.IsInRole("3"))
