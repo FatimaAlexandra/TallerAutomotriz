@@ -1,0 +1,319 @@
+﻿@model amazon.Models.Comentario
+
+@{
+    ViewData["Title"] = "Editar Comentario";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning">
+                    <h4 class="mb-0 text-dark">
+                        <i class="fas fa-edit"></i> @ViewData["Title"]
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" id="editCommentForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="ServicioRealizadoId" />
+                        <input type="hidden" asp-for="UsuarioId" />
+                        <input type="hidden" asp-for="FechaCreacion" />
+
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Servicio</label>
+                                    <input type="text" class="form-control" readonly
+                                           value="@Model.ServicioRealizado?.Servicio?.Nombre" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Vehículo</label>
+                                    <input type="text" class="form-control" readonly
+                                           value="@($"{Model.ServicioRealizado?.Vehiculo?.Marca} {Model.ServicioRealizado?.Vehiculo?.Modelo} ({Model.ServicioRealizado?.Vehiculo?.Placa})")" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            Comentario creado el: @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                            @if (Model.FechaModificacion.HasValue)
+                            {
+                                <br />
+                                <i class="fas fa-edit"></i>
+                                <text>Última modificación: </text>
+
+                                @Model.FechaModificacion.Value.ToString("dd/MM/yyyy HH:mm")
+                            }
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Calificación <span class="text-danger">*</span></label>
+                            <div class="rating-container">
+                                <div class="rating-input text-center">
+                                    @for (int i = 5; i >= 1; i--)
+                                    {
+                                        <input type="radio" id="star@(i)" name="Calificacion" value="@i"
+                                        @(Model.Calificacion == i ? "checked" : "") required />
+                                        <label for="star@(i)" class="rating-label" title="@i estrellas">
+                                            <i class="@(Model.Calificacion >= i ? "fas" : "far") fa-star"></i>
+                                        </label>
+                                    }
+                                </div>
+                                <div class="rating-text text-center mt-2">
+                                    <span id="ratingText">
+                                        @{
+                                            var ratingText = Model.Calificacion switch
+                                            {
+                                                1 => "Muy malo",
+                                                2 => "Malo",
+                                                3 => "Regular",
+                                                4 => "Bueno",
+                                                5 => "Excelente",
+                                                _ => "Seleccione una calificación"
+                                            };
+                                        }
+                                        @ratingText
+                                    </span>
+                                </div>
+                                <span asp-validation-for="Calificacion" class="text-danger d-block text-center"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Contenido" class="form-label">Comentario <span class="text-danger">*</span></label>
+                            <textarea asp-for="Contenido" class="form-control" rows="5"
+                                      placeholder="Escriba su opinión sobre el servicio recibido (mínimo 10 caracteres)..."
+                                      maxlength="1000" required></textarea>
+                            <div class="form-text text-end">
+                                <span id="charCount">@(Model.Contenido?.Length ?? 0)</span>/1000 caracteres
+                            </div>
+                            <span asp-validation-for="Contenido" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="MisComentarios" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-warning" id="submitButton">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .rating-container {
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,.1);
+        }
+
+        .rating-input {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .rating-label {
+            cursor: pointer;
+            font-size: 2rem;
+            color: #ddd;
+            transition: all 0.3s ease;
+        }
+
+            .rating-label:hover,
+            .rating-label:hover ~ .rating-label,
+            input[type="radio"]:checked ~ .rating-label {
+                color: #ffd700;
+            }
+
+            .rating-label i {
+                transition: transform 0.2s ease;
+            }
+
+            .rating-label:hover i,
+            input[type="radio"]:checked ~ .rating-label i {
+                transform: scale(1.2);
+            }
+
+        .rating-text {
+            font-weight: 500;
+            color: #6c757d;
+            margin-top: 1rem;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            textarea:focus {
+                border-color: #ffb107;
+                box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+            }
+
+        .form-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+            .btn:hover {
+                transform: translateY(-2px);
+            }
+
+        .card {
+            border: none;
+            transition: transform 0.3s ease;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.1);
+        }
+
+        .card-header {
+            border-radius: 0.5rem 0.5rem 0 0;
+            padding: 1rem 1.5rem;
+        }
+
+        .alert {
+            margin-bottom: 1.5rem;
+        }
+
+        .invalid-feedback {
+            font-size: 0.875rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            const ratingTexts = {
+                1: 'Muy malo',
+                2: 'Malo',
+                3: 'Regular',
+                4: 'Bueno',
+                5: 'Excelente'
+            };
+
+            // Manejar la selección de estrellas
+            $('input[name="Calificacion"]').change(function () {
+                const rating = $(this).val();
+                $('#ratingText').text(ratingTexts[rating]);
+
+                // Actualizar estrellas
+                $('.rating-label i').removeClass('fas').addClass('far');
+                $(this).nextAll('.rating-label').find('i').removeClass('far').addClass('fas');
+                $(this).next('.rating-label').find('i').removeClass('far').addClass('fas');
+            });
+
+            // Contador de caracteres
+            $('#Contenido').on('input', function () {
+                const maxLength = 1000;
+                const currentLength = $(this).val().length;
+                $('#charCount').text(currentLength);
+
+                if (currentLength >= maxLength) {
+                    $('#charCount').addClass('text-danger');
+                } else {
+                    $('#charCount').removeClass('text-danger');
+                }
+            });
+
+            // Validación del formulario
+            $('#editCommentForm').submit(function (e) {
+                e.preventDefault();
+
+                // Validar calificación
+                const rating = $('input[name="Calificacion"]:checked').val();
+                if (!rating) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Por favor, seleccione una calificación'
+                    });
+                    return false;
+                }
+
+                // Validar contenido
+                const contenido = $('#Contenido').val().trim();
+                if (!contenido || contenido.length < 10) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'El comentario debe tener al menos 10 caracteres'
+                    });
+                    return false;
+                }
+
+                // Confirmación antes de guardar
+                Swal.fire({
+                    title: '¿Guardar cambios?',
+                    text: "¿Está seguro que desea actualizar este comentario?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ffc107',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, guardar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('#submitButton').prop('disabled', true)
+                            .html('<i class="fas fa-spinner fa-spin"></i> Guardando...');
+                        $(this).unbind('submit').submit();
+                    }
+                });
+            });
+
+            // Mostrar mensajes si existen
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: '@TempData["SuccessMessage"]'
+                    });
+            </text>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: '@TempData["ErrorMessage"]'
+                    });
+            </text>
+        }
+                });
+    </script>
+}
