@@ -73,16 +73,7 @@
 
     <!-- Gráficos otros -->
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Servicios Realizados por Mes</h3>
-            <canvas id="serviciosPorMesChart" class="w-full"></canvas>
-        </div>
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Facturas Generadas por Mes</h3>
-            <canvas id="facturasPorMesChart" class="w-full"></canvas>
-        </div>
-    </div>
+
 
 
     <script>
@@ -376,85 +367,8 @@
             $(document).ready(function () {
                 let serviciosPorMesChart, facturasPorMesChart;
 
-                // Función para cargar el gráfico de servicios realizados por mes
-                function cargarServiciosPorMes() {
-                    $.getJSON('/Reporteria/ServiciosPorMes', function (data) {
-                        const labels = data.map(d => d.mes);
-                        const valores = data.map(d => d.cantidad);
 
-                        if (serviciosPorMesChart) serviciosPorMesChart.destroy();
-
-                        const ctx = document.getElementById('serviciosPorMesChart').getContext('2d');
-                        serviciosPorMesChart = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels,
-                                datasets: [{
-                                    label: 'Servicios Realizados',
-                                    data: valores,
-                                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                                    borderColor: 'rgba(59, 130, 246, 1)',
-                                    borderWidth: 2,
-                                    fill: true
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                plugins: {
-                                    legend: { display: false }
-                                },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true
-                                    }
-                                }
-                            }
-                        });
-                    }).fail(function () {
-                        alert('Error al cargar los datos de servicios por mes.');
-                    });
-                }
-
-
-
-
-                // Función para cargar el gráfico de facturas generadas por mes
-                function cargarFacturasPorMes() {
-                    $.getJSON('/Reporteria/FacturasPorMes', function (data) {
-                        const labels = data.map(d => d.mes);
-                        const valores = data.map(d => d.cantidad);
-
-                        if (facturasPorMesChart) facturasPorMesChart.destroy();
-
-                        const ctx = document.getElementById('facturasPorMesChart').getContext('2d');
-                        facturasPorMesChart = new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels,
-                                datasets: [{
-                                    label: 'Facturas Generadas',
-                                    data: valores,
-                                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                                    borderColor: 'rgba(75, 192, 192, 1)',
-                                    borderWidth: 1
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                plugins: {
-                                    legend: { display: false }
-                                },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true
-                                    }
-                                }
-                            }
-                        });
-                    }).fail(function () {
-                        alert('Error al cargar los datos de facturas por mes.');
-                    });
-                }
+                
 
                 // Llamar a las funciones de inicialización
                 cargarServiciosPorMes();
@@ -488,7 +402,6 @@
             actualizarResumen();
             cargarIngresosPorServicio();
             cargarVehiculosPorMarcaModelo();
-            // Inicializar los filtros
             cargarServicios();
             cargarMarcas();
         });
