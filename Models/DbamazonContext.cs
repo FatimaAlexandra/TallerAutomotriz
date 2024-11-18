@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using TuNamespace.Models;
+using amazon.Models;
 
 namespace amazon.Models
 {
@@ -57,5 +58,7 @@ namespace amazon.Models
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+        
     }
 }
