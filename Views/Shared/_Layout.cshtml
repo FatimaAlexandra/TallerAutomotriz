@@ -120,14 +120,15 @@
 
                                 <a class="nav-link" asp-controller="Cliente" asp-action="Index">Clientes</a>
 
-                                <a class="nav-link" asp-area="" asp-controller="Cliente" asp-action="Index">Clientes</a>
-
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Facturacion" asp-action="Index">Facturación</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Reporteria" asp-action="Index">Reporteria</a>
                             </li>
                         }
                         else if (User.IsInRole("3"))

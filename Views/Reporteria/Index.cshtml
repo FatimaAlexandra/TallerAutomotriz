@@ -1,0 +1,494 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Reportería</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 text-center">Dashboard de Reportería</h1>
+            <p class="text-center text-gray-600 mt-2">Sistema de análisis y seguimiento</p>
+        </div>
+
+
+        <!-- Tarjetas de Resumen -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Ingresos Totales</h3>
+
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Servicios Realizados</h3>
+
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Vehículos Atendidos</h3>
+
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Satisfacción</h3>
+
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Ingresos por Servicio</h3>
+                <canvas id="ingresosPorServicioChart" class="w-full"></canvas>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Vehículos por Marca y Modelo</h3>
+                <canvas id="vehiculosPorMarcaModeloChart" class="w-full"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos npata filtrar marcas -->
+
+    <div class="bg-white rounded-lg shadow-md p-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Modelos por Marca</h3>
+            <button id="resetMarcaFiltro" class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 focus:outline-none">
+                Restablecer Filtro
+            </button>
+        </div>
+        <div class="flex flex-col md:flex-row items-center gap-4 mb-4">
+            <label for="marcaFiltroSelect" class="text-sm font-medium text-gray-700">Filtrar por Marca:</label>
+            <select id="marcaFiltroSelect" class="w-full md:w-1/3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <option value="all">Selecciona una marca</option>
+            </select>
+        </div>
+        <div class="relative" style="width: 400px; height: 250px; margin: 0 auto;">
+            <canvas id="modelosPorMarcaChart"></canvas>
+            <p id="noDataMessage" class="absolute inset-0 flex justify-center items-center text-gray-500 text-sm hidden">
+                No hay datos disponibles para esta marca.
+            </p>
+        </div>
+    </div>
+
+    <!-- Gráficos otros -->
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Servicios Realizados por Mes</h3>
+            <canvas id="serviciosPorMesChart" class="w-full"></canvas>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Facturas Generadas por Mes</h3>
+            <canvas id="facturasPorMesChart" class="w-full"></canvas>
+        </div>
+    </div>
+
+
+    <script>
+        $(document).ready(function () {
+            let ingresosPorServicioChart, vehiculosPorMarcaModeloChart;
+
+            // Función para formatear números como moneda
+            const formatCurrency = (value) => {
+                return new Intl.NumberFormat('es-CL', {
+                    style: 'currency',
+                    currency: 'CLP'
+                }).format(value);
+            };
+            $(document).ready(function () {
+                let modelosPorMarcaChart;
+
+                // Función para cargar marcas en el filtro
+                function cargarMarcasFiltro() {
+                    $.getJSON('/Reporteria/ObtenerMarcas', function (data) {
+                        const marcaFiltroSelect = $('#marcaFiltroSelect');
+                        marcaFiltroSelect.empty();
+                        marcaFiltroSelect.append('<option value="all">Selecciona una marca</option>');
+                        data.forEach(marca => {
+                            marcaFiltroSelect.append(`<option value="${marca}">${marca}</option>`);
+                        });
+                    }).fail(function () {
+                        alert('Error al cargar las marcas para el filtro.');
+                    });
+                }
+
+                // Función para cargar modelos por marca
+                function cargarModelosPorMarca(marca) {
+                    $.getJSON(`/Reporteria/ModelosPorMarca?marca=${marca}`, function (data) {
+                        const labels = data.map(d => d.modelo);
+                        const valores = data.map(d => d.cantidad);
+
+                        // Muestra el mensaje "No hay datos" si no hay valores
+                        if (valores.length === 0) {
+                            $('#modelosPorMarcaChart').hide();
+                            $('#noDataMessage').removeClass('hidden');
+                            return;
+                        }
+
+                        $('#modelosPorMarcaChart').show();
+                        $('#noDataMessage').addClass('hidden');
+
+                        if (modelosPorMarcaChart) modelosPorMarcaChart.destroy();
+
+                        const ctx = document.getElementById('modelosPorMarcaChart').getContext('2d');
+                        modelosPorMarcaChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels,
+                                datasets: [{
+                                    label: `Modelos de ${marca}`,
+                                    data: valores,
+                                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { display: false }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    }).fail(function () {
+                        alert('Error al cargar los modelos por marca.');
+                    });
+                }
+
+                // Evento para actualizar el gráfico al seleccionar una marca
+                $('#marcaFiltroSelect').change(function () {
+                    const marcaSeleccionada = $(this).val();
+                    if (marcaSeleccionada !== 'all') {
+                        cargarModelosPorMarca(marcaSeleccionada);
+                    } else {
+                        $('#modelosPorMarcaChart').hide();
+                        $('#noDataMessage').removeClass('hidden').text('Por favor, selecciona una marca.');
+                    }
+                });
+
+                // Evento para restablecer el filtro
+                $('#resetMarcaFiltro').click(function () {
+                    $('#marcaFiltroSelect').val('all').trigger('change');
+                });
+
+                // Inicializar el filtro y gráfico de modelos por marca
+                $('#modelosPorMarcaChart').hide(); // Ocultar el gráfico inicialmente
+                cargarMarcasFiltro();
+            });
+
+
+            // Función para actualizar las tarjetas de resumen
+            function actualizarResumen(periodo = 'all') {
+                $.getJSON('/Reporteria/ResumenDashboard', { periodo }, function (data) {
+                    $('#ingresosTotales').text(formatCurrency(data.ingresosTotales));
+                    $('#serviciosTotales').text(data.serviciosTotales);
+                    $('#vehiculosTotales').text(data.vehiculosTotales);
+                    $('#satisfaccion').text(data.satisfaccion + '%');
+
+                    // Actualizar comparaciones
+                    $('#ingresosComparacion').text(`${data.ingresosVariacion > 0 ? '+' : ''}${data.ingresosVariacion}% vs período anterior`);
+                    $('#serviciosComparacion').text(`${data.serviciosVariacion > 0 ? '+' : ''}${data.serviciosVariacion}% vs período anterior`);
+                    $('#vehiculosComparacion').text(`${data.vehiculosVariacion > 0 ? '+' : ''}${data.vehiculosVariacion}% vs período anterior`);
+                    $('#satisfaccionComparacion').text(`${data.satisfaccionVariacion > 0 ? '+' : ''}${data.satisfaccionVariacion}% vs período anterior`);
+                });
+            }
+
+            // Función para cargar el gráfico de ingresos
+            function cargarIngresosPorServicio(periodo = 'all') {
+                $.getJSON('/Reporteria/IngresosPorServicio', { periodo }, function (data) {
+                    const labels = data.map(d => d.servicio);
+                    const valores = data.map(d => d.totalIngresos);
+
+                    if (ingresosPorServicioChart) ingresosPorServicioChart.destroy();
+
+                    const ctx = document.getElementById('ingresosPorServicioChart').getContext('2d');
+                    ingresosPorServicioChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [{
+                                label: 'Ingresos',
+                                data: valores,
+                                backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                                borderColor: 'rgb(59, 130, 246)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            return formatCurrency(context.raw);
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function (value) {
+                                            return formatCurrency(value);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+
+            // Cargar lista de servicios en el filtro
+            function cargarServicios() {
+                $.getJSON('/Reporteria/ObtenerServicios', function (data) {
+                    const servicioSelect = $('#servicioSelect');
+                    servicioSelect.empty();
+                    servicioSelect.append('<option value="all">Todos los servicios</option>');
+                    data.forEach(servicio => {
+                        servicioSelect.append(`<option value="${servicio.Id}">${servicio.Nombre}</option>`);
+                    });
+                }).fail(function () {
+                    alert('Error al cargar los servicios.');
+                });
+            }
+
+            // Cargar lista de marcas en el filtro
+            function cargarMarcas() {
+                $.getJSON('/Reporteria/ObtenerMarcas', function (data) {
+                    const marcaSelect = $('#marcaSelect');
+                    marcaSelect.empty();
+                    marcaSelect.append('<option value="all">Todas las marcas</option>');
+                    data.forEach(marca => {
+                        marcaSelect.append(`<option value="${marca}">${marca}</option>`);
+                    });
+                }).fail(function () {
+                    alert('Error al cargar las marcas.');
+                });
+            }
+
+            // Función para cargar el gráfico de vehículos
+            function cargarVehiculosPorMarcaModelo() {
+                $.getJSON('/Reporteria/VehiculosPorMarcaModelo', function (data) {
+                    const labels = data.map(d => `${d.marca} ${d.modelo}`);
+                    const valores = data.map(d => d.cantidad);
+
+                    if (vehiculosPorMarcaModeloChart) vehiculosPorMarcaModeloChart.destroy();
+
+                    const ctx = document.getElementById('vehiculosPorMarcaModeloChart').getContext('2d');
+                    vehiculosPorMarcaModeloChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels,
+                            datasets: [{
+                                data: valores,
+                                backgroundColor: [
+                                    'rgba(59, 130, 246, 0.5)',
+                                    'rgba(16, 185, 129, 0.5)',
+                                    'rgba(139, 92, 246, 0.5)',
+                                    'rgba(245, 158, 11, 0.5)',
+                                    'rgba(239, 68, 68, 0.5)'
+                                ],
+                                borderColor: [
+                                    'rgb(59, 130, 246)',
+                                    'rgb(16, 185, 129)',
+                                    'rgb(139, 92, 246)',
+                                    'rgb(245, 158, 11)',
+                                    'rgb(239, 68, 68)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        boxWidth: 12,
+                                        padding: 15
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+            // Función para cargar lista de marcas en el filtro del gráfico
+            function cargarMarcasFiltro() {
+                $.getJSON('/Reporteria/ObtenerMarcas', function (data) {
+                    const marcaFiltroSelect = $('#marcaFiltroSelect');
+                    marcaFiltroSelect.empty();
+                    marcaFiltroSelect.append('<option value="all">Selecciona una marca</option>');
+                    data.forEach(marca => {
+                        marcaFiltroSelect.append(`<option value="${marca}">${marca}</option>`);
+                    });
+                }).fail(function () {
+                    alert('Error al cargar las marcas para el filtro.');
+                });
+            }
+
+            // Función para cargar modelos por marca
+            function cargarModelosPorMarca(marca) {
+                $.getJSON(`/Reporteria/ModelosPorMarca?marca=${marca}`, function (data) {
+                    const labels = data.map(d => d.modelo);
+                    const valores = data.map(d => d.cantidad);
+
+                    if (modelosPorMarcaChart) modelosPorMarcaChart.destroy();
+
+                    const ctx = document.getElementById('modelosPorMarcaChart').getContext('2d');
+                    modelosPorMarcaChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [{
+                                label: `Modelos de ${marca}`,
+                                data: valores,
+                                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                }).fail(function () {
+                    alert('Error al cargar los modelos por marca.');
+                });
+            }
+            $(document).ready(function () {
+                let serviciosPorMesChart, facturasPorMesChart;
+
+                // Función para cargar el gráfico de servicios realizados por mes
+                function cargarServiciosPorMes() {
+                    $.getJSON('/Reporteria/ServiciosPorMes', function (data) {
+                        const labels = data.map(d => d.mes);
+                        const valores = data.map(d => d.cantidad);
+
+                        if (serviciosPorMesChart) serviciosPorMesChart.destroy();
+
+                        const ctx = document.getElementById('serviciosPorMesChart').getContext('2d');
+                        serviciosPorMesChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels,
+                                datasets: [{
+                                    label: 'Servicios Realizados',
+                                    data: valores,
+                                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                                    borderColor: 'rgba(59, 130, 246, 1)',
+                                    borderWidth: 2,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { display: false }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    }).fail(function () {
+                        alert('Error al cargar los datos de servicios por mes.');
+                    });
+                }
+
+                // Función para cargar el gráfico de facturas generadas por mes
+                function cargarFacturasPorMes() {
+                    $.getJSON('/Reporteria/FacturasPorMes', function (data) {
+                        const labels = data.map(d => d.mes);
+                        const valores = data.map(d => d.cantidad);
+
+                        if (facturasPorMesChart) facturasPorMesChart.destroy();
+
+                        const ctx = document.getElementById('facturasPorMesChart').getContext('2d');
+                        facturasPorMesChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels,
+                                datasets: [{
+                                    label: 'Facturas Generadas',
+                                    data: valores,
+                                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { display: false }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    }).fail(function () {
+                        alert('Error al cargar los datos de facturas por mes.');
+                    });
+                }
+
+                // Llamar a las funciones de inicialización
+                cargarServiciosPorMes();
+                cargarFacturasPorMes();
+            });
+
+
+            // Evento para actualizar el gráfico de modelos por marca al seleccionar una marca
+            $('#marcaFiltroSelect').change(function () {
+                const marcaSeleccionada = $(this).val();
+                if (marcaSeleccionada !== 'all') {
+                    cargarModelosPorMarca(marcaSeleccionada);
+                }
+            });
+
+            // Inicializar el filtro y gráfico de modelos por marca
+            let modelosPorMarcaChart;
+            cargarMarcasFiltro();
+
+
+            // Eventos
+            $('#periodoSelect, #servicioSelect, #marcaSelect').change(function () {
+                const periodo = $('#periodoSelect').val();
+                cargarIngresosPorServicio(periodo);
+                actualizarResumen(periodo);
+            });
+
+
+
+            // Inicialización
+            actualizarResumen();
+            cargarIngresosPorServicio();
+            cargarVehiculosPorMarcaModelo();
+            // Inicializar los filtros
+            cargarServicios();
+            cargarMarcas();
+        });
+    </script>
+</body>
+</html>

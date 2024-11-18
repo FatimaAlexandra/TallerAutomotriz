@@ -36,6 +36,53 @@ namespace amazon.Controllers
             }
             return View("~/Views/Registro/Index.cshtml", usuario);
         }
+        [HttpGet]
+        public IActionResult ObtenerServicios()
+        {
+            var servicios = _context.Servicios
+                .Select(s => new { s.Id, s.Nombre })
+                .ToList();
+            return Json(servicios);
+        }
+
+        [HttpGet]
+        public IActionResult ObtenerMarcas()
+        {
+            var marcas = _context.Vehiculos
+                .Select(v => v.Marca)
+                .Distinct()
+                .ToList();
+            return Json(marcas);
+        }
+
+
+
+        [HttpGet]
+        public IActionResult ModelosPorMarca(string marca)
+        {
+            try
+            {
+                var modelos = _context.Vehiculos
+                    .Where(v => v.Marca == marca)
+                    .GroupBy(v => v.Modelo)
+                    .Select(g => new
+                    {
+                        Modelo = g.Key,
+                        Cantidad = g.Count()
+                    })
+                    .ToList();
+
+                return Json(modelos);
+            }
+            catch (Exception ex)
+            {
+                // Log error si es necesario
+                Console.WriteLine($"Error en ModelosPorMarca: {ex.Message}");
+                return BadRequest("Error al obtener los modelos por marca.");
+            }
+        }
+
+
 
 
         private async Task AuthenticateUser(string userName)
