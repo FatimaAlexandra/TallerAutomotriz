@@ -1,0 +1,599 @@
+﻿@model TuNamespace.Models.Facturacion
+
+@{
+    ViewData["Title"] = "Crear Nueva Factura";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="text-primary mb-0">
+                    <i class="fas fa-file-invoice-dollar"></i> @ViewData["Title"]
+                </h2>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver al Listado
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Panel Izquierdo - Búsqueda y Resumen -->
+        <div class="col-md-4">
+            <!-- Búsqueda de Cliente -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-search"></i> Búsqueda de Cliente
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label for="duiCliente" class="form-label">DUI del Cliente</label>
+                        <div class="input-group">
+                            <input type="text" id="duiCliente" class="form-control"
+                                   placeholder="00000000-0" maxlength="10" />
+                            <button class="btn btn-outline-primary" type="button" id="buscarCliente">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                        <div class="form-text text-muted">Formato: 00000000-0</div>
+                    </div>
+
+                    <!-- Información del Cliente -->
+                    <div id="infoCliente" class="d-none">
+                        <div class="alert alert-info mb-0">
+                            <h6 class="alert-heading fw-bold mb-2">Información del Cliente</h6>
+                            <p class="mb-1" id="nombreCliente"></p>
+                            <p class="mb-1" id="telefonoCliente"></p>
+                            <p class="mb-0" id="correoCliente"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Totales -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calculator"></i> Resumen
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Servicios Seleccionados:</span>
+                            <span class="badge bg-primary rounded-pill" id="contadorServicios">0</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Total a Pagar:</span>
+                            <span class="h4 mb-0 text-success" id="totalFactura">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Derecho - Formulario y Servicios -->
+        <div class="col-md-8">
+            <form id="facturaForm" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="usuarioId" name="UsuarioId" />
+                <input type="hidden" id="montoTotal" name="MontoTotal" />
+                <input type="hidden" id="serviciosSeleccionados" name="serviciosSeleccionados" />
+
+                <!-- Información de Facturación -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle"></i> Detalles de Facturación
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="FechaFacturacion" class="form-label">Fecha de Facturación</label>
+                                    <input asp-for="FechaFacturacion" type="date" class="form-control" required />
+                                    <span asp-validation-for="FechaFacturacion" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="MetodoPago" class="form-label">Método de Pago</label>
+                                    <select asp-for="MetodoPago" class="form-select" required>
+                                        <option value="">Seleccione método de pago...</option>
+                                        <option value="Efectivo">Efectivo</option>
+                                        <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                                        <option value="Transferencia">Transferencia Bancaria</option>
+                                    </select>
+                                    <span asp-validation-for="MetodoPago" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Servicios Disponibles -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list"></i> Servicios Disponibles
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="listaServicios">
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle"></i> Busque un cliente para ver los servicios disponibles.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Servicios Seleccionados -->
+                <div id="resumenFactura" class="card shadow-sm mb-4 d-none">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-check-circle"></i> Servicios Seleccionados
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Servicio</th>
+                                        <th>Vehículo</th>
+                                        <th>Precio</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="serviciosSeleccionadosBody"></tbody>
+                                <tfoot>
+                                    <tr class="table-success">
+                                        <th colspan="2" class="text-end">Total:</th>
+                                        <th id="totalFacturaResumen">$0.00</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success" id="btnGenerarFactura" disabled>
+                        <i class="fas fa-save"></i> Generar Factura
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        let serviciosSeleccionados = new Set();
+        let montoTotal = 0;
+
+        $(document).ready(function () {
+            inicializarFormulario();
+            configurarEventos();
+        });
+
+        function inicializarFormulario() {
+            const today = new Date().toISOString().split('T')[0];
+            $('input[type="date"]').val(today);
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        }
+
+        function configurarEventos() {
+            $('#duiCliente').on('input', function () {
+                let dui = $(this).val().replace(/[^0-9]/g, '');
+                if (dui.length > 8) {
+                    dui = dui.slice(0, 8) + '-' + dui.slice(8, 9);
+                }
+                $(this).val(dui);
+            });
+
+            $('#buscarCliente').click(buscarCliente);
+            $('#MetodoPago').on('change', verificarMetodoPago);
+            $('#facturaForm').on('submit', manejarSubmitFormulario);
+        }
+
+        function buscarCliente() {
+            const dui = $('#duiCliente').val();
+            if (!validarDUI(dui)) {
+                mostrarError('El DUI debe tener el formato correcto (00000000-0)');
+                return;
+            }
+
+            $.get('/Facturacion/BuscarClientePorDui', { dui })
+                .done(function (response) {
+                    if (response.success) {
+                        mostrarInformacionCliente(response);
+                        cargarServiciosDisponibles(response.id);
+                    } else {
+                        mostrarError('No se encontró ningún cliente con ese DUI');
+                    }
+                })
+                .fail(function () {
+                    mostrarError('Error al buscar el cliente');
+                });
+        }
+
+        function validarDUI(dui) {
+            return /^\d{8}-\d$/.test(dui);
+        }
+
+        function mostrarInformacionCliente(cliente) {
+            $('#infoCliente').removeClass('d-none');
+            $('#nombreCliente').text('Nombre: ' + cliente.nombre);
+            $('#telefonoCliente').text('Teléfono: ' + cliente.telefono);
+            $('#correoCliente').text('Correo: ' + cliente.correo);
+            $('#usuarioId').val(cliente.id);
+        }
+
+        function cargarServiciosDisponibles(usuarioId) {
+            if (!usuarioId) return;
+
+            $.get('/Facturacion/GetServiciosDisponibles', { usuarioId })
+                .done(function (response) {
+                    if (response.success && response.servicios?.length > 0) {
+                        mostrarTablaServicios(response.servicios);
+                    } else {
+                        $('#listaServicios').html(`
+                                            <div class="alert alert-warning mb-0">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                No hay servicios disponibles para facturar para este cliente.
+                                            </div>
+                                        `);
+                    }
+                })
+                .fail(function () {
+                    mostrarError('Error al cargar los servicios');
+                });
+        }
+
+        function mostrarTablaServicios(servicios) {
+            const tablaHtml = `
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Servicio</th>
+                                                <th>Vehículo</th>
+                                                <th>Fecha</th>
+                                                <th>Precio</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${servicios.map(servicio => crearFilaServicio(servicio)).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+
+            $('#listaServicios').html(tablaHtml);
+        }
+
+        function crearFilaServicio(servicio) {
+            return `
+                                <tr id="servicio-${servicio.id}">
+                                    <td>${servicio.servicioNombre}</td>
+                                    <td>${servicio.vehiculo.marca} ${servicio.vehiculo.modelo}
+                                        <br><small class="text-muted">Placa: ${servicio.vehiculo.placa}</small></td>
+                                    <td>${servicio.fecha}</td>
+                                    <td>${formatMoney(servicio.precio)}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-primary agregar-servicio"
+                                                onclick="seleccionarServicio(${servicio.id})"
+                                                data-servicio='${JSON.stringify(servicio)}'>
+                                            <i class="fas fa-plus"></i> Agregar
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+        }
+
+        function seleccionarServicio(servicioId) {
+            const boton = $(`#servicio-${servicioId} .agregar-servicio`);
+            const servicio = JSON.parse(boton.attr('data-servicio'));
+
+            if (!serviciosSeleccionados.has(servicioId)) {
+                serviciosSeleccionados.add(servicioId);
+                montoTotal += servicio.precio;
+
+                $('#serviciosSeleccionadosBody').append(`
+                                    <tr id="seleccionado-${servicioId}">
+                                        <td>${servicio.servicioNombre}</td>
+                                        <td>${servicio.vehiculo.marca} ${servicio.vehiculo.modelo}</td>
+                                        <td>${formatMoney(servicio.precio)}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-danger"
+                                                    onclick="removerServicio(${servicioId}, ${servicio.precio})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `);
+
+                boton.prop('disabled', true)
+                    .removeClass('btn-primary')
+                    .addClass('btn-success')
+                    .html('<i class="fas fa-check"></i> Agregado');
+
+                actualizarResumen();
+            }
+        }
+
+        function removerServicio(servicioId, precio) {
+            serviciosSeleccionados.delete(servicioId);
+            montoTotal -= precio;
+
+            $(`#seleccionado-${servicioId}`).remove();
+            $(`#servicio-${servicioId} .agregar-servicio`)
+                .prop('disabled', false)
+                .removeClass('btn-success')
+                .addClass('btn-primary')
+                .html('<i class="fas fa-plus"></i> Agregar');
+
+            actualizarResumen();
+        }
+
+        function actualizarResumen() {
+            const hayServicios = serviciosSeleccionados.size > 0;
+
+            $('#resumenFactura').toggleClass('d-none', !hayServicios);
+            $('#totalFacturaResumen, #totalFactura').text(formatMoney(montoTotal));
+            $('#montoTotal').val(montoTotal);
+            $('#serviciosSeleccionados').val(Array.from(serviciosSeleccionados).join(','));
+            $('#contadorServicios').text(serviciosSeleccionados.size);
+
+            verificarMetodoPago();
+        }
+
+        function verificarMetodoPago() {
+            const hayServicios = serviciosSeleccionados.size > 0;
+            const metodoPago = $('#MetodoPago').val();
+            $('#btnGenerarFactura').prop('disabled', !(hayServicios && metodoPago));
+        }
+
+
+
+
+        function manejarSubmitFormulario(e) {
+            e.preventDefault();
+
+            if (!validarFormulario()) {
+                return;
+            }
+
+            // Preparar los datos en el formato correcto
+            const formData = new FormData();
+            formData.append('UsuarioId', $('#usuarioId').val());
+            formData.append('FechaFacturacion', $('input[name="FechaFacturacion"]').val());
+            formData.append('MetodoPago', $('#MetodoPago').val());
+            formData.append('MontoTotal', montoTotal);
+            formData.append('serviciosSeleccionados', Array.from(serviciosSeleccionados).join(','));
+
+            Swal.fire({
+                title: '¿Confirmar Facturación?',
+                text: `Total a facturar: ${formatMoney(montoTotal)}`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, Generar Factura',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#btnGenerarFactura').prop('disabled', true)
+                        .html('<i class="fas fa-spinner fa-spin"></i> Procesando...');
+
+                    $.ajax({
+                        url: '/Facturacion/Create',
+                        type: 'POST',
+                        data: {
+                            UsuarioId: parseInt($('#usuarioId').val()),
+                            FechaFacturacion: $('input[name="FechaFacturacion"]').val(),
+                            MetodoPago: $('#MetodoPago').val(),
+                            MontoTotal: parseFloat(montoTotal),
+                            serviciosSeleccionados: Array.from(serviciosSeleccionados).join(','),
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Éxito',
+                                    text: response.message,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                }).then(() => {
+                                    window.location.href = '/Facturacion/Index';
+                                });
+                            } else {
+                                mostrarError(response.message || 'Error al generar la factura');
+                                $('#btnGenerarFactura').prop('disabled', false)
+                                    .html('<i class="fas fa-save"></i> Generar Factura');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error:', xhr.responseText);
+                            mostrarError('Error al procesar la solicitud: ' + error);
+                            $('#btnGenerarFactura').prop('disabled', false)
+                                .html('<i class="fas fa-save"></i> Generar Factura');
+                        }
+                    });
+                }
+            });
+        }
+
+
+        function validarFormulario() {
+            const usuarioId = $('#usuarioId').val();
+            const metodoPago = $('#MetodoPago').val();
+            const fecha = $('input[name="FechaFacturacion"]').val();
+
+            if (!usuarioId) {
+                mostrarError('Debe seleccionar un cliente');
+                return false;
+            }
+
+            if (!metodoPago) {
+                mostrarError('Debe seleccionar un método de pago');
+                return false;
+            }
+
+            if (!fecha) {
+                mostrarError('Debe seleccionar una fecha de facturación');
+                return false;
+            }
+
+            if (serviciosSeleccionados.size === 0) {
+                mostrarError('Debe seleccionar al menos un servicio');
+                return false;
+            }
+
+            if (montoTotal <= 0) {
+                mostrarError('El monto total debe ser mayor a cero');
+                return false;
+            }
+
+            return true;
+        }
+
+
+
+
+
+
+
+
+
+
+        function mostrarError(mensaje) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: mensaje,
+                confirmButtonColor: '#dc3545'
+            });
+        }
+
+        function mostrarMensaje(tipo, mensaje) {
+            Swal.fire({
+                icon: tipo,
+                title: tipo === 'error' ? 'Error' : 'Éxito',
+                text: mensaje,
+                confirmButtonColor: tipo === 'error' ? '#dc3545' : '#28a745'
+            });
+        }
+
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('es-SV', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
+
+        // Inicializar tooltips de Bootstrap
+        $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+
+        // Manejo de teclas rápidas
+        $(document).on('keydown', function (e) {
+            // Alt + B para enfocarse en la búsqueda
+            if (e.altKey && e.key === 'b') {
+                e.preventDefault();
+                $('#duiCliente').focus();
+            }
+
+            // Alt + G para generar factura (si está habilitado)
+            if (e.altKey && e.key === 'g') {
+                e.preventDefault();
+                if (!$('#btnGenerarFactura').prop('disabled')) {
+                    $('#btnGenerarFactura').click();
+                }
+            }
+        });
+
+        // Mensaje de confirmación al intentar salir con cambios
+        window.onbeforeunload = function () {
+            if (serviciosSeleccionados.size > 0) {
+                return "¿Está seguro que desea salir? Perderá los cambios no guardados.";
+            }
+        };
+    </script>
+
+    <style>
+        .card {
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 0.75rem 1.25rem;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+        }
+
+        .btn-group .btn {
+            margin-right: 0.25rem;
+        }
+
+        .alert {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+        }
+
+        #totalFactura {
+            font-size: 1.5rem;
+            color: #28a745;
+        }
+
+        .badge {
+            font-size: 0.9em;
+            padding: 0.5em 0.7em;
+        }
+
+        .table-responsive {
+            margin-bottom: 1rem;
+        }
+
+        .list-group-item {
+            border-left: none;
+            border-right: none;
+        }
+
+        #infoCliente .alert {
+            margin-bottom: 0;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .tooltip {
+            font-size: 0.875rem;
+        }
+    </style>
+}

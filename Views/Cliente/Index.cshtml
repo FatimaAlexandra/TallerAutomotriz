@@ -1,0 +1,117 @@
+﻿@model List<amazon.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Lista de Usuarios";
+}
+
+<div class="container">
+    <h2 class="mb-4">Lista de Clientes existentes en el sistema</h2>
+
+    <div class="table-responsive">
+        <table id="usuariosTable" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Correo Electrónico</th>
+                    <th>DUI</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.Id</td>
+                        <td>@user.Nombre</td>
+                        <td>@user.Telefono</td>
+                        <td>@user.Correo</td>
+                        <td>@user.Dui</td>
+                        <td>
+                            <button class="btn btn-primary ver-cliente-btn" data-id="@user.Id">
+                                Ver Cliente
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para mostrar detalles del cliente -->
+<div class="modal fade" id="clienteModal" tabindex="-1" aria-labelledby="clienteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="clienteModalLabel">Detalles del Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Aquí se cargarán los detalles del cliente -->
+                <p><strong>Nombre:</strong> <span id="clienteNombre"></span></p>
+                <p><strong>Teléfono:</strong> <span id="clienteTelefono"></span></p>
+                <p><strong>Correo:</strong> <span id="clienteCorreo"></span></p>
+                <p><strong>DUI:</strong> <span id="clienteDui"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/DataTables/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#usuariosTable').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "Nada encontrado - lo sentimos",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                }
+            });
+
+            // Evento click para cargar los datos del cliente en el modal
+            $('.ver-cliente-btn').click(function () {
+                var clienteId = $(this).data('id');
+
+                // Petición AJAX para obtener los detalles del cliente
+                $.ajax({
+                    url: '/Cliente/Details/' + clienteId,
+                    type: 'GET',
+                    success: function (data) {
+                        // Carga los datos en los campos del modal
+                        $('#clienteNombre').text(data.nombre);
+                        $('#clienteTelefono').text(data.telefono);
+                        $('#clienteCorreo').text(data.correo);
+                        $('#clienteDui').text(data.dui);
+
+                        // Muestra el modal
+                        $('#clienteModal').modal('show');
+                    },
+                    error: function () {
+                        alert('Error al cargar los datos del cliente.');
+                    }
+                });
+            });
+        });
+    </script>
+
+}
+
+}
+

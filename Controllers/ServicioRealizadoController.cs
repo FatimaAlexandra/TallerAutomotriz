@@ -24,7 +24,9 @@ namespace amazon.Controllers
             var serviciosRealizados = _context.ServicioRealizado
                 .Include(s => s.Servicio)
                 .Include(s => s.Usuario)
+                .Include(s => s.Vehiculo)
                 .ToList();
+
 
 
             return View(serviciosRealizados);
@@ -62,7 +64,7 @@ namespace amazon.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,ServicioId,UsuarioId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
+        public async Task<IActionResult> Create([Bind("id,ServicioId,UsuarioId,VehiculoId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
         {
             try
             {
@@ -81,10 +83,42 @@ namespace amazon.Controllers
                 ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
             }
 
-            // Asegúrate de que ViewBag.Servicios y ViewBag.Usuarios estén inicializados
+            // Asegúrate de que ViewBag.Servicios, ViewBag.Usuarios y los vehículos estén inicializados
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
             ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Rol == 3).ToList(), "Id", "Nombre", servicioRealizado.UsuarioId);
+
+            // Obtén los vehículos del usuario seleccionado
+            if (servicioRealizado.UsuarioId != 0)
+            {
+                ViewBag.Vehiculos = new SelectList(_context.Vehiculos.Where(v => v.UsuarioId == servicioRealizado.UsuarioId).ToList(), "Id", "Placa", servicioRealizado.VehiculoId);
+            }
+            else
+            {
+                ViewBag.Vehiculos = new SelectList(new List<Vehiculo>(), "Id", "Placa");
+            }
+
             return View(servicioRealizado);
+        }
+
+
+
+        // GET: ServicioRealizado/GetVehiculosPorUsuario
+        public JsonResult GetVehiculosPorUsuario(int usuarioId)
+        {
+            try
+            {
+                var vehiculos = _context.Vehiculos
+                    .Where(v => v.UsuarioId == usuarioId)
+                    .Select(v => new { v.Id, v.Marca, v.Modelo, v.Placa })
+                    .ToList();
+
+                return Json(vehiculos);
+            }
+            catch (Exception ex)
+            {
+                // Manejar la excepción
+                return Json(new { error = $"Error: {ex.Message}" });
+            }
         }
 
 
@@ -102,30 +136,32 @@ namespace amazon.Controllers
                 return NotFound();
             }
 
-            ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
-
             // Obtener usuarios con rol 3
             var usuarios = _context.Usuarios
                 .Where(u => u.Rol == 3)
                 .Select(u => new { u.Id, u.Nombre })
                 .ToList();
+
+            ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
             ViewBag.Usuarios = new SelectList(usuarios, "Id", "Nombre", servicioRealizado.UsuarioId);
 
-            // Agregar los estados disponibles al ViewBag
-            var estados = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "1", Text = "En Proceso" },
-                new SelectListItem { Value = "2", Text = "Completado" },
-                // Agregar otros estados según sea necesario
-            };
-            ViewBag.Estados = new SelectList(estados, "Value", "Text", servicioRealizado.Estado);
+            // Obtener vehículos del usuario seleccionado
+            var vehiculos = _context.Vehiculos
+                .Where(v => v.UsuarioId == servicioRealizado.UsuarioId)
+                .Select(v => new { v.Id, v.Placa })
+                .ToList();
+
+            ViewBag.Vehiculos = new SelectList(vehiculos, "Id", "Placa", servicioRealizado.VehiculoId);
+
+
 
             return View(servicioRealizado);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("id,ServicioId,UsuarioId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
+        public async Task<IActionResult> Edit(int id, [Bind("id,ServicioId,UsuarioId,VehiculoId,Precio,Fecha,Estado")] ServicioRealizado servicioRealizado)
         {
             if (id != servicioRealizado.id)
             {
@@ -134,44 +170,33 @@ namespace amazon.Controllers
 
             try
             {
+                // Actualizar el servicio realizado
                 _context.Update(servicioRealizado);
                 await _context.SaveChangesAsync();
+
                 TempData["SuccessMessage"] = "Servicio realizado actualizado correctamente.";
                 return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ServicioRealizadoExists(servicioRealizado.id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
             }
 
+            // Asegúrate de que ViewBag.Servicios, ViewBag.Usuarios y ViewBag.Vehiculos estén inicializados
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
+            ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Rol == 3).ToList(), "Id", "Nombre", servicioRealizado.UsuarioId);
 
-            var estados = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "1", Text = "En Proceso" },
-                new SelectListItem { Value = "2", Text = "Completado" },
-            };
-            ViewBag.Estados = new SelectList(estados, "Value", "Text", servicioRealizado.Estado);
-
-            var usuarios = _context.Usuarios
-                .Where(u => u.Rol == 3)
-                .Select(u => new { u.Id, u.Nombre })
+            var vehiculos = _context.Vehiculos
+                .Where(v => v.UsuarioId == servicioRealizado.UsuarioId)
+                .Select(v => new { v.Id, v.Placa })
                 .ToList();
-            ViewBag.Usuarios = new SelectList(usuarios, "Id", "Nombre", servicioRealizado.UsuarioId);
+
+            ViewBag.Vehiculos = new SelectList(vehiculos, "Id", "Placa", servicioRealizado.VehiculoId);
 
             return View(servicioRealizado);
         }
+
+
 
 
 
