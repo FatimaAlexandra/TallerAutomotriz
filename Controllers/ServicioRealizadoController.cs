@@ -19,19 +19,16 @@ namespace amazon.Controllers
         }
 
         // GET: ServicioRealizado
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var serviciosRealizados = _context.ServicioRealizado
+            var serviciosRealizados = await _context.ServicioRealizado
                 .Include(s => s.Servicio)
                 .Include(s => s.Usuario)
                 .Include(s => s.Vehiculo)
-                .ToList();
-
-
+                .ToListAsync();
 
             return View(serviciosRealizados);
         }
-
 
         // GET: ServicioRealizado/Create
         public IActionResult Create()
@@ -46,21 +43,14 @@ namespace amazon.Controllers
 
                 ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre");
                 ViewBag.Usuarios = new SelectList(usuarios, "Id", "Nombre");
+                return View();
             }
             catch (Exception ex)
             {
-                // Manejar la excepción
-                ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
-                ViewBag.Servicios = new SelectList(new List<Servicio>(), "Id", "Nombre");
-                ViewBag.Usuarios = new SelectList(new List<Usuario>(), "Id", "Nombre");
+                TempData["ErrorMessage"] = $"Error al cargar el formulario: {ex.Message}";
+                return RedirectToAction(nameof(Index));
             }
-
-            return View();
         }
-
-
-
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -68,59 +58,59 @@ namespace amazon.Controllers
         {
             try
             {
-                // Asignar estado por defecto
-                servicioRealizado.Estado = 1;
-
+                servicioRealizado.Estado = 1; // Estado inicial
                 _context.Add(servicioRealizado);
                 await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Servicio realizado creado correctamente.";
-
+                TempData["SuccessMessage"] = "Servicio creado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
+                TempData["ErrorMessage"] = $"Error al crear el servicio: {ex.Message}";
+                return View(servicioRealizado);
             }
-
-            // Asegúrate de que ViewBag.Servicios, ViewBag.Usuarios y los vehículos estén inicializados
-            ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
-            ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Rol == 3).ToList(), "Id", "Nombre", servicioRealizado.UsuarioId);
-
-            // Obtén los vehículos del usuario seleccionado
-            if (servicioRealizado.UsuarioId != 0)
-            {
-                ViewBag.Vehiculos = new SelectList(_context.Vehiculos.Where(v => v.UsuarioId == servicioRealizado.UsuarioId).ToList(), "Id", "Placa", servicioRealizado.VehiculoId);
-            }
-            else
-            {
-                ViewBag.Vehiculos = new SelectList(new List<Vehiculo>(), "Id", "Placa");
-            }
-
-            return View(servicioRealizado);
         }
 
 
 
-        // GET: ServicioRealizado/GetVehiculosPorUsuario
-        public JsonResult GetVehiculosPorUsuario(int usuarioId)
+        // Agregar este método al ServicioRealizadoController existente
+        public async Task<JsonResult> GetServicioDetalles(int id)
+        {
+            var servicio = await _context.ServicioRealizado
+                .Include(s => s.Servicio)
+                .Include(s => s.Vehiculo)
+                .Where(s => s.id == id)
+                .Select(s => new {
+                    ServicioNombre = s.Servicio.Nombre,
+                    VehiculoInfo = $"{s.Vehiculo.Marca} {s.Vehiculo.Modelo} ({s.Vehiculo.Placa})",
+                    Fecha = s.Fecha,
+                    Estado = s.Estado
+                })
+                .FirstOrDefaultAsync();
+
+            return Json(servicio);
+        }
+
+
+
+
+        // GET: ServicioRealizado/GetVehiculosPorUsuario/5
+        public async Task<JsonResult> GetVehiculosPorUsuario(int usuarioId)
         {
             try
             {
-                var vehiculos = _context.Vehiculos
+                var vehiculos = await _context.Vehiculos
                     .Where(v => v.UsuarioId == usuarioId)
                     .Select(v => new { v.Id, v.Marca, v.Modelo, v.Placa })
-                    .ToList();
+                    .ToListAsync();
 
-                return Json(vehiculos);
+                return Json(new { success = true, data = vehiculos });
             }
             catch (Exception ex)
             {
-                // Manejar la excepción
-                return Json(new { error = $"Error: {ex.Message}" });
+                return Json(new { success = false, message = ex.Message });
             }
         }
-
 
         // GET: ServicioRealizado/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -130,34 +120,23 @@ namespace amazon.Controllers
                 return NotFound();
             }
 
-            var servicioRealizado = await _context.ServicioRealizado.FindAsync(id);
+            var servicioRealizado = await _context.ServicioRealizado
+                .Include(s => s.Servicio)
+                .Include(s => s.Usuario)
+                .Include(s => s.Vehiculo)
+                .FirstOrDefaultAsync(s => s.id == id);
+
             if (servicioRealizado == null)
             {
                 return NotFound();
             }
 
-            // Obtener usuarios con rol 3
-            var usuarios = _context.Usuarios
-                .Where(u => u.Rol == 3)
-                .Select(u => new { u.Id, u.Nombre })
-                .ToList();
-
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
-            ViewBag.Usuarios = new SelectList(usuarios, "Id", "Nombre", servicioRealizado.UsuarioId);
-
-            // Obtener vehículos del usuario seleccionado
-            var vehiculos = _context.Vehiculos
-                .Where(v => v.UsuarioId == servicioRealizado.UsuarioId)
-                .Select(v => new { v.Id, v.Placa })
-                .ToList();
-
-            ViewBag.Vehiculos = new SelectList(vehiculos, "Id", "Placa", servicioRealizado.VehiculoId);
-
-
+            ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Rol == 3), "Id", "Nombre", servicioRealizado.UsuarioId);
+            ViewBag.Vehiculos = new SelectList(_context.Vehiculos.Where(v => v.UsuarioId == servicioRealizado.UsuarioId), "Id", "Placa", servicioRealizado.VehiculoId);
 
             return View(servicioRealizado);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -170,62 +149,31 @@ namespace amazon.Controllers
 
             try
             {
-                // Actualizar el servicio realizado
                 _context.Update(servicioRealizado);
                 await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Servicio realizado actualizado correctamente.";
+                TempData["SuccessMessage"] = "Servicio actualizado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
+                TempData["ErrorMessage"] = $"Error al actualizar el servicio: {ex.Message}";
+                return View(servicioRealizado);
             }
-
-            // Asegúrate de que ViewBag.Servicios, ViewBag.Usuarios y ViewBag.Vehiculos estén inicializados
-            ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
-            ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Rol == 3).ToList(), "Id", "Nombre", servicioRealizado.UsuarioId);
-
-            var vehiculos = _context.Vehiculos
-                .Where(v => v.UsuarioId == servicioRealizado.UsuarioId)
-                .Select(v => new { v.Id, v.Placa })
-                .ToList();
-
-            ViewBag.Vehiculos = new SelectList(vehiculos, "Id", "Placa", servicioRealizado.VehiculoId);
-
-            return View(servicioRealizado);
         }
-
-
-
-
-
-
-
-
-
-
-        private bool ServicioRealizadoExists(int id)
-        {
-            return _context.ServicioRealizado.Any(e => e.id == id);
-        }
-
-
-
-
-
-
 
         // GET: ServicioRealizado/Delete/5
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var servicioRealizado = _context.ServicioRealizado
-                .FirstOrDefault(sr => sr.id == id);
+            var servicioRealizado = await _context.ServicioRealizado
+                .Include(s => s.Servicio)
+                .Include(s => s.Usuario)
+                .Include(s => s.Vehiculo)
+                .FirstOrDefaultAsync(m => m.id == id);
 
             if (servicioRealizado == null)
             {
@@ -235,58 +183,64 @@ namespace amazon.Controllers
             return View(servicioRealizado);
         }
 
-        // POST: ServicioRealizado/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var servicioRealizado = _context.ServicioRealizado.Find(id);
-            if (servicioRealizado == null)
+            try
             {
-                return NotFound();
+                var servicioRealizado = await _context.ServicioRealizado.FindAsync(id);
+                if (servicioRealizado != null)
+                {
+                    _context.ServicioRealizado.Remove(servicioRealizado);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Servicio eliminado exitosamente.";
+                }
+                return RedirectToAction(nameof(Index));
             }
-
-            _context.ServicioRealizado.Remove(servicioRealizado);
-            _context.SaveChanges();
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error al eliminar el servicio: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
-
-
-        // GET: ServicioRealizado/Historial
         [Authorize]
         public async Task<IActionResult> Historial()
         {
-            // Obtener el ID del usuario que ha iniciado sesión
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userIdClaim == null)
+            try
             {
-                return Unauthorized();
+                var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                // Cargar servicios con sus relaciones
+                var serviciosRealizados = await _context.ServicioRealizado
+                    .Include(sr => sr.Servicio)
+                    .Include(sr => sr.Vehiculo)
+                    .Include(sr => sr.Usuario)
+                    .Where(sr => sr.UsuarioId == usuarioId)
+                    .OrderByDescending(sr => sr.Fecha)
+                    .ToListAsync();
+
+                // Cargar comentarios relacionados
+                var comentariosUsuario = await _context.Comentarios
+                    .Where(c => c.UsuarioId == usuarioId && c.Estado)
+                    .ToListAsync();
+
+                // Guardar en ViewBag para la vista
+                ViewBag.Comentarios = comentariosUsuario;
+
+                return View(serviciosRealizados);
             }
-
-            var userId = int.Parse(userIdClaim);
-
-            // Obtener los servicios realizados por el usuario autenticado
-            var serviciosRealizados = await _context.ServicioRealizado
-                .Include(sr => sr.Servicio)
-                .Where(sr => sr.UsuarioId == userId)
-                .Select(sr => new ServicioRealizado
-                {
-                    id = sr.id,
-                    ServicioId = sr.ServicioId,
-                    Servicio = sr.Servicio,
-                    Precio = sr.Precio,
-                    Fecha = sr.Fecha,
-                    Estado = sr.Estado
-                })
-                .ToListAsync();
-
-            // Renderizar la vista con los servicios filtrados
-            return View("~/Views/ServicioRealizado/Historial.cshtml", serviciosRealizados);
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error al cargar el historial: {ex.Message}";
+                return RedirectToAction("Index", "Home");
+            }
         }
 
-
+        private bool ServicioRealizadoExists(int id)
+        {
+            return _context.ServicioRealizado.Any(e => e.id == id);
+        }
     }
-
 }

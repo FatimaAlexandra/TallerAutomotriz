@@ -1,86 +1,86 @@
-﻿@model List<amazon.Models.ServicioRealizado>
+﻿    @model List<amazon.Models.ServicioRealizado>
 
-@{
-    ViewData["Title"] = "Servicios Realizados";
-}
+    @{
+        ViewData["Title"] = "Servicios Realizados";
+    }
 
-<div class="container">
-    <h2 class="mb-4">Servicios Realizados - Clientes</h2>
+    <div class="container">
+        <h2 class="mb-4">Servicios Realizados - Clientes</h2>
 
-    <div class="mb-3">
-        <a asp-action="Create" class="btn btn-primary">Registrar Servicio Realizado</a>
-    </div>
+        <div class="mb-3">
+            <a asp-action="Create" class="btn btn-primary">Registrar Servicio Realizado</a>
+        </div>
 
-    <div class="table-responsive">
-        <table id="serviciosRealizadosTable" class="table table-striped table-bordered">
-            <thead>
-                <tr>
-                    <th style="display:none;">ID</th>
-                    <th>Servicio Realizado</th>
-                    <th>Marca</th> <!-- Marca del Vehículo -->
-                    <th>Modelo</th> <!-- Modelo del Vehículo -->
-                    <th>Placa</th> <!-- Placa del Vehículo -->
-                    <th>Precio</th>
-                    <th>Cliente</th>
-                    <th>Fecha</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var servicioRealizado in Model)
-                {
+        <div class="table-responsive">
+            <table id="serviciosRealizadosTable" class="table table-striped table-bordered">
+                <thead>
                     <tr>
-                        <td style="display:none;">@servicioRealizado.id</td>
-                        <td>@servicioRealizado.Servicio.Nombre</td>
-                        <td>@servicioRealizado.Vehiculo?.Marca</td> <!-- Marca -->
-                        <td>@servicioRealizado.Vehiculo?.Modelo</td> <!-- Modelo -->
-                        <td>@servicioRealizado.Vehiculo?.Placa</td> <!-- Placa -->
-                        <td>@servicioRealizado.Precio</td>
-                        <td>@servicioRealizado.Usuario.Nombre</td>
-                        <td>@servicioRealizado.Fecha</td>
-                        <td>
-                            @if (servicioRealizado.Estado == 1)
-                            {
-                                <span style="color: blue;" >En Proceso</span>
-                            }
-                            else if (servicioRealizado.Estado == 2)
-                            {
-                                <span style="color: green;">Completado</span>
-                            }
-                        </td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@servicioRealizado.id" class="btn btn-sm btn-warning">Editar</a>
-                            <a asp-action="Delete" asp-route-id="@servicioRealizado.id" class="btn btn-sm btn-danger">Eliminar</a>
-                        </td>
+                        <th style="display:none;">ID</th>
+                        <th>Servicio Realizado</th>
+                        <th>Marca</th> <!-- Marca del Vehículo -->
+                        <th>Modelo</th> <!-- Modelo del Vehículo -->
+                        <th>Placa</th> <!-- Placa del Vehículo -->
+                        <th>Precio</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-@section Scripts {
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/DataTables/datatables.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#serviciosRealizadosTable').DataTable({
-                "language": {
-                    "lengthMenu": "Mostrar _MENU_ registros por página",
-                    "zeroRecords": "Nada encontrado - lo sentimos",
-                    "info": "Mostrando página _PAGE_ de _PAGES_",
-                    "infoEmpty": "No hay registros disponibles",
-                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
-                    "search": "Buscar:",
-                    "paginate": {
-                        "first": "Primero",
-                        "last": "Último",
-                        "next": "Siguiente",
-                        "previous": "Anterior"
+                </thead>
+                <tbody>
+                    @foreach (var servicioRealizado in Model)
+                    {
+                        <tr>
+                            <td style="display:none;">@servicioRealizado.id</td>
+                            <td>@servicioRealizado.Servicio.Nombre</td>
+                            <td>@servicioRealizado.Vehiculo?.Marca</td> <!-- Marca -->
+                            <td>@servicioRealizado.Vehiculo?.Modelo</td> <!-- Modelo -->
+                            <td>@servicioRealizado.Vehiculo?.Placa</td> <!-- Placa -->
+                            <td>@servicioRealizado.Precio</td>
+                            <td>@servicioRealizado.Usuario.Nombre</td>
+                            <td>@servicioRealizado.Fecha</td>
+                            <td>
+                                @if (servicioRealizado.Estado == 1)
+                                {
+                                    <span style="color: blue;" >En Proceso</span>
+                                }
+                                else if (servicioRealizado.Estado == 2)
+                                {
+                                    <span style="color: green;">Completado</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@servicioRealizado.id" class="btn btn-sm btn-warning">Editar</a>
+                                <a asp-action="Delete" asp-route-id="@servicioRealizado.id" class="btn btn-sm btn-danger">Eliminar</a>
+                            </td>
+                        </tr>
                     }
-                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/DataTables/datatables.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('#serviciosRealizadosTable').DataTable({
+                    "language": {
+                        "lengthMenu": "Mostrar _MENU_ registros por página",
+                        "zeroRecords": "Nada encontrado - lo sentimos",
+                        "info": "Mostrando página _PAGE_ de _PAGES_",
+                        "infoEmpty": "No hay registros disponibles",
+                        "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                        "search": "Buscar:",
+                        "paginate": {
+                            "first": "Primero",
+                            "last": "Último",
+                            "next": "Siguiente",
+                            "previous": "Anterior"
+                        }
+                    }
+                });
             });
-        });
-    </script>
-}
+        </script>
+    }
