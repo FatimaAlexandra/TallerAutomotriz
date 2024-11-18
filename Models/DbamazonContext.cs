@@ -23,6 +23,7 @@ namespace amazon.Models
         public virtual DbSet<Vehiculo> Vehiculos { get; set; }
         public virtual DbSet<Facturacion> Facturacion { get; set; }
         public virtual DbSet<DetalleFacturacion> DetalleFacturacion { get; set; }
+        public virtual DbSet<Comentario> Comentarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -184,6 +185,49 @@ namespace amazon.Models
                 entity.HasOne(d => d.ServicioRealizado)
                     .WithMany()
                     .HasForeignKey(d => d.ServicioRealizadoId);
+            });
+
+            modelBuilder.Entity<Comentario>(entity =>
+            {
+                entity.ToTable("Comentarios");
+
+                entity.Property(e => e.Contenido)
+                    .IsRequired()
+                    .HasMaxLength(1000)
+                    .IsUnicode(true);
+
+                entity.Property(e => e.Calificacion)
+                    .IsRequired();
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Estado)
+                    .HasDefaultValue(true);
+
+                // Configuración de las relaciones
+                entity.HasOne(d => d.Usuario)
+                    .WithMany()
+                    .HasForeignKey(d => d.UsuarioId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Comentarios_Usuarios");
+
+                entity.HasOne(d => d.ServicioRealizado)
+                    .WithMany()
+                    .HasForeignKey(d => d.ServicioRealizadoId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Comentarios_ServicioRealizado");
+
+                // Índices
+                entity.HasIndex(e => e.UsuarioId)
+                    .HasDatabaseName("IX_Comentarios_UsuarioId");
+
+                entity.HasIndex(e => e.ServicioRealizadoId)
+                    .HasDatabaseName("IX_Comentarios_ServicioRealizadoId");
             });
         }
     }
