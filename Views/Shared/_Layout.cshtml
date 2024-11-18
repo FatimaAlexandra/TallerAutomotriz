@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="~/lib/select2/select2.min.css" />
     <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+
+    @await RenderSectionAsync("Styles", required: false)
+
     <style>
         .navbar-nav {
             display: flex;
@@ -84,10 +87,7 @@
                                 <a class="nav-link" asp-controller="Servicio" asp-action="Index">Servicios</a>
                             </li>
                             <li class="nav-item">
-
                                 <a class="nav-link" asp-controller="User" asp-action="Index">Usuarios</a>
-                        <a class="nav-link" asp-area="" asp-controller="Cliente" asp-action="Index">Clientes</a>
-
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Cliente" asp-action="Index">Clientes</a>
@@ -98,12 +98,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Facturacion" asp-action="Index">Facturación</a>
                             </li>
-
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Facturacion" asp-action="Index">Facturacion</a>
+                                <a class="nav-link" asp-controller="Comentarios" asp-action="Index">
+                                    <i class="fas fa-comments"></i> Comentarios
+                                </a>
                             </li>
-
-
                         }
                         else if (User.IsInRole("2"))
                         {
@@ -117,7 +116,6 @@
                                 <a class="nav-link" asp-controller="Servicio" asp-action="Index">Servicios</a>
                             </li>
                             <li class="nav-item">
-
                                 <a class="nav-link" asp-controller="Cliente" asp-action="Index">Clientes</a>
 
                             </li>
@@ -128,7 +126,13 @@
                                 <a class="nav-link" asp-controller="Facturacion" asp-action="Index">Facturación</a>
                             </li>
                             <li class="nav-item">
+
                                 <a class="nav-link" asp-controller="Reporteria" asp-action="Index">Reporteria</a>
+
+                                <a class="nav-link" asp-controller="Comentarios" asp-action="Index">
+                                    <i class="fas fa-comments"></i> Comentarios
+                                </a>
+
                             </li>
                         }
                         else if (User.IsInRole("3"))
@@ -137,21 +141,34 @@
                                 <a class="nav-link" asp-controller="Producto" asp-action="Index">Productos</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="ServicioRealizado" asp-action="Historial">Historial de Servicios</a>
+                                <a class="nav-link" asp-controller="ServicioRealizado" asp-action="Historial">
+                                    <i class="fas fa-history"></i> Historial de Servicios
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
+                                <a class="nav-link" asp-controller="Vehiculos" asp-action="Index">
+                                    <i class="fas fa-car"></i> Vehículos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Comentarios" asp-action="Index">
+                                    <i class="fas fa-comments"></i> Comentarios
+                                </a>
                             </li>
                         }
 
                         <li class="nav-item text-end">
-                            <a class="nav-link" asp-controller="Auth" asp-action="Logout">Salir</a>
+                            <a class="nav-link" asp-controller="Auth" asp-action="Logout">
+                                <i class="fas fa-sign-out-alt"></i> Salir
+                            </a>
                         </li>
                     }
                     else
                     {
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Auth" asp-action="Login">Login</a>
+                            <a class="nav-link" asp-controller="Auth" asp-action="Login">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
                         </li>
                     }
                 </ul>
@@ -161,18 +178,18 @@
             @if (User.Identity.IsAuthenticated)
             {
                 <p class="card-text mb-0">
-                    Usuario: @User.Identity.Name
+                    <i class="fas fa-user"></i> @User.Identity.Name
                     @if (User.IsInRole("1"))
                     {
-                        <span>Administrador</span>
+                        <span class="badge bg-danger">Administrador</span>
                     }
                     else if (User.IsInRole("2"))
                     {
-                        <span>Empleado</span>
+                        <span class="badge bg-info">Empleado</span>
                     }
                     else if (User.IsInRole("3"))
                     {
-                        <span>Cliente</span>
+                        <span class="badge bg-success">Cliente</span>
                     }
                 </p>
             }
