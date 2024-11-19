@@ -11,7 +11,7 @@
         public int UsuarioId { get; set; }
 
         // Relación con otras tablas
-        public Usuario Usuario { get; set; }
+        public Usuario? Usuario { get; set; }
 
     }
 }

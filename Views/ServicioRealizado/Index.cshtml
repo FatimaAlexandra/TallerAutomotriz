@@ -1,4 +1,4 @@
-﻿@model List<amazon.Models.ServicioRealizado>
+﻿  @model List<amazon.Models.ServicioRealizado>
 
 @{
     ViewData["Title"] = "Servicios Realizados";
@@ -42,7 +42,7 @@
                         <td>
                             @if (servicioRealizado.Estado == 1)
                             {
-                                <span style="color: blue;" >En Proceso</span>
+                                <span style="color: blue;">En Proceso</span>
                             }
                             else if (servicioRealizado.Estado == 2)
                             {
