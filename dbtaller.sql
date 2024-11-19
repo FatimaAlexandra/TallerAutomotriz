@@ -45,21 +45,6 @@ CREATE TABLE Servicios
   categoria VARCHAR(50),
   PRIMARY KEY (id)
 );
-CREATE TABLE Vehiculos
-(
-  id INT NOT NULL IDENTITY(1,1),
-  UsuarioId INT NOT NULL,
-  Marca VARCHAR(50) NOT NULL,
-  Modelo VARCHAR(50) NOT NULL,
-  Año INT NOT NULL,
-  Placa VARCHAR(20) NOT NULL,
-  Descripcion VARCHAR(255), 
-  PRIMARY KEY (id),
-  FOREIGN KEY (UsuarioId) REFERENCES usuarios(id),
-);
-
-Select * from Vehiculos;
-
 CREATE TABLE ServicioRealizado
 (
   id INT NOT NULL IDENTITY(1,1),
@@ -68,11 +53,9 @@ CREATE TABLE ServicioRealizado
   Precio DECIMAL(18, 2) NOT NULL,
   Fecha VARCHAR(50) NOT NULL,
   Estado INT NOT NULL DEFAULT 1,
-  VehiculoId INT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (ServicioId) REFERENCES Servicios(id),
-  FOREIGN KEY (UsuarioId) REFERENCES usuarios(id),
-  FOREIGN KEY (VehiculoId) REFERENCES Vehiculos(id)
+  FOREIGN KEY (UsuarioId) REFERENCES usuarios(id)
 );
 create table productos
 (
@@ -82,6 +65,7 @@ create table productos
 	tipo VARCHAR(255) NOT NULL,
 	precio DECIMAL (18,2) NOT NULL
 );
+
 
 select * from Servicios
 select * from ServicioRealizado
@@ -111,47 +95,23 @@ INSERT INTO Servicios (nombre, descripcion, categoria)
 VALUES ('Instalación de audio', 'Instalación de sistemas de audio personalizados para vehículos', 'Electrónica');
 
 -------------------------------------------------------------------------------------------------------------
--- Insertar datos de ejemplo en la tabla Vehiculos 
-INSERT INTO Vehiculos (UsuarioId, Marca, Modelo, Año, Placa, Descripcion)
-VALUES (2, 'Toyota', 'Corolla', 2006, 'P123-456', 'Sedán blanco, bien mantenido');
 
-INSERT INTO Vehiculos (UsuarioId, Marca, Modelo, Año, Placa, Descripcion)
-VALUES (3, 'Honda', 'Civic', 2018, 'P987-654', 'Auto compacto, color negro');
+-- Insertar ejemplo 1
+INSERT INTO ServicioRealizado (ServicioId, UsuarioId, Precio, Fecha, Estado)
+VALUES (1, 4, 50.00, '2024-06-16', 1);
 
-INSERT INTO Vehiculos (UsuarioId, Marca, Modelo, Año, Placa, Descripcion)
-VALUES (4, 'Ford', 'Focus', 2015, 'P321-789', 'Hatchback gris, con rines personalizados');
+-- Insertar ejemplo 2
+INSERT INTO ServicioRealizado (ServicioId, UsuarioId, Precio, Fecha, Estado)
+VALUES (2, 4, 30.00, '2024-06-15', 1);
 
-INSERT INTO Vehiculos (UsuarioId, Marca, Modelo, Año, Placa, Descripcion)
-VALUES (5, 'Chevrolet', 'Spark', 2017, 'P555-111', 'Auto pequeño, color rojo, económico');
+-- Insertar ejemplo 1
+INSERT INTO ServicioRealizado (ServicioId, UsuarioId, Precio, Fecha, Estado)
+VALUES (1, 5, 50.00, '2024-06-16', 1);
 
--- Insertar servicios realizados
-INSERT INTO ServicioRealizado (ServicioId, UsuarioId, Precio, Fecha, Estado, VehiculoId)
-VALUES (3, 3, 50.00, '2024-06-16', 1, 3);
+-- Insertar ejemplo 2
+INSERT INTO ServicioRealizado (ServicioId, UsuarioId, Precio, Fecha, Estado)
+VALUES (4, 5, 30.00, '2024-06-15', 1);
 
--- Insertar 
-INSERT INTO ServicioRealizado (ServicioId, UsuarioId, Precio, Fecha, Estado, VehiculoId)
-VALUES (1, 2, 30.00, '2024-06-15', 1, 2);
-
--- Insertar 
-INSERT INTO ServicioRealizado (ServicioId, UsuarioId, Precio, Fecha, Estado, VehiculoId)
-VALUES (2, 2, 50.00, '2024-06-16', 1, 2);
-
--- Insertar 
-INSERT INTO ServicioRealizado (ServicioId, UsuarioId, Precio, Fecha, Estado, VehiculoId)
-VALUES (4, 4, 30.00, '2024-06-15', 1, 4);
-
--- Insertar 
-INSERT INTO ServicioRealizado (ServicioId, UsuarioId, Precio, Fecha, Estado, VehiculoId)
-VALUES (1, 5, 50.00, '2024-06-14', 1, 4);
-
-select * from Vehiculos
-select * from ServicioRealizado
-
-
-------------------------------------------------------------------------------------------
-
-
-
-
-
-
+-- Insertar ejemplo 3
+INSERT INTO ServicioRealizado (ServicioId, UsuarioId, Precio, Fecha, Estado)
+VALUES (6, 3, 50.00, '2024-06-14', 1);
