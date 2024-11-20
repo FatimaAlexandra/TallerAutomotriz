@@ -103,6 +103,9 @@
                                     <i class="fas fa-comments"></i> Comentarios
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Reporteria" asp-action="Index">Reporteria</a>
+                            </li>
                         }
                         else if (User.IsInRole("2"))
                         {
@@ -127,11 +130,14 @@
                             </li>
                             <li class="nav-item">
 
-                                <a class="nav-link" asp-controller="Reporteria" asp-action="Index">Reporteria</a>
-
                                 <a class="nav-link" asp-controller="Comentarios" asp-action="Index">
                                     <i class="fas fa-comments"></i> Comentarios
                                 </a>
+
+                            </li>
+                            <li class="nav-item">
+
+                                <a class="nav-link" asp-controller="Reporteria" asp-action="Index">Reporteria</a>
 
                             </li>
                         }
