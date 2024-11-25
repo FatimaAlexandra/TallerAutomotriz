@@ -49,7 +49,7 @@ namespace amazon.Controllers
             }
             catch (Exception ex)
             {
-                // Manejar la excepción
+                // Manejo de posibles errores
                 ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
                 ViewBag.Servicios = new SelectList(new List<Servicio>(), "Id", "Nombre");
                 ViewBag.Usuarios = new SelectList(new List<Usuario>(), "Id", "Nombre");
@@ -83,11 +83,11 @@ namespace amazon.Controllers
                 ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
             }
 
-            // Asegúrate de que ViewBag.Servicios, ViewBag.Usuarios y los vehículos estén inicializados
+            //para asegurarase que las viewbag esten inicializadas
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
             ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Rol == 3).ToList(), "Id", "Nombre", servicioRealizado.UsuarioId);
 
-            // Obtén los vehículos del usuario seleccionado
+            // llamar los vehículos del usuario seleccionado
             if (servicioRealizado.UsuarioId != 0)
             {
                 ViewBag.Vehiculos = new SelectList(_context.Vehiculos.Where(v => v.UsuarioId == servicioRealizado.UsuarioId).ToList(), "Id", "Placa", servicioRealizado.VehiculoId);
@@ -182,7 +182,7 @@ namespace amazon.Controllers
                 ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
             }
 
-            // Asegúrate de que ViewBag.Servicios, ViewBag.Usuarios y ViewBag.Vehiculos estén inicializados
+            //  para asgurarse que esten inicializados
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
             ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Rol == 3).ToList(), "Id", "Nombre", servicioRealizado.UsuarioId);
 
@@ -282,7 +282,7 @@ namespace amazon.Controllers
                 })
                 .ToListAsync();
 
-            // Renderizar la vista con los servicios filtrados
+            // retorno de la vista
             return View("~/Views/ServicioRealizado/Historial.cshtml", serviciosRealizados);
         }
 

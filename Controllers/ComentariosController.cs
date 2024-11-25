@@ -50,8 +50,6 @@ namespace amazon.Controllers
 
 
 
-
-
         // GET: Comentarios/MisComentarios
         [Authorize(Roles = "3")] // Solo clientes
         public async Task<IActionResult> MisComentarios()
@@ -263,7 +261,7 @@ namespace amazon.Controllers
             {
                 var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-                // Obtener el comentario existente con todas sus relaciones
+                // Obtener el comentario existente 
                 var comentarioExistente = await _context.Comentarios
                     .Include(c => c.ServicioRealizado)
                         .ThenInclude(s => s.Servicio)
@@ -291,7 +289,7 @@ namespace amazon.Controllers
                     return View(comentarioExistente);
                 }
 
-                // Actualizar solo los campos permitidos
+                
                 comentarioExistente.Contenido = comentario.Contenido;
                 comentarioExistente.Calificacion = comentario.Calificacion;
                 comentarioExistente.FechaModificacion = DateTime.Now;
@@ -307,10 +305,9 @@ namespace amazon.Controllers
             }
             catch (Exception ex)
             {
-                // Log the error here if needed
                 TempData["ErrorMessage"] = "Ocurrió un error al actualizar el comentario.";
 
-                // Recargar el comentario con sus relaciones para mostrar la vista nuevamente
+                // Recargar el comentario para ver la vista nuevamente
                 var comentarioParaRetornar = await _context.Comentarios
                     .Include(c => c.ServicioRealizado)
                         .ThenInclude(s => s.Servicio)
