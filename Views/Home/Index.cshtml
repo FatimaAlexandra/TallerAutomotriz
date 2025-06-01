@@ -73,36 +73,40 @@
             <h5 class="mb-0"><i class="fas fa-info-circle text-primary"></i> Sobre MARLAND</h5>
         </div>
         <div class="card-body">
-            <div class="row">
-                <div class="col-md-6 mb-4 mb-md-0">
+            <div class="row align-items-center">
+                <!-- Texto -->
+                <div class="col-lg-6 mb-4 mb-lg-0">
                     <h3 class="h4 fw-bold mb-3">Taller Automotriz Especializado</h3>
-                    <p>MARLAND es un taller automotriz especializado en la reparación de vehículos de todas las marcas y modelos. Con más de 20 años de experiencia en el sector, nuestro equipo de mecánicos altamente calificados garantiza un servicio de alta calidad y confiabilidad.</p>
+                    <p class="text-muted">Con más de 20 años de experiencia, en MARLAND ofrecemos reparación y mantenimiento para todas las marcas. Contamos con mecánicos certificados que garantizan un servicio de calidad, eficiencia y confianza.</p>
                     <div class="d-flex flex-wrap gap-2 mt-3">
                         <span class="badge bg-light text-dark border p-2"><i class="fas fa-tools text-primary me-1"></i> Mecánica General</span>
                         <span class="badge bg-light text-dark border p-2"><i class="fas fa-oil-can text-primary me-1"></i> Cambio de Aceite</span>
                         <span class="badge bg-light text-dark border p-2"><i class="fas fa-car-battery text-primary me-1"></i> Sistema Eléctrico</span>
-                        <span class="badge bg-light text-dark border p-2"><i class="fas fa-tachometer-alt text-primary me-1"></i> Diagnóstico</span>
+                        <span class="badge bg-light text-dark border p-2"><i class="fas fa-search text-primary me-1"></i> Diagnóstico</span>
                     </div>
                 </div>
-                <div class="col-md-6">
+
+                <!-- Imágenes con distribución balanceada -->
+                <div class="col-lg-6">
                     <div class="row g-2">
                         <div class="col-6">
-                            <img src="~/images/1.jpg" alt="MARLAND - Taller Automotriz" class="img-fluid rounded shadow-sm">
+                            <img src="~/images/1.jpg" class="img-fluid rounded shadow-sm" alt="Imagen 1">
                         </div>
                         <div class="col-6">
-                            <img src="~/images/2.jpg" alt="MARLAND - Taller Automotriz" class="img-fluid rounded shadow-sm">
+                            <img src="~/images/2.jpg" class="img-fluid rounded shadow-sm" alt="Imagen 2">
                         </div>
-                        <div class="col-6 mt-2">
-                            <img src="~/images/3.jpg" alt="MARLAND - Taller Automotriz" class="img-fluid rounded shadow-sm">
+                        <div class="col-6">
+                            <img src="~/images/3.jpg" class="img-fluid rounded shadow-sm" alt="Imagen 3">
                         </div>
-                        <div class="col-6 mt-2">
-                            <img src="~/images/4.jpg" alt="MARLAND - Taller Automotriz" class="img-fluid rounded shadow-sm">
+                        <div class="col-6">
+                            <img src="~/images/4.jpg" class="img-fluid rounded shadow-sm" alt="Imagen 4">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     @if (TempData["UserIdMessage"] != null)
     {
@@ -131,5 +135,16 @@
         .badge {
             font-weight: 500;
         }
+
+        .card-body p {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .card-body .row.g-2 img {
+            object-fit: cover;
+            height: 140px;
+        }
+
     </style>
 }
