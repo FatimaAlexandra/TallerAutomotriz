@@ -1,0 +1,145 @@
+﻿@model IEnumerable<amazon.Models.Tarea>
+
+@{
+    ViewData["Title"] = "Mis Tareas Asignadas";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Mis Tareas Asignadas</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow">
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No tienes tareas asignadas actualmente.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover" id="misTareasTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Título</th>
+                                <th>Estado</th>
+                                <th>Vehículo</th>
+                                <th>Fecha Creación</th>
+                                <th>Fecha Vencimiento</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                var bgColor = "";
+                                var textColor = "text-dark";
+
+                                switch (item.Estado)
+                                {
+                                    case "Pendiente":
+                                        bgColor = "table-warning";
+                                        break;
+                                    case "En progreso":
+                                        bgColor = "table-info";
+                                        break;
+                                    case "Completada":
+                                        bgColor = "table-success";
+                                        break;
+                                    case "Cancelada":
+                                        bgColor = "table-danger";
+                                        textColor = "text-white";
+                                        break;
+                                }
+
+                                <tr class="@bgColor @textColor">
+                                    <td>@item.Titulo</td>
+                                    <td>
+                                        <span class="badge bg-@(item.Estado == "Pendiente" ? "warning" :
+                                                     item.Estado == "En progreso" ? "info" :
+                                                     item.Estado == "Completada" ? "success" : "danger") p-2">
+                                            @item.Estado
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (item.Vehiculo != null)
+                                        {
+                                            @($"{item.Vehiculo.Marca} {item.Vehiculo.Modelo} ({item.Vehiculo.Placa})")
+                                        }
+                                        else
+                                        {
+                                            <span>N/A</span>
+                                        }
+                                    </td>
+                                    <td>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        @if (item.FechaVencimiento.HasValue)
+                                        {
+                                            @item.FechaVencimiento.Value.ToString("dd/MM/yyyy")
+                                        }
+                                        else
+                                        {
+                                            <span>Sin fecha</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                                                <i class="fas fa-info-circle"></i> Detalles
+                                            </a>
+                                            <a asp-action="ActualizarEstado" asp-route-id="@item.Id" class="btn btn-sm btn-success">
+                                                <i class="fas fa-tasks"></i> Actualizar Estado
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/DataTables/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#misTareasTable').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "No se encontraron registros",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+                "order": [[3, 'desc']] // Ordenar por fecha de creación descendente por defecto
+            });
+        });
+    </script>
+}

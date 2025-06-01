@@ -1,0 +1,58 @@
+﻿@model amazon.Models.Tarea
+
+@{
+    ViewData["Title"] = "Eliminar Tarea";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Eliminar Tarea</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4>¿Está seguro que desea eliminar esta tarea?</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5 class="card-title">@Model.Titulo</h5>
+                        <p class="card-text">@(string.IsNullOrEmpty(Model.Descripcion) ? "Sin descripción" : Model.Descripcion)</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <p>
+                            <strong>Estado:</strong>
+                            <span class="badge bg-@(Model.Estado == "Pendiente" ? "warning" :
+                                         Model.Estado == "En progreso" ? "info" :
+                                         Model.Estado == "Completada" ? "success" : "danger") p-2">
+                                @Model.Estado
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <p><strong>Mecánico Asignado:</strong> @(Model.MecanicoAsignado?.Nombre ?? "Sin asignar")</p>
+                        <p><strong>Fecha de Creación:</strong> @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
+
+                        @if (Model.Vehiculo != null)
+                        {
+                            <p><strong>Vehículo:</strong> @($"{Model.Vehiculo.Marca} {Model.Vehiculo.Modelo} ({Model.Vehiculo.Placa})")</p>
+                        }
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Esta acción no se puede deshacer.
+                    </div>
+
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

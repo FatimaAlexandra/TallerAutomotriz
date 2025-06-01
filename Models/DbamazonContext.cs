@@ -24,7 +24,8 @@ namespace amazon.Models
         public virtual DbSet<Facturacion> Facturacion { get; set; }
         public virtual DbSet<DetalleFacturacion> DetalleFacturacion { get; set; }
         public virtual DbSet<Comentario> Comentarios { get; set; }
-
+        public virtual DbSet<Inventario> Inventario { get; set; }
+        public virtual DbSet<Tarea> Tareas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -200,6 +201,10 @@ namespace amazon.Models
                 entity.Property(e => e.Calificacion)
                     .IsRequired();
 
+                entity.Property(e => e.AspectosDestacados)
+                    .HasMaxLength(500)
+                    .IsUnicode(true);
+
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
@@ -229,6 +234,67 @@ namespace amazon.Models
 
                 entity.HasIndex(e => e.ServicioRealizadoId)
                     .HasDatabaseName("IX_Comentarios_ServicioRealizadoId");
+
+                entity.HasIndex(e => e.Calificacion)
+                    .HasDatabaseName("IX_Comentarios_Calificacion");
+            });
+
+            // Configuración para Inventario
+            modelBuilder.Entity<Inventario>(entity =>
+            {
+                entity.ToTable("Inventario");
+
+                entity.Property(e => e.Id).HasColumnName("Id");
+
+                entity.Property(e => e.Cantidad)
+                    .IsRequired();
+
+                entity.Property(e => e.FechaActualizacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.HasOne(d => d.Producto)
+                    .WithMany()
+                    .HasForeignKey(d => d.ProductoId);
+            });
+
+            // Configuración para Tareas
+            modelBuilder.Entity<Tarea>(entity =>
+            {
+                entity.ToTable("Tareas");
+
+                entity.Property(e => e.Id).HasColumnName("Id");
+
+                entity.Property(e => e.Titulo)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasDefaultValue("Pendiente");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.FechaVencimiento)
+                    .HasColumnType("datetime");
+
+                entity.HasOne(d => d.UsuarioCreador)
+                    .WithMany()
+                    .HasForeignKey(d => d.UsuarioCreadorId);
+
+                entity.HasOne(d => d.MecanicoAsignado)
+                    .WithMany()
+                    .HasForeignKey(d => d.MecanicoAsignadoId);
+
+                entity.HasOne(d => d.Vehiculo)
+                    .WithMany()
+                    .HasForeignKey(d => d.VehiculoId);
             });
         }
     }

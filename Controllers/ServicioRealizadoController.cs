@@ -254,6 +254,7 @@ namespace amazon.Controllers
 
 
         // GET: ServicioRealizado/Historial
+        // GET: ServicioRealizado/Historial
         [Authorize]
         public async Task<IActionResult> Historial()
         {
@@ -270,17 +271,16 @@ namespace amazon.Controllers
             // Obtener los servicios realizados por el usuario autenticado
             var serviciosRealizados = await _context.ServicioRealizado
                 .Include(sr => sr.Servicio)
+                .Include(sr => sr.Vehiculo)  // Incluir también el vehículo para mostrar info completa
                 .Where(sr => sr.UsuarioId == userId)
-                .Select(sr => new ServicioRealizado
-                {
-                    id = sr.id,
-                    ServicioId = sr.ServicioId,
-                    Servicio = sr.Servicio,
-                    Precio = sr.Precio,
-                    Fecha = sr.Fecha,
-                    Estado = sr.Estado
-                })
                 .ToListAsync();
+
+            // NUEVA SECCIÓN: Cargar comentarios relacionados para verificar cuáles ya tienen comentarios
+            var comentarios = await _context.Comentarios
+                .Where(c => c.UsuarioId == userId && c.Estado)
+                .ToListAsync();
+
+            ViewBag.Comentarios = comentarios;
 
             // retorno de la vista
             return View("~/Views/ServicioRealizado/Historial.cshtml", serviciosRealizados);

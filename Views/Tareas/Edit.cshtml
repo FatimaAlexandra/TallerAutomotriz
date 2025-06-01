@@ -1,30 +1,22 @@
 ﻿@model amazon.Models.Tarea
 
 @{
-    ViewData["Title"] = "Crear Tarea";
+    ViewData["Title"] = "Editar Tarea";
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4">Crear Nueva Tarea</h2>
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
+    <h2 class="mb-4">Editar Tarea</h2>
 
     <div class="row">
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h4>Nueva Tarea</h4>
+                    <h4>Editar Tarea</h4>
                 </div>
                 <div class="card-body">
-                    <form asp-controller="Tareas" asp-action="Create" method="post" id="createTaskForm">
-                        @Html.AntiForgeryToken()
+                    <form asp-action="Edit">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
 
                         <div class="mb-3">
                             <label asp-for="Titulo" class="form-label">Título</label>
@@ -40,7 +32,7 @@
 
                         <div class="mb-3">
                             <label asp-for="Estado" class="form-label">Estado</label>
-                            <select asp-for="Estado" class="form-control" asp-items="ViewBag.Estados"></select>
+                            <select asp-for="Estado" class="form-select" asp-items="ViewBag.Estados"></select>
                             <span asp-validation-for="Estado" class="text-danger"></span>
                         </div>
 
@@ -52,16 +44,15 @@
 
                         <div class="mb-3">
                             <label asp-for="MecanicoAsignadoId" class="form-label">Mecánico Asignado</label>
-                            <select asp-for="MecanicoAsignadoId" class="form-control" asp-items="ViewBag.Mecanicos">
+                            <select asp-for="MecanicoAsignadoId" class="form-select" asp-items="ViewBag.Mecanicos">
                                 <option value="">-- Seleccionar Mecánico --</option>
                             </select>
                             <span asp-validation-for="MecanicoAsignadoId" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-
                             <label asp-for="VehiculoId" class="form-label">Vehículo</label>
-                            <select asp-for="VehiculoId" class="form-control" asp-items="ViewBag.Vehiculos">
+                            <select asp-for="VehiculoId" class="form-select" asp-items="ViewBag.Vehiculos">
                                 <option value="">-- Seleccionar Vehículo --</option>
                             </select>
                             <span asp-validation-for="VehiculoId" class="text-danger"></span>
@@ -69,7 +60,7 @@
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <a asp-action="Index" class="btn btn-outline-secondary me-md-2">Cancelar</a>
-                            <button type="submit" class="btn btn-primary" id="btnSubmit">Crear</button>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
                         </div>
                     </form>
                 </div>
@@ -82,41 +73,4 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
-    <script>
-        $(document).ready(function() {
-            // Interceptar envío del formulario para depuración
-            $('#createTaskForm').on('submit', function(e) {
-                console.log('Formulario enviado');
-
-                // Verificar datos del formulario
-                var titulo = $('#Titulo').val();
-                var estado = $('#Estado').val();
-                var mecanicoId = $('#MecanicoAsignadoId').val();
-                var vehiculoId = $('#VehiculoId').val();
-
-                console.log('Datos del formulario:', {
-                    titulo: titulo,
-                    estado: estado,
-                    mecanicoId: mecanicoId,
-                    vehiculoId: vehiculoId
-                });
-
-                // Desactivar botón para evitar múltiples envíos
-                $('#btnSubmit').prop('disabled', true)
-                    .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...');
-            });
-
-            // Inicializar elementos de formulario con clases de bootstrap
-            $('.form-control').addClass('shadow-sm');
-
-            // Mostrar mensajes de alerta automáticamente
-            $('.alert').alert();
-
-            // Auto-cerrar alertas después de 5 segundos
-            setTimeout(function() {
-                $('.alert').alert('close');
-            }, 5000);
-        });
-    </script>
 }
