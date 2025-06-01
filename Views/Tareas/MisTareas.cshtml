@@ -2,109 +2,373 @@
 
 @{
     ViewData["Title"] = "Mis Tareas Asignadas";
+
+    // Función para obtener colores de estado
+    string GetStatusColor(string estado) => estado switch
+    {
+        "Pendiente" => "warning",
+        "En progreso" => "info",
+        "Completada" => "success",
+        "Cancelada" => "danger",
+        _ => "secondary"
+    };
+
+    // Función para obtener iconos de estado
+    string GetStatusIcon(string estado) => estado switch
+    {
+        "Pendiente" => "clock",
+        "En progreso" => "spinner fa-spin",
+        "Completada" => "check-circle",
+        "Cancelada" => "times-circle",
+        _ => "question-circle"
+    };
+
+    // Estadísticas
+    var totalTareas = Model.Count();
+    var tareasPendientes = Model.Count(t => t.Estado == "Pendiente");
+    var tareasEnProgreso = Model.Count(t => t.Estado == "En progreso");
+    var tareasCompletadas = Model.Count(t => t.Estado == "Completada");
+
+    // Calcular fechas vencidas
+    var hoy = DateTime.Now.Date;
+    var tareasVencidas = Model.Count(t => t.Estado != "Completada" && t.Estado != "Cancelada"
+                                        && t.FechaVencimiento.HasValue && t.FechaVencimiento.Value.Date < hoy);
+
+    // Agrupar tareas por estado
+    var tareasPorEstado = Model.GroupBy(t => t.Estado).ToDictionary(g => g.Key, g => g.ToList());
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">Mis Tareas Asignadas</h2>
+<div class="container-fluid py-4">
+    <!-- Cabecera con información del empleado -->
+    <div class="welcome-banner mb-4 p-4 bg-white shadow-sm rounded-3">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-1">Mis Tareas Asignadas</h2>
+                <p class="text-muted mb-0">Bienvenido @User.Identity.Name, aquí puedes gestionar todas tus tareas asignadas</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <span class="badge bg-info text-white px-4 py-2">
+                    <i class="fas fa-user-cog me-1"></i> Empleado
+                </span>
+            </div>
+        </div>
+    </div>
 
+    <!-- Alertas -->
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="card shadow">
-        <div class="card-body">
-            @if (!Model.Any())
-            {
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> No tienes tareas asignadas actualmente.
+    <!-- Estadísticas de tareas -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                            <i class="fas fa-tasks fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Total</h6>
+                            <h3 class="mb-0">@totalTareas</h3>
+                        </div>
+                    </div>
                 </div>
-            }
-            else
-            {
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 rounded-circle bg-warning bg-opacity-10 p-3 me-3">
+                            <i class="fas fa-clock fa-2x text-warning"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Pendientes</h6>
+                            <h3 class="mb-0">@tareasPendientes</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 rounded-circle bg-info bg-opacity-10 p-3 me-3">
+                            <i class="fas fa-spinner fa-2x text-info"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">En Progreso</h6>
+                            <h3 class="mb-0">@tareasEnProgreso</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 rounded-circle bg-danger bg-opacity-10 p-3 me-3">
+                            <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Vencidas</h6>
+                            <h3 class="mb-0">@tareasVencidas</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <!-- Estado vacío -->
+        <div class="empty-state text-center py-5">
+            <div class="empty-state-icon mb-4">
+                <i class="fas fa-clipboard-check fa-5x text-muted opacity-25"></i>
+            </div>
+            <h3>No tienes tareas asignadas</h3>
+            <p class="text-muted mb-4">Actualmente no hay tareas asignadas a tu usuario.</p>
+            <a href="javascript:window.location.reload()" class="btn btn-outline-primary">
+                <i class="fas fa-sync-alt me-2"></i>Actualizar página
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Sección de tareas pendientes -->
+        @if (tareasPendientes > 0)
+        {
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0"><i class="fas fa-clock text-warning me-2"></i>Tareas Pendientes</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @foreach (var tarea in Model.Where(t => t.Estado == "Pendiente").OrderBy(t => t.FechaVencimiento))
+                        {
+                            var esVencida = tarea.FechaVencimiento.HasValue && tarea.FechaVencimiento.Value.Date < hoy;
+
+                            <div class="list-group-item list-group-item-action p-3 @(esVencida ? "list-group-item-danger" : "")">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <h5 class="mb-1">@tarea.Titulo</h5>
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fas fa-car me-1"></i>
+                                            @if (tarea.Vehiculo != null)
+                                            {
+                                                <span>@tarea.Vehiculo.Marca @tarea.Vehiculo.Modelo (@tarea.Vehiculo.Placa)</span>
+                                            }
+                                            else
+                                            {
+                                                <span>No asignado</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        @if (tarea.FechaVencimiento.HasValue)
+                                        {
+                                            <div class="d-flex align-items-center @(esVencida ? "text-danger fw-bold" : "text-muted")">
+                                                <i class="far fa-calendar-alt me-1"></i>
+                                                <span>Vence: @tarea.FechaVencimiento.Value.ToString("dd/MM/yyyy")</span>
+                                                @if (esVencida)
+                                                {
+                                                    <span class="badge bg-danger ms-2">¡Vencida!</span>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                <i class="far fa-calendar-alt me-1"></i> Sin fecha límite
+                                            </span>
+                                        }
+                                    </div>
+                                    <div class="col-md-3 text-md-end">
+                                        <a asp-action="Details" asp-route-id="@tarea.Id" class="btn btn-sm btn-outline-info me-1">
+                                            <i class="fas fa-eye"></i> Detalles
+                                        </a>
+                                        <a asp-action="ActualizarEstado" asp-route-id="@tarea.Id" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-play"></i> Iniciar
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Sección de tareas en progreso -->
+        @if (tareasEnProgreso > 0)
+        {
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0"><i class="fas fa-spinner text-info me-2"></i>Tareas en Progreso</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @foreach (var tarea in Model.Where(t => t.Estado == "En progreso").OrderBy(t => t.FechaVencimiento))
+                        {
+                            var esVencida = tarea.FechaVencimiento.HasValue && tarea.FechaVencimiento.Value.Date < hoy;
+
+                            <div class="list-group-item list-group-item-action p-3 @(esVencida ? "list-group-item-warning" : "")">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <h5 class="mb-1">@tarea.Titulo</h5>
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fas fa-car me-1"></i>
+                                            @if (tarea.Vehiculo != null)
+                                            {
+                                                <span>@tarea.Vehiculo.Marca @tarea.Vehiculo.Modelo (@tarea.Vehiculo.Placa)</span>
+                                            }
+                                            else
+                                            {
+                                                <span>No asignado</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        @if (tarea.FechaVencimiento.HasValue)
+                                        {
+                                            <div class="d-flex align-items-center @(esVencida ? "text-warning fw-bold" : "text-muted")">
+                                                <i class="far fa-calendar-alt me-1"></i>
+                                                <span>Vence: @tarea.FechaVencimiento.Value.ToString("dd/MM/yyyy")</span>
+                                                @if (esVencida)
+                                                {
+                                                    <span class="badge bg-warning text-dark ms-2">¡Atención!</span>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                <i class="far fa-calendar-alt me-1"></i> Sin fecha límite
+                                            </span>
+                                        }
+                                    </div>
+                                    <div class="col-md-3 text-md-end">
+                                        <a asp-action="Details" asp-route-id="@tarea.Id" class="btn btn-sm btn-outline-info me-1">
+                                            <i class="fas fa-eye"></i> Detalles
+                                        </a>
+                                        <a asp-action="ActualizarEstado" asp-route-id="@tarea.Id" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i> Completar
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Otras tareas -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Todas las Tareas</h5>
+            </div>
+            <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover" id="misTareasTable">
-                        <thead class="table-dark">
+                    <table id="misTareasTable" class="table table-hover mb-0">
+                        <thead class="table-light">
                             <tr>
                                 <th>Título</th>
                                 <th>Estado</th>
                                 <th>Vehículo</th>
-                                <th>Fecha Creación</th>
-                                <th>Fecha Vencimiento</th>
+                                <th>Creación</th>
+                                <th>Vencimiento</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var item in Model)
+                            @foreach (var tarea in Model)
                             {
-                                var bgColor = "";
-                                var textColor = "text-dark";
+                                var esVencida = tarea.Estado != "Completada" && tarea.Estado != "Cancelada" &&
+                                tarea.FechaVencimiento.HasValue && tarea.FechaVencimiento.Value.Date < hoy;
 
-                                switch (item.Estado)
-                                {
-                                    case "Pendiente":
-                                        bgColor = "table-warning";
-                                        break;
-                                    case "En progreso":
-                                        bgColor = "table-info";
-                                        break;
-                                    case "Completada":
-                                        bgColor = "table-success";
-                                        break;
-                                    case "Cancelada":
-                                        bgColor = "table-danger";
-                                        textColor = "text-white";
-                                        break;
-                                }
-
-                                <tr class="@bgColor @textColor">
-                                    <td>@item.Titulo</td>
+                                <tr>
                                     <td>
-                                        <span class="badge bg-@(item.Estado == "Pendiente" ? "warning" :
-                                                     item.Estado == "En progreso" ? "info" :
-                                                     item.Estado == "Completada" ? "success" : "danger") p-2">
-                                            @item.Estado
+                                        <span class="fw-medium">@tarea.Titulo</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-@GetStatusColor(tarea.Estado) bg-opacity-10 text-@GetStatusColor(tarea.Estado) px-3 py-2">
+                                            <i class="fas fa-@GetStatusIcon(tarea.Estado) me-1"></i>
+                                            @tarea.Estado
                                         </span>
                                     </td>
                                     <td>
-                                        @if (item.Vehiculo != null)
+                                        @if (tarea.Vehiculo != null)
                                         {
-                                            @($"{item.Vehiculo.Marca} {item.Vehiculo.Modelo} ({item.Vehiculo.Placa})")
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-car text-secondary me-2"></i>
+                                                <span>@tarea.Vehiculo.Marca @tarea.Vehiculo.Modelo</span>
+                                            </div>
                                         }
                                         else
                                         {
-                                            <span>N/A</span>
+                                            <span class="text-muted">N/A</span>
                                         }
                                     </td>
-                                    <td>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>
-                                        @if (item.FechaVencimiento.HasValue)
+                                        <div class="d-flex align-items-center">
+                                            <i class="far fa-calendar-alt text-muted me-2"></i>
+                                            <span>@tarea.FechaCreacion.ToString("dd/MM/yyyy")</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (tarea.FechaVencimiento.HasValue)
                                         {
-                                            @item.FechaVencimiento.Value.ToString("dd/MM/yyyy")
+                                            <div class="d-flex align-items-center">
+                                                <i class="far fa-calendar-check @(esVencida ? "text-danger" : "text-muted") me-2"></i>
+                                                <span class="@(esVencida ? "text-danger fw-medium" : "")">
+                                                    @tarea.FechaVencimiento.Value.ToString("dd/MM/yyyy")
+                                                </span>
+                                            </div>
                                         }
                                         else
                                         {
-                                            <span>Sin fecha</span>
+                                            <span class="text-muted">Sin fecha</span>
                                         }
                                     </td>
                                     <td>
-                                        <div class="btn-group" role="group">
-                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
-                                                <i class="fas fa-info-circle"></i> Detalles
+                                        <div class="d-flex gap-1">
+                                            <a asp-action="Details" asp-route-id="@tarea.Id"
+                                               class="btn btn-sm btn-outline-primary"
+                                               data-bs-toggle="tooltip" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
                                             </a>
-                                            <a asp-action="ActualizarEstado" asp-route-id="@item.Id" class="btn btn-sm btn-success">
-                                                <i class="fas fa-tasks"></i> Actualizar Estado
+                                            <a asp-action="ActualizarEstado" asp-route-id="@tarea.Id"
+                                               class="btn btn-sm btn-outline-@GetStatusColor(tarea.Estado)"
+                                               data-bs-toggle="tooltip" title="Actualizar estado">
+                                                @if (tarea.Estado == "Pendiente")
+                                                {
+                                                    <i class="fas fa-play"></i>
+                                                }
+                                                else if (tarea.Estado == "En progreso")
+                                                {
+                                                    <i class="fas fa-check"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-redo"></i>
+                                                }
                                             </a>
                                         </div>
                                     </td>
@@ -113,33 +377,102 @@
                         </tbody>
                     </table>
                 </div>
-            }
+            </div>
         </div>
-    </div>
+    }
 </div>
 
+@section Styles {
+    <style>
+        /* Estilos generales */
+        .card {
+            border-radius: 0.5rem;
+            transition: transform 0.2s;
+        }
+
+            .card:hover {
+                transform: translateY(-3px);
+            }
+
+        /* Banner de bienvenida */
+        .welcome-banner {
+            border-left: 4px solid #0dcaf0;
+            background: linear-gradient(to right, rgba(13, 202, 240, 0.05), rgba(255, 255, 255, 1));
+        }
+
+        /* Badges para estados */
+        .badge {
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        /* Avatar círculo */
+        .avatar-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        /* Lista de tareas */
+        .list-group-item {
+            transition: all 0.2s ease;
+        }
+
+            .list-group-item:hover {
+                background-color: rgba(0, 0, 0, 0.02);
+            }
+
+        /* Botones de acción */
+        .btn-sm {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .btn-sm i {
+                margin-right: 0;
+            }
+
+        /* Estado vacío */
+        .empty-state {
+            padding: 3rem 0;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            opacity: 0.3;
+        }
+    </style>
+}
+
 @section Scripts {
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/DataTables/datatables.min.js"></script>
     <script>
         $(document).ready(function () {
+            // Inicialización de DataTable
             $('#misTareasTable').DataTable({
-                "language": {
-                    "lengthMenu": "Mostrar _MENU_ registros por página",
-                    "zeroRecords": "No se encontraron registros",
-                    "info": "Mostrando página _PAGE_ de _PAGES_",
-                    "infoEmpty": "No hay registros disponibles",
-                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
-                    "search": "Buscar:",
-                    "paginate": {
-                        "first": "Primero",
-                        "last": "Último",
-                        "next": "Siguiente",
-                        "previous": "Anterior"
-                    }
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
                 },
-                "order": [[3, 'desc']] // Ordenar por fecha de creación descendente por defecto
+                responsive: true,
+                order: [[3, 'desc']], // Ordenar por fecha de creación
+                pageLength: 10,
+                dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                     "<'row'<'col-sm-12'tr>>" +
+                     "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
             });
+
+            // Inicializar tooltips
+            new bootstrap.Tooltip(document.body, {
+                selector: '[data-bs-toggle="tooltip"]'
+            });
+
+            // Auto-dismiss alerts
+            setTimeout(() => $('.alert').alert('close'), 5000);
         });
     </script>
 }
