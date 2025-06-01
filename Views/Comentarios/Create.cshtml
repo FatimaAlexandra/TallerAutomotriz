@@ -1,75 +1,180 @@
-﻿@model amazon.Models.Tarea
+﻿@model amazon.Models.Comentario
 
 @{
-    ViewData["Title"] = "Crear Tarea";
+    ViewData["Title"] = "Nuevo Comentario";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">Crear Nueva Tarea</h2>
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    <div class="row">
-        <div class="col-md-8">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h4>Nueva Tarea</h4>
+                    <h4 class="mb-0">
+                        <i class="fas fa-comment"></i> Calificar y Comentar Servicio
+                    </h4>
                 </div>
                 <div class="card-body">
-                    <form asp-controller="Tareas" asp-action="Create" method="post" id="createTaskForm">
+                    <form asp-action="Create" asp-controller="Comentarios" method="post" id="createCommentForm">
                         @Html.AntiForgeryToken()
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="ServicioRealizadoId" />
 
-                        <div class="mb-3">
-                            <label asp-for="Titulo" class="form-label">Título</label>
-                            <input asp-for="Titulo" class="form-control" />
-                            <span asp-validation-for="Titulo" class="text-danger"></span>
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        <!-- Información del servicio -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="fas fa-wrench text-primary"></i> Detalles del Servicio
+                                        </h5>
+                                        <div class="mb-2">
+                                            <strong>Servicio:</strong> @ViewBag.ServicioNombre
+                                        </div>
+                                        <div class="mb-2">
+                                            <strong>Vehículo:</strong> @ViewBag.VehiculoInfo
+                                        </div>
+                                        <div class="mb-2">
+                                            <strong>Fecha:</strong> @ViewBag.FechaServicio
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="fas fa-user-cog text-primary"></i> Mecánico Asignado
+                                        </h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-placeholder bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="fas fa-user-tie fa-2x"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="mb-1">@ViewBag.MecanicoNombre</h5>
+                                                <p class="text-muted mb-0">Mecánico profesional</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Descripcion" class="form-label">Descripción</label>
-                            <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
-                            <span asp-validation-for="Descripcion" class="text-danger"></span>
+                        <!-- Sistema de calificación con estrellas -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-star text-warning"></i> Calificación General
+                                <small class="text-muted">(Servicio y atención del mecánico)</small>
+                            </h5>
+                            <div class="rating-container card bg-light">
+                                <div class="card-body">
+                                    <div class="rating-input text-center">
+                                        @for (int i = 5; i >= 1; i--)
+                                        {
+                                            <input type="radio" id="star@(i)" name="Calificacion" value="@i" required class="visually-hidden" />
+                                            <label for="star@(i)" class="rating-label" title="@i estrellas">
+                                                <i class="far fa-star fa-2x"></i>
+                                            </label>
+                                        }
+                                    </div>
+                                    <div class="rating-text text-center mt-3">
+                                        <span id="ratingText" class="badge bg-secondary px-3 py-2">Seleccione una calificación</span>
+                                    </div>
+                                    <div class="rating-descriptions row mt-3 text-center">
+                                        <div class="col">
+                                            <span id="rating1" class="badge bg-danger d-none">Malo</span>
+                                        </div>
+                                        <div class="col">
+                                            <span id="rating2" class="badge bg-warning d-none">Regular</span>
+                                        </div>
+                                        <div class="col">
+                                            <span id="rating3" class="badge bg-info d-none">Bueno</span>
+                                        </div>
+                                        <div class="col">
+                                            <span id="rating4" class="badge bg-primary d-none">Muy Bueno</span>
+                                        </div>
+                                        <div class="col">
+                                            <span id="rating5" class="badge bg-success d-none">Excelente</span>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Calificacion" class="text-danger d-block text-center mt-2"></span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Estado" class="form-label">Estado</label>
-                            <select asp-for="Estado" class="form-control" asp-items="ViewBag.Estados"></select>
-                            <span asp-validation-for="Estado" class="text-danger"></span>
+                        <!-- Aspectos destacados -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-thumbs-up text-success"></i> Aspectos Destacados
+                            </h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <p class="text-muted mb-3">Seleccione los aspectos positivos que destacaría de este servicio:</p>
+                                    <div class="aspect-badges mb-3" id="aspectBadges">
+                                        <span class="badge bg-primary me-2 mb-2 aspect-badge" data-aspect="Atención al cliente">
+                                            <i class="fas fa-headset"></i> Atención al cliente
+                                        </span>
+                                        <span class="badge bg-primary me-2 mb-2 aspect-badge" data-aspect="Profesionalismo">
+                                            <i class="fas fa-user-tie"></i> Profesionalismo
+                                        </span>
+                                        <span class="badge bg-primary me-2 mb-2 aspect-badge" data-aspect="Calidad del trabajo">
+                                            <i class="fas fa-check-circle"></i> Calidad del trabajo
+                                        </span>
+                                        <span class="badge bg-primary me-2 mb-2 aspect-badge" data-aspect="Precio justo">
+                                            <i class="fas fa-dollar-sign"></i> Precio justo
+                                        </span>
+                                        <span class="badge bg-primary me-2 mb-2 aspect-badge" data-aspect="Rapidez">
+                                            <i class="fas fa-bolt"></i> Rapidez
+                                        </span>
+                                        <span class="badge bg-primary me-2 mb-2 aspect-badge" data-aspect="Conocimiento técnico">
+                                            <i class="fas fa-brain"></i> Conocimiento técnico
+                                        </span>
+                                        <span class="badge bg-primary me-2 mb-2 aspect-badge" data-aspect="Limpieza">
+                                            <i class="fas fa-broom"></i> Limpieza
+                                        </span>
+                                        <span class="badge bg-primary me-2 mb-2 aspect-badge" data-aspect="Explicación clara">
+                                            <i class="fas fa-comments"></i> Explicación clara
+                                        </span>
+                                    </div>
+                                    <input type="hidden" asp-for="AspectosDestacados" id="aspectosDestacadosInput" />
+                                    <div id="selectedAspects" class="mt-2 mb-3">
+                                        <p class="text-muted">Aspectos seleccionados: <span id="aspectCount">0</span></p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="FechaVencimiento" class="form-label">Fecha de Vencimiento</label>
-                            <input asp-for="FechaVencimiento" class="form-control" type="date" />
-                            <span asp-validation-for="FechaVencimiento" class="text-danger"></span>
+                        <!-- Comentario detallado -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-comment-alt text-info"></i> Su Opinión
+                            </h5>
+                            <div class="form-floating">
+                                <textarea asp-for="Contenido" class="form-control" id="comentarioTextarea"
+                                          placeholder="Comparta su experiencia con el servicio y el mecánico..."
+                                          style="height: 150px; min-height: 150px;" required></textarea>
+                                <label for="comentarioTextarea">Escriba su comentario (mínimo 10 caracteres)</label>
+                                <div class="form-text text-end mt-1">
+                                    <span id="charCount">0</span>/1000 caracteres
+                                </div>
+                                <span asp-validation-for="Contenido" class="text-danger"></span>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="MecanicoAsignadoId" class="form-label">Mecánico Asignado</label>
-                            <select asp-for="MecanicoAsignadoId" class="form-control" asp-items="ViewBag.Mecanicos">
-                                <option value="">-- Seleccionar Mecánico --</option>
-                            </select>
-                            <span asp-validation-for="MecanicoAsignadoId" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-
-                            <label asp-for="VehiculoId" class="form-label">Vehículo</label>
-                            <select asp-for="VehiculoId" class="form-control" asp-items="ViewBag.Vehiculos">
-                                <option value="">-- Seleccionar Vehículo --</option>
-                            </select>
-                            <span asp-validation-for="VehiculoId" class="text-danger"></span>
-                        </div>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a asp-action="Index" class="btn btn-outline-secondary me-md-2">Cancelar</a>
-                            <button type="submit" class="btn btn-primary" id="btnSubmit">Crear</button>
+                        <!-- Botones de acción -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-controller="ServicioRealizado" asp-action="Historial" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Volver al Historial
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submitButton">
+                                <i class="fas fa-paper-plane"></i> Publicar Comentario
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -78,45 +183,221 @@
     </div>
 </div>
 
+@section Styles {
+    <style>
+        .rating-container {
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+        }
+
+        .rating-input {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .rating-label {
+            cursor: pointer;
+            font-size: 2rem;
+            color: #ddd;
+            transition: all 0.3s ease;
+        }
+
+            .rating-label:hover,
+            .rating-label:hover ~ .rating-label,
+            input[type="radio"]:checked ~ .rating-label {
+                color: #ffd700;
+            }
+
+            .rating-label i {
+                transition: transform 0.2s ease;
+            }
+
+            .rating-label:hover i,
+            input[type="radio"]:checked ~ .rating-label i {
+                transform: scale(1.2);
+            }
+
+        .card {
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: all 0.3s ease;
+        }
+
+            .card:hover {
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+                transform: translateY(-5px);
+            }
+
+        .card-header {
+            border-bottom: none;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .form-floating > .form-control {
+            padding-top: 1.625rem;
+        }
+
+        .aspect-badge {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            padding: 0.5rem 0.75rem;
+            font-weight: normal;
+        }
+
+            .aspect-badge:hover {
+                transform: scale(1.05);
+            }
+
+            .aspect-badge.selected {
+                background-color: #28a745 !important;
+                font-weight: bold;
+            }
+
+        .badge {
+            font-size: 0.85rem;
+        }
+
+        #selectedAspects {
+            min-height: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+            .btn:hover {
+                transform: translateY(-2px);
+            }
+
+        .avatar-placeholder {
+            font-size: 1.25rem;
+        }
+    </style>
+}
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
     <script>
-        $(document).ready(function() {
-            // Interceptar envío del formulario para depuración
-            $('#createTaskForm').on('submit', function(e) {
-                console.log('Formulario enviado');
+        $(document).ready(function () {
+            // Variables para los textos de calificación
+            const ratingTexts = {
+                1: 'Malo',
+                2: 'Regular',
+                3: 'Bueno',
+                4: 'Muy Bueno',
+                5: 'Excelente'
+            };
 
-                // Verificar datos del formulario
-                var titulo = $('#Titulo').val();
-                var estado = $('#Estado').val();
-                var mecanicoId = $('#MecanicoAsignadoId').val();
-                var vehiculoId = $('#VehiculoId').val();
+            const ratingClasses = {
+                1: 'bg-danger',
+                2: 'bg-warning',
+                3: 'bg-info',
+                4: 'bg-primary',
+                5: 'bg-success'
+            };
 
-                console.log('Datos del formulario:', {
-                    titulo: titulo,
-                    estado: estado,
-                    mecanicoId: mecanicoId,
-                    vehiculoId: vehiculoId
-                });
+            // Manejar la selección de estrellas
+            $('input[name="Calificacion"]').change(function () {
+                const rating = $(this).val();
 
-                // Desactivar botón para evitar múltiples envíos
-                $('#btnSubmit').prop('disabled', true)
-                    .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...');
+                // Actualizar texto
+                $('#ratingText').text(ratingTexts[rating])
+                    .removeClass('bg-secondary bg-danger bg-warning bg-info bg-primary bg-success')
+                    .addClass(ratingClasses[rating]);
+
+                // Mostrar badge correspondiente
+                $('.rating-descriptions .badge').addClass('d-none');
+                $(#rating${rating}).removeClass('d-none');
+
+                // Actualizar estrellas
+                $('.rating-label i').removeClass('fas').addClass('far');
+                $(this).nextAll('.rating-label').find('i').removeClass('far').addClass('fas');
+                $(this).next('.rating-label').find('i').removeClass('far').addClass('fas');
             });
 
-            // Inicializar elementos de formulario con clases de bootstrap
-            $('.form-control').addClass('shadow-sm');
+            // Manejar selección de aspectos destacados
+            $('.aspect-badge').click(function() {
+                $(this).toggleClass('selected');
+                updateAspectosDestacados();
+            });
 
-            // Mostrar mensajes de alerta automáticamente
-            $('.alert').alert();
+            // Actualizar campo oculto con aspectos destacados
+            function updateAspectosDestacados() {
+                let aspectos = [];
+                $('.aspect-badge.selected').each(function() {
+                    aspectos.push($(this).data('aspect'));
+                });
 
-            // Auto-cerrar alertas después de 5 segundos
-            setTimeout(function() {
-                $('.alert').alert('close');
-            }, 5000);
+                $('#aspectosDestacadosInput').val(aspectos.join(', '));
+                $('#aspectCount').text(aspectos.length);
+            }
+
+            // Contador de caracteres
+            $('#comentarioTextarea').on('input', function() {
+                const maxLength = 1000;
+                const currentLength = $(this).val().length;
+                $('#charCount').text(currentLength);
+
+                if (currentLength >= maxLength) {
+                    $('#charCount').addClass('text-danger fw-bold');
+                } else {
+                    $('#charCount').removeClass('text-danger fw-bold');
+                }
+            });
+
+            // Validación del formulario
+            $('#createCommentForm').submit(function(e) {
+                // Prevenir envío por defecto
+                e.preventDefault();
+
+                // Validar que haya una calificación
+                const rating = $('input[name="Calificacion"]:checked').val();
+                if (!rating) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Calificación requerida',
+                        text: 'Por favor, seleccione una calificación de 1 a 5 estrellas'
+                    });
+                    return false;
+                }
+
+                // Validar comentario
+                const contenido = $('#comentarioTextarea').val().trim();
+                if (contenido.length < 10) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Comentario muy corto',
+                        text: 'Por favor, escriba un comentario de al menos 10 caracteres'
+                    });
+                    return false;
+                }
+
+                // Mostrar spinner en el botón
+                $('#submitButton').prop('disabled', true)
+                    .html('<i class="fas fa-spinner fa-spin"></i> Publicando...');
+
+                // Enviar el formulario
+                this.submit();
+            });
+
+            // Inicializar contador de caracteres
+            $('#comentarioTextarea').trigger('input');
+
+            // Efecto de aparición gradual
+            $('.card').each(function(index) {
+                $(this).css('opacity', 0).css('transform', 'translateY(20px)');
+                setTimeout(() => {
+                    $(this).css('opacity', 1).css('transform', 'translateY(0)');
+                }, 100 * index);
+            });
         });
     </script>
 }
