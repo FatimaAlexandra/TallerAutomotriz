@@ -81,10 +81,20 @@
                                 <a class="nav-link" asp-controller="Producto" asp-action="Index">Productos</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" asp-controller="Inventario" asp-action="Index">
+                                    <i class="fas fa-boxes"></i> Inventario
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" asp-controller="ServicioRealizado" asp-action="Index">Servicios realizados</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Servicio" asp-action="Index">Servicios</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Tareas" asp-action="Index">
+                                    <i class="fas fa-tasks"></i> Gestión de Tareas
+                                </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="User" asp-action="Index">Usuarios</a>
@@ -103,6 +113,9 @@
                                     <i class="fas fa-comments"></i> Comentarios
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Reporteria" asp-action="Index">Reporteria</a>
+                            </li>
                         }
                         else if (User.IsInRole("2"))
                         {
@@ -110,10 +123,20 @@
                                 <a class="nav-link" asp-controller="Producto" asp-action="Index">Productos</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" asp-controller="Inventario" asp-action="Index">
+                                    <i class="fas fa-boxes"></i> Inventario
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" asp-controller="ServicioRealizado" asp-action="Index">Servicios realizados</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Servicio" asp-action="Index">Servicios</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Tareas" asp-action="MisTareas">
+                                    <i class="fas fa-clipboard-list"></i> Mis Tareas
+                                </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Cliente" asp-action="Index">Clientes</a>
@@ -127,11 +150,14 @@
                             </li>
                             <li class="nav-item">
 
-                                <a class="nav-link" asp-controller="Reporteria" asp-action="Index">Reporteria</a>
-
                                 <a class="nav-link" asp-controller="Comentarios" asp-action="Index">
                                     <i class="fas fa-comments"></i> Comentarios
                                 </a>
+
+                            </li>
+                            <li class="nav-item">
+
+                                <a class="nav-link" asp-controller="Reporteria" asp-action="Index">Reporteria</a>
 
                             </li>
                         }

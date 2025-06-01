@@ -1,0 +1,162 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Servicios Destacados";
+}
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="text-primary text-center mb-4">
+                <i class="fas fa-award"></i> Servicios Mejor Calificados
+            </h2>
+            <p class="text-center lead">
+                Estos son los servicios con las mejores calificaciones basados en los comentarios de nuestros clientes.
+            </p>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4 mt-2">
+        @{
+            var colors = new[] { "primary", "success", "info", "warning", "danger" };
+            var icons = new[] { "wrench", "oil-can", "tools", "car", "cogs" };
+        }
+
+        @for (var i = 0; i < Model.Count(); i++)
+        {
+            var servicio = Model.ElementAt(i);
+            var colorIndex = i % colors.Length;
+            var iconIndex = i % icons.Length;
+
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0 servicio-card">
+                    <div class="card-header bg-@colors[colorIndex] text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-@icons[iconIndex]"></i> @servicio.Nombre
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <div class="display-4 text-@colors[colorIndex] fw-bold mb-0">
+                                @servicio.PromedioCalificacion.ToString("F1")
+                            </div>
+                            <div class="rating mt-2">
+                                @{
+                                    var promedio = (double)servicio.PromedioCalificacion;
+                                    for (int s = 1; s <= 5; s++)
+                                    {
+                                        if (s <= Math.Floor(promedio))
+                                        {
+                                            <i class="fas fa-star text-warning"></i>
+                                        }
+                                        else if (s - 0.5 <= promedio && promedio < s)
+                                        {
+                                            <i class="fas fa-star-half-alt text-warning"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="far fa-star text-warning"></i>
+                                        }
+                                    }
+                                }
+                            </div>
+                            <div class="text-muted mt-2">
+                                @servicio.TotalComentarios comentario@(servicio.TotalComentarios != 1 ? "s" : "")
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a href="@Url.Action("Index", "Comentarios")" class="btn btn-outline-@colors[colorIndex]">
+                                <i class="fas fa-comments"></i> Ver Comentarios
+                            </a>
+                            <a href="@Url.Action("Index", "Servicio")" class="btn btn-outline-secondary">
+                                <i class="fas fa-info-circle"></i> Más Información
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center bg-white">
+                        <div class="badge bg-@colors[colorIndex] position-absolute top-0 start-50 translate-middle">
+                            <i class="fas fa-trophy"></i> Top @(i + 1)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="row mt-5">
+        <div class="col text-center">
+            <a href="@Url.Action("Index", "Servicio")" class="btn btn-primary btn-lg">
+                <i class="fas fa-list"></i> Ver Todos los Servicios
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .servicio-card {
+            transition: all 0.3s ease;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+            .servicio-card:hover {
+                transform: translateY(-10px) scale(1.02);
+                box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15) !important;
+            }
+
+        .card-header {
+            padding: 1.25rem;
+            border-bottom: none;
+        }
+
+        .card-footer {
+            border-top: none;
+            padding: 1.25rem;
+            position: relative;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            z-index: 10;
+        }
+
+        .rating {
+            font-size: 1.5rem;
+        }
+
+        /* Efectos de visibilidad */
+        .servicio-card {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+            .servicio-card.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        .col:nth-child(1) .servicio-card {
+            transition-delay: 0.1s;
+        }
+
+        .col:nth-child(2) .servicio-card {
+            transition-delay: 0.3s;
+        }
+
+        .col:nth-child(3) .servicio-card {
+            transition-delay: 0.5s;
+        }
+
+        .col:nth-child(4) .servicio-card {
+            transition-delay: 0.7s;
+        }
+
+        .col:nth-child(5) .servicio-card {
+            transition-delay: 0.9s;
+        }
+    </style>
+}

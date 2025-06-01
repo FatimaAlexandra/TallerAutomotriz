@@ -1,0 +1,64 @@
+﻿@{
+    ViewData["Title"] = "Ajustar Stock";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Ajustar Stock</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4>@ViewBag.ProductoNombre</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p>
+                            <strong>Stock Actual:</strong>
+                            <span class="badge bg-@(ViewBag.StockActual < 10 ? "danger" : (ViewBag.StockActual < 20 ? "warning" : "success")) p-2">
+                                @ViewBag.StockActual
+                            </span>
+                        </p>
+                    </div>
+
+                    <form asp-action="AjustarStock" method="post">
+                        <input type="hidden" name="inventarioId" value="@ViewBag.InventarioId" />
+
+                        <div class="mb-3">
+                            <label for="cantidad" class="form-label">Cantidad a Ajustar</label>
+                            <input id="cantidad" name="cantidad" class="form-control" type="number" min="1" required />
+                            <div class="form-text">Ingrese la cantidad a agregar o restar</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Ajuste</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipoAjuste" id="agregar" value="agregar" checked>
+                                <label class="form-check-label" for="agregar">
+                                    <i class="fas fa-plus text-success"></i> Agregar al Inventario
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipoAjuste" id="restar" value="restar">
+                                <label class="form-check-label" for="restar">
+                                    <i class="fas fa-minus text-danger"></i> Restar del Inventario
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Ajustar Stock</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

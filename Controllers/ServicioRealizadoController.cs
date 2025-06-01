@@ -49,7 +49,7 @@ namespace amazon.Controllers
             }
             catch (Exception ex)
             {
-                // Manejar la excepción
+                // Manejo de posibles errores
                 ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
                 ViewBag.Servicios = new SelectList(new List<Servicio>(), "Id", "Nombre");
                 ViewBag.Usuarios = new SelectList(new List<Usuario>(), "Id", "Nombre");
@@ -83,11 +83,11 @@ namespace amazon.Controllers
                 ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
             }
 
-            // Asegúrate de que ViewBag.Servicios, ViewBag.Usuarios y los vehículos estén inicializados
+            //para asegurarase que las viewbag esten inicializadas
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
             ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Rol == 3).ToList(), "Id", "Nombre", servicioRealizado.UsuarioId);
 
-            // Obtén los vehículos del usuario seleccionado
+            // llamar los vehículos del usuario seleccionado
             if (servicioRealizado.UsuarioId != 0)
             {
                 ViewBag.Vehiculos = new SelectList(_context.Vehiculos.Where(v => v.UsuarioId == servicioRealizado.UsuarioId).ToList(), "Id", "Placa", servicioRealizado.VehiculoId);
@@ -182,7 +182,7 @@ namespace amazon.Controllers
                 ModelState.AddModelError(string.Empty, $"Error: {ex.Message}");
             }
 
-            // Asegúrate de que ViewBag.Servicios, ViewBag.Usuarios y ViewBag.Vehiculos estén inicializados
+            //  para asgurarse que esten inicializados
             ViewBag.Servicios = new SelectList(_context.Servicios, "Id", "Nombre", servicioRealizado.ServicioId);
             ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Rol == 3).ToList(), "Id", "Nombre", servicioRealizado.UsuarioId);
 
@@ -254,6 +254,7 @@ namespace amazon.Controllers
 
 
         // GET: ServicioRealizado/Historial
+        // GET: ServicioRealizado/Historial
         [Authorize]
         public async Task<IActionResult> Historial()
         {
@@ -270,19 +271,18 @@ namespace amazon.Controllers
             // Obtener los servicios realizados por el usuario autenticado
             var serviciosRealizados = await _context.ServicioRealizado
                 .Include(sr => sr.Servicio)
+                .Include(sr => sr.Vehiculo)  // Incluir también el vehículo para mostrar info completa
                 .Where(sr => sr.UsuarioId == userId)
-                .Select(sr => new ServicioRealizado
-                {
-                    id = sr.id,
-                    ServicioId = sr.ServicioId,
-                    Servicio = sr.Servicio,
-                    Precio = sr.Precio,
-                    Fecha = sr.Fecha,
-                    Estado = sr.Estado
-                })
                 .ToListAsync();
 
-            // Renderizar la vista con los servicios filtrados
+            // NUEVA SECCIÓN: Cargar comentarios relacionados para verificar cuáles ya tienen comentarios
+            var comentarios = await _context.Comentarios
+                .Where(c => c.UsuarioId == userId && c.Estado)
+                .ToListAsync();
+
+            ViewBag.Comentarios = comentarios;
+
+            // retorno de la vista
             return View("~/Views/ServicioRealizado/Historial.cshtml", serviciosRealizados);
         }
 

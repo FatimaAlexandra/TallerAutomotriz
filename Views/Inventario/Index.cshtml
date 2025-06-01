@@ -1,0 +1,267 @@
+﻿@model IEnumerable<amazon.Models.Inventario>
+
+@{
+    ViewData["Title"] = "Inventario";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Gestión de Inventario</h2>
+
+    <div class="mb-3">
+        <a asp-action="BajoStock" class="btn btn-warning me-2">
+            <i class="fas fa-exclamation-triangle"></i> Ver Productos con Bajo Stock
+        </a>
+        <!-- Nuevo botón para generar reporte PDF -->
+        <a href="javascript:void(0)" id="generarReportePDF" class="btn btn-danger">
+            <i class="fas fa-file-pdf"></i> Generar Reporte PDF
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="inventarioTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Producto</th>
+                            <th>Descripción</th>
+                            <th>Tipo</th>
+                            <th>Cantidad</th>
+                            <th>Última Actualización</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="@(item.Cantidad < 10 ? "table-warning" : "")">
+                                <td>@item.Producto.Nombre</td>
+                                <td>@item.Producto.Descripcion</td>
+                                <td>@item.Producto.Tipo</td>
+                                <td>
+                                    <span class="badge bg-@(item.Cantidad < 10 ? "danger" : (item.Cantidad < 20 ? "warning" : "success")) p-2">
+                                        @item.Cantidad
+                                    </span>
+                                </td>
+                                <td>@item.FechaActualizacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                                            <i class="fas fa-info-circle"></i> Detalles
+                                        </a>
+                                        <a asp-action="ActualizarStock" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i> Actualizar
+                                        </a>
+                                        <a asp-action="AjustarStock" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">
+                                            <i class="fas fa-plus-minus"></i> Ajustar
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- NUEVA SECCIÓN: Gráficas de Inventario -->
+    <h3 class="mt-5 mb-4">Análisis de Inventario</h3>
+
+    <div class="row">
+        <!-- Gráfica 1: Estado General del Inventario -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="m-0">Distribución del Inventario</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="distribucionInventario" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfica 2: Productos con Bajo Stock -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="m-0">Productos con Bajo Stock</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="bajoStockChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfica 3: Top 5 Productos más Utilizados -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="m-0">Top 5 Productos</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="topProductosChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/DataTables/datatables.min.js"></script>
+
+    <!-- Nuevo script para Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Inicialización de DataTable existente
+            $('#inventarioTable').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "No se encontraron registros",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+                "order": [[3, 'asc']] // Ordenar por cantidad ascendente por defecto
+            });
+
+            // Preparar datos para gráficas a partir del modelo
+            const inventario = @Html.Raw(Json.Serialize(Model));
+
+            // Datos para Gráfica 1: Distribución por Tipo
+            const tipoProductos = {};
+            inventario.forEach(item => {
+                const tipo = item.producto.tipo;
+                tipoProductos[tipo] = (tipoProductos[tipo] || 0) + item.cantidad;
+            });
+
+            // Datos para Gráfica 2: Productos con Bajo Stock
+            const productosBajoStock = inventario
+                .filter(item => item.cantidad < 10)
+                .sort((a, b) => a.cantidad - b.cantidad)
+                .slice(0, 5); // Tomar solo los 5 con menos stock
+
+            // Datos para Gráfica 3: Top 5 Productos
+            const topProductos = [...inventario]
+                .sort((a, b) => b.cantidad - a.cantidad)
+                .slice(0, 5); // Tomar los 5 con más stock
+
+            // Gráfica 1: Distribución del Inventario
+            new Chart(document.getElementById('distribucionInventario'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(tipoProductos),
+                    datasets: [{
+                        data: Object.values(tipoProductos),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Distribución por Tipo de Producto'
+                        }
+                    }
+                }
+            });
+
+            // Gráfica 2: Productos con Bajo Stock
+            new Chart(document.getElementById('bajoStockChart'), {
+                type: 'bar',
+                data: {
+                    labels: productosBajoStock.map(item => item.producto.nombre),
+                    datasets: [{
+                        label: 'Cantidad',
+                        data: productosBajoStock.map(item => item.cantidad),
+                        backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: 10
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Productos con Bajo Stock'
+                        }
+                    }
+                }
+            });
+
+            // Gráfica 3: Top 5 Productos
+            new Chart(document.getElementById('topProductosChart'), {
+                type: 'bar',
+                data: {
+                    labels: topProductos.map(item => item.producto.nombre),
+                    datasets: [{
+                        label: 'Cantidad',
+                        data: topProductos.map(item => item.cantidad),
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Productos con Mayor Stock'
+                        }
+                    }
+                }
+            });
+
+            // Manejo de click en botón de reporte PDF
+            $('#generarReportePDF').click(function() {
+                window.location.href = '@Url.Action("GenerarReporteInventario", "Inventario")';
+            });
+        });
+    </script>
+}

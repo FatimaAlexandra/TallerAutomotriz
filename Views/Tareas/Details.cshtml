@@ -1,0 +1,111 @@
+﻿@model amazon.Models.Tarea
+
+@{
+    ViewData["Title"] = "Detalles de Tarea";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Detalles de la Tarea</h2>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4>@Model.Titulo</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="badge bg-@(Model.Estado == "Pendiente" ? "warning" :
+                                     Model.Estado == "En progreso" ? "info" :
+                                     Model.Estado == "Completada" ? "success" : "danger") p-2">
+                            @Model.Estado
+                        </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5 class="card-title">Descripción</h5>
+                        <p class="card-text">@(string.IsNullOrEmpty(Model.Descripcion) ? "Sin descripción" : Model.Descripcion)</p>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h5 class="card-title">Información de la Tarea</h5>
+                            <dl class="row">
+                                <dt class="col-sm-5">Creado por:</dt>
+                                <dd class="col-sm-7">@Model.UsuarioCreador?.Nombre</dd>
+
+                                <dt class="col-sm-5">Mecánico Asignado:</dt>
+                                <dd class="col-sm-7">@(Model.MecanicoAsignado?.Nombre ?? "Sin asignar")</dd>
+
+                                <dt class="col-sm-5">Fecha de Creación:</dt>
+                                <dd class="col-sm-7">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                                <dt class="col-sm-5">Fecha de Vencimiento:</dt>
+                                <dd class="col-sm-7">
+                                    @if (Model.FechaVencimiento.HasValue)
+                                    {
+                                        @Model.FechaVencimiento.Value.ToString("dd/MM/yyyy")
+                                    }
+                                    else
+                                    {
+                                            <span>Sin fecha</span>
+                                    }
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="card-title">Información del Vehículo</h5>
+                            @if (Model.Vehiculo != null)
+                            {
+                                    <dl class="row">
+                                        <dt class="col-sm-5">Marca:</dt>
+                                        <dd class="col-sm-7">@Model.Vehiculo.Marca</dd>
+
+                                        <dt class="col-sm-5">Modelo:</dt>
+                                        <dd class="col-sm-7">@Model.Vehiculo.Modelo</dd>
+
+                                        <dt class="col-sm-5">Año:</dt>
+                                        <dd class="col-sm-7">@Model.Vehiculo.Año</dd>
+
+                                        <dt class="col-sm-5">Placa:</dt>
+                                        <dd class="col-sm-7">@Model.Vehiculo.Placa</dd>
+                                    </dl>
+                            }
+                            else
+                            {
+                                    <p>No hay vehículo asociado a esta tarea.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="btn-group">
+                        @if (User.IsInRole("1"))
+                        {
+                                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+                        }
+                        <a asp-action="ActualizarEstado" asp-route-id="@Model.Id" class="btn btn-success">
+                            <i class="fas fa-tasks"></i> Actualizar Estado
+                        </a>
+                        @if (User.IsInRole("1"))
+                        {
+                                <a asp-action="Index" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left"></i> Volver
+                                </a>
+                        }
+                        else
+                        {
+                                <a asp-action="MisTareas" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left"></i> Volver
+                                </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

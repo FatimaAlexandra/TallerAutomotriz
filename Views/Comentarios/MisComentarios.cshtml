@@ -1,56 +1,63 @@
-﻿@model IEnumerable<amazon.Models.Comentario>
+﻿    @model IEnumerable<amazon.Models.Comentario>
 
-@{
-    ViewData["Title"] = "Mis Comentarios";
-}
+    @{
+        ViewData["Title"] = "Mis Comentarios";
+    }
 
-<div class="container">
-    <div class="row mb-4">
-        <div class="col">
-            <div class="d-flex justify-content-between align-items-center">
-                <h2 class="text-primary">
-                    <i class="fas fa-comments"></i> @ViewData["Title"]
-                </h2>
-                <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="fas fa-list"></i> Ver Todos los Comentarios
-                </a>
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="text-primary">
+                        <i class="fas fa-comments"></i> @ViewData["Title"]
+                    </h2>
+                    <div>
+                        <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-list"></i> Ver Todos los Comentarios
+                        </a>
+                        <a asp-controller="ServicioRealizado" asp-action="Historial" class="btn btn-outline-primary">
+                            <i class="fas fa-history"></i> Historial de Servicios
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
 
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
 
-    @if (!Model.Any())
-    {
-        <div class="alert alert-info">
-            <i class="fas fa-info-circle"></i> No has realizado ningún comentario todavía.
-        </div>
-    }
-    else
-    {
-        <div class="row">
-            @foreach (var comentario in Model)
-            {
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-header bg-light">
-                            <div class="d-flex justify-content-between align-items-center">
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> No has realizado ningún comentario todavía.
+                <a asp-controller="ServicioRealizado" asp-action="Historial" class="alert-link">
+                    Ir a tu historial de servicios para crear un comentario
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var comentario in Model)
+                {
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 shadow comentario-card">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">
-                                    <i class="fas fa-wrench"></i> @comentario.ServicioRealizado.Servicio.Nombre
+                                    <i class="fas fa-wrench text-primary"></i> @comentario.ServicioRealizado.Servicio.Nombre
                                 </h5>
                                 <div class="rating">
                                     @for (int i = 1; i <= 5; i++)
@@ -59,121 +66,209 @@
                                     }
                                 </div>
                             </div>
-                            <small class="text-muted d-block mt-1">
-                                <i class="fas fa-calendar"></i> @comentario.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
-                                @if (comentario.FechaModificacion.HasValue)
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-calendar-alt text-info me-2"></i>
+                                        <strong>Fecha del servicio:</strong>
+                                        <span class="ms-2">@comentario.ServicioRealizado.Fecha</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-car text-primary me-2"></i>
+                                        <strong>Vehículo:</strong>
+                                        <span class="ms-2">
+                                            @comentario.ServicioRealizado.Vehiculo?.Marca @comentario.ServicioRealizado.Vehiculo?.Modelo
+                                            (@comentario.ServicioRealizado.Vehiculo?.Placa)
+                                        </span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-comment-dots text-success me-2"></i>
+                                        <strong>Publicado:</strong>
+                                        <span class="ms-2">@comentario.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</span>
+                                        @if (comentario.FechaModificacion.HasValue)
+                                        {
+                                            <span class="ms-2 badge bg-secondary">
+                                                <i class="fas fa-edit"></i> Editado
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            
+                                <!-- Aspectos destacados -->
+                                @if (!string.IsNullOrWhiteSpace(comentario.AspectosDestacados))
                                 {
-                                    <span>
-                                        <i class="fas fa-edit ms-2"></i>
-                                        Editado: @comentario.FechaModificacion.Value.ToString("dd/MM/yyyy HH:mm")
-                                    </span>
+                                    <div class="mb-3">
+                                        <h6><i class="fas fa-thumbs-up text-success"></i> Aspectos destacados:</h6>
+                                        <div>
+                                            @foreach (var aspecto in comentario.AspectosDestacados.Split(',').Select(a => a.Trim()))
+                                            {
+                                                <span class="badge bg-success me-1 mb-1">@aspecto</span>
+                                            }
+                                        </div>
+                                    </div>
                                 }
-                            </small>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <strong><i class="fas fa-car"></i> Vehículo:</strong>
-                                <span>
-                                    @comentario.ServicioRealizado.Vehiculo?.Marca @comentario.ServicioRealizado.Vehiculo?.Modelo
-                                    (@comentario.ServicioRealizado.Vehiculo?.Placa)
-                                </span>
+                            
+                                <div class="mb-3">
+                                    <h6><i class="fas fa-comment-alt text-primary"></i> Tu opinión:</h6>
+                                    <div class="card bg-light">
+                                        <div class="card-body py-2 px-3">
+                                            <p class="card-text mb-0">@comentario.Contenido</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <p class="card-text">@comentario.Contenido</p>
-                        </div>
-                        <div class="card-footer bg-transparent">
-                            <div class="btn-group w-100">
-                                <a href="@Url.Action("Edit", new { id = comentario.Id })"
-                                   class="btn btn-warning flex-grow-1">
-                                    <i class="fas fa-edit"></i> Editar
-                                </a>
-                                <button type="button" class="btn btn-danger flex-grow-1"
-                                        onclick="confirmarEliminacion(@comentario.Id)">
-                                    <i class="fas fa-trash"></i> Eliminar
-                                </button>
+                            <div class="card-footer bg-white">
+                                <div class="btn-group w-100">
+                                    <a href="@Url.Action("Edit", new { id = comentario.Id })"
+                                       class="btn btn-warning flex-grow-1">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                    <button type="button" class="btn btn-danger flex-grow-1"
+                                            onclick="confirmarEliminacion(@comentario.Id)">
+                                        <i class="fas fa-trash"></i> Eliminar
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
-    }
-</div>
+                }
+            </div>
+        }
+    </div>
 
-<!-- Modal de confirmación de eliminación -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>¿Está seguro que desea eliminar este comentario? Esta acción no se puede deshacer.</p>
-            </div>
-            <div class="modal-footer">
-                <form id="deleteForm" asp-action="Delete" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" id="comentarioId" name="id" />
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash"></i> Eliminar
-                    </button>
-                </form>
+    <!-- Modal de confirmación de eliminación -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro que desea eliminar este comentario? Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer">
+                    <form id="deleteForm" asp-action="Delete" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" id="comentarioId" name="id" />
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-@section Styles {
-    <style>
-        .rating {
-            color: #ffd700;
-        }
-
-        .card {
-            transition: transform 0.2s;
-        }
-
-            .card:hover {
-                transform: translateY(-5px);
+    @section Styles {
+        <style>
+            .rating {
+                color: #ffd700;
             }
 
-        .btn-group .btn {
-            padding: 0.5rem 1rem;
-        }
+            .comentario-card {
+                transition: all 0.3s ease;
+                border-radius: 0.5rem;
+                overflow: hidden;
+                border: none;
+            }
 
-        .card-footer {
-            border-top: 1px solid rgba(0,0,0,.125);
-            padding: 1rem;
-        }
+                .comentario-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+                }
 
-        .modal-header .btn-close {
-            filter: brightness(0) invert(1);
-        }
-    </style>
-}
+            .card-header {
+                padding: 1rem 1.25rem;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            }
 
-@section Scripts {
-    <script>
-        // Auto-dismiss alerts
-        $(document).ready(function () {
-            setTimeout(function () {
-                $('.alert').alert('close');
-            }, 5000);
-        });
+            .card-footer {
+                border-top: 1px solid rgba(0, 0, 0, 0.05);
+                padding: 1rem;
+            }
 
-        function confirmarEliminacion(id) {
-            $('#comentarioId').val(id);
-            $('#deleteModal').modal('show');
-        }
+            .btn-group .btn {
+                padding: 0.5rem 1rem;
+                transition: all 0.2s ease;
+            }
 
-        // Prevenir doble envío del formulario
-        $('#deleteForm').on('submit', function () {
-            $(this).find('button[type="submit"]').prop('disabled', true);
-        });
-    </script>
-}
+                .btn-group .btn:hover {
+                    transform: translateY(-2px);
+                }
+
+            .badge {
+                font-weight: 500;
+                padding: 0.4rem 0.7rem;
+            }
+
+            .alert-link {
+                text-decoration: underline;
+            }
+
+            .card-body {
+                padding: 1.25rem;
+            }
+
+            .modal-header .btn-close {
+                filter: brightness(0) invert(1);
+            }
+        </style>
+    }
+    @section Scripts {
+        <script>
+            $(document).ready(function () {
+                // Auto-dismiss alerts después de 5 segundos
+                setTimeout(function () {
+                    $('.alert').alert('close');
+                }, 5000);
+
+                // Aplicar animaciones con delay para cada tarjeta
+                $('.comentario-card').each(function(index) {
+                    $(this).css('opacity', 0);
+                    $(this).css('animation-delay', (index * 0.1) + 's');
+                    setTimeout(() => {
+                        $(this).css('opacity', 1);
+                    }, 100);
+                });
+            });
+
+            // Función para confirmar eliminación
+            function confirmarEliminacion(id) {
+                $('#comentarioId').val(id);
+
+                // Usar SweetAlert2 si está disponible, de lo contrario usar el modal Bootstrap
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: '¿Eliminar comentario?',
+                        text: "Esta acción no se puede deshacer",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $('#deleteForm').submit();
+                        }
+                    });
+                } else {
+                    // Fallback al modal Bootstrap
+                    $('#deleteModal').modal('show');
+                }
+            }
+
+            // Prevenir doble envío del formulario
+            $('#deleteForm').on('submit', function () {
+                $(this).find('button[type="submit"]').prop('disabled', true)
+                    .html('<i class="fas fa-spinner fa-spin"></i> Eliminando...');
+            });
+        </script>
+    }
+    }

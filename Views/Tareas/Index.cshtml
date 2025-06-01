@@ -1,0 +1,347 @@
+﻿@model IEnumerable<amazon.Models.Tarea>
+
+@{
+    ViewData["Title"] = "Gestión de Tareas";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Gestión de Tareas</h2>
+
+    <div class="mb-3">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Nueva Tarea
+        </a>
+        <!-- Nuevo botón para generar reporte PDF -->
+        <a href="javascript:void(0)" id="generarReportePDF" class="btn btn-danger">
+            <i class="fas fa-file-pdf"></i> Generar Reporte PDF
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="tareasTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Título</th>
+                            <th>Estado</th>
+                            <th>Mecánico Asignado</th>
+                            <th>Vehículo</th>
+                            <th>Fecha Creación</th>
+                            <th>Fecha Vencimiento</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var bgColor = "";
+                            var textColor = "text-dark";
+
+                            switch (item.Estado)
+                            {
+                                case "Pendiente":
+                                    bgColor = "table-warning";
+                                    break;
+                                case "En progreso":
+                                    bgColor = "table-info";
+                                    break;
+                                case "Completada":
+                                    bgColor = "table-success";
+                                    break;
+                                case "Cancelada":
+                                    bgColor = "table-danger";
+                                    textColor = "text-white";
+                                    break;
+                            }
+
+                            <tr class="@bgColor @textColor">
+                                <td>@item.Titulo</td>
+                                <td>
+                                    <span class="badge bg-@(item.Estado == "Pendiente" ? "warning" :
+                                                 item.Estado == "En progreso" ? "info" :
+                                                 item.Estado == "Completada" ? "success" : "danger") p-2">
+                                        @item.Estado
+                                    </span>
+                                </td>
+                                <td>@(item.MecanicoAsignado?.Nombre ?? "Sin asignar")</td>
+                                <td>
+                                    @if (item.Vehiculo != null)
+                                    {
+                                        @($"{item.Vehiculo.Marca} {item.Vehiculo.Modelo} ({item.Vehiculo.Placa})")
+                                    }
+                                    else
+                                    {
+                                        <span>N/A</span>
+                                    }
+                                </td>
+                                <td>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    @if (item.FechaVencimiento.HasValue)
+                                    {
+                                        @item.FechaVencimiento.Value.ToString("dd/MM/yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span>Sin fecha</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="ActualizarEstado" asp-route-id="@item.Id" class="btn btn-sm btn-success">
+                                            <i class="fas fa-tasks"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- NUEVA SECCIÓN: Gráficas de Tareas -->
+    <h3 class="mt-5 mb-4">Análisis de Tareas</h3>
+
+    <div class="row">
+        <!-- Gráfica 1: Estado Actual de Tareas -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="m-0">Estado de Tareas</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="estadoTareasChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfica 2: Tareas por Mecánico -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="m-0">Tareas por Mecánico</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="tareasPorMecanicoChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfica 3: Tareas por Vehículo -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="m-0">Tareas por Vehículo</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="tareasPorVehiculoChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/DataTables/datatables.min.js"></script>
+
+    <!-- Nuevo script para Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Inicialización de DataTable existente
+            $('#tareasTable').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "No se encontraron registros",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+                "order": [[4, 'desc']] // Ordenar por fecha de creación descendente por defecto
+            });
+
+            // Preparar datos para gráficas a partir del modelo
+            const tareas = @Html.Raw(Json.Serialize(Model));
+
+            // Datos para Gráfica 1: Estado de Tareas
+            const estadoTareas = {
+                'Pendiente': tareas.filter(t => t.estado === 'Pendiente').length,
+                'En progreso': tareas.filter(t => t.estado === 'En progreso').length,
+                'Completada': tareas.filter(t => t.estado === 'Completada').length,
+                'Cancelada': tareas.filter(t => t.estado === 'Cancelada').length
+            };
+
+            // Datos para Gráfica 2: Tareas por Mecánico
+            const mecanicoTareas = {};
+            tareas.forEach(tarea => {
+                if (tarea.mecanicoAsignado) {
+                    const nombre = tarea.mecanicoAsignado.nombre;
+                    mecanicoTareas[nombre] = mecanicoTareas[nombre] || {
+                        pendientes: 0,
+                        enProgreso: 0,
+                        completadas: 0,
+                        canceladas: 0
+                    };
+
+                    if (tarea.estado === 'Pendiente') mecanicoTareas[nombre].pendientes++;
+                    else if (tarea.estado === 'En progreso') mecanicoTareas[nombre].enProgreso++;
+                    else if (tarea.estado === 'Completada') mecanicoTareas[nombre].completadas++;
+                    else if (tarea.estado === 'Cancelada') mecanicoTareas[nombre].canceladas++;
+                }
+            });
+
+            // Datos para Gráfica 3: Tareas por Vehículo
+            const vehiculoTareas = {};
+            tareas.forEach(tarea => {
+                if (tarea.vehiculo) {
+                    const info = `${tarea.vehiculo.marca} ${tarea.vehiculo.modelo}`;
+                    vehiculoTareas[info] = (vehiculoTareas[info] || 0) + 1;
+                }
+            });
+
+            // Gráfica 1: Estado de Tareas
+            new Chart(document.getElementById('estadoTareasChart'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(estadoTareas),
+                    datasets: [{
+                        data: Object.values(estadoTareas),
+                        backgroundColor: [
+                            'rgba(255, 206, 86, 0.7)', // amarillo para pendiente
+                            'rgba(54, 162, 235, 0.7)', // azul para en progreso
+                            'rgba(75, 192, 192, 0.7)', // verde para completada
+                            'rgba(255, 99, 132, 0.7)'  // rojo para cancelada
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Distribución por Estado'
+                        }
+                    }
+                }
+            });
+
+            // Gráfica 2: Tareas por Mecánico
+            const mecanicosNombres = Object.keys(mecanicoTareas);
+            new Chart(document.getElementById('tareasPorMecanicoChart'), {
+                type: 'bar',
+                data: {
+                    labels: mecanicosNombres,
+                    datasets: [
+                        {
+                            label: 'Pendientes',
+                            data: mecanicosNombres.map(nombre => mecanicoTareas[nombre].pendientes),
+                            backgroundColor: 'rgba(255, 206, 86, 0.7)'
+                        },
+                        {
+                            label: 'En progreso',
+                            data: mecanicosNombres.map(nombre => mecanicoTareas[nombre].enProgreso),
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                        },
+                        {
+                            label: 'Completadas',
+                            data: mecanicosNombres.map(nombre => mecanicoTareas[nombre].completadas),
+                            backgroundColor: 'rgba(75, 192, 192, 0.7)'
+                        },
+                        {
+                            label: 'Canceladas',
+                            data: mecanicosNombres.map(nombre => mecanicoTareas[nombre].canceladas),
+                            backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Tareas Asignadas por Mecánico'
+                        }
+                    }
+                }
+            });
+
+            // Gráfica 3: Tareas por Vehículo
+            new Chart(document.getElementById('tareasPorVehiculoChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(vehiculoTareas),
+                    datasets: [{
+                        label: 'Cantidad de Tareas',
+                        data: Object.values(vehiculoTareas),
+                        backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Tareas por Vehículo'
+                        }
+                    }
+                }
+            });
+
+            // Manejo de click en botón de reporte PDF
+            $('#generarReportePDF').click(function() {
+                window.location.href = '@Url.Action("GenerarReporteTareas", "Tareas")';
+            });
+        });
+    </script>
+}
