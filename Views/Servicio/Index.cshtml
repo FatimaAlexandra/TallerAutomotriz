@@ -20,7 +20,7 @@
             <!-- Tabla de servicios -->
             <div class="table-responsive">
                 <table id="serviciosTable" class="table table-striped table-bordered align-middle text-center">
-                    <thead class="table-light">
+                    <thead class="table-dark">
                         <tr>
                             <th>ID</th>
                             <th>Nombre</th>
@@ -38,7 +38,6 @@
                                 <td>@servicio.Descripcion</td>
                                 <td>@servicio.Categoria</td>
                                 <td>
-                                    <div class="card border-0 bg-white px-2 py-1 shadow-sm">
                                         <div class="d-flex justify-content-center gap-2">
                                             <a asp-action="Edit" asp-route-id="@servicio.Id"
                                                class="btn btn-icon-only btn-sm btn-outline-warning rounded-circle"
@@ -52,7 +51,7 @@
                                                 <i class="fas fa-trash-can"></i>
                                             </a>
                                         </div>
-                                    </div>
+                       
                                 </td>
                             </tr>
                         }
