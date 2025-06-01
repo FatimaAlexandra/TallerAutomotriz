@@ -2,62 +2,116 @@
 
 @{
     ViewData["Title"] = "Lista de Vehículos";
-
-    // Obtener el rol del usuario autenticado desde los Claims
-    var rolUsuario = User.FindFirst("Rol")?.Value; // Asume que el rol se almacena como un claim
+    var rolUsuario = User.FindFirst("Rol")?.Value;
 }
 
-<div class="container">
-    <h2 class="mb-4">@ViewData["Title"]</h2>
+<div class="container mt-4">
+    <h2 class="mb-4 text-primary">
+        <i class="fas fa-car me-2"></i> Lista de Vehículos Registrados
+    </h2>
 
     <div class="mb-3">
-        <a asp-action="Create" class="btn btn-primary">Registrar mi vehículo</a>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fas fa-plus"></i> Registrar mi Vehículo
+        </a>
     </div>
 
-    <div class="table-responsive">
-        <table id="vehiculosTable" class="table table-striped table-bordered">
-            <thead>
-                <tr>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Año</th>
-                    <th>Placa</th>
-                    <th>Descripción</th>
-                    <th>Propietario</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var vehiculo in Model)
-                {
-                    <tr>
-                        <td>@vehiculo.Marca</td>
-                        <td>@vehiculo.Modelo</td>
-                        <td>@vehiculo.Año</td>
-                        <td>@vehiculo.Placa</td>
-                        <td>@vehiculo.Descripcion</td>
-                        <td>@vehiculo.Usuario?.Nombre</td>
-                        <td>
-                            @if (User.IsInRole("3"))
-                            {
-                                <button class="btn btn-sm btn-warning" disabled>Editar</button>
-                                <button class="btn btn-sm btn-danger" disabled>Eliminar</button>
-                            }
-                            else
-                            {
-                                <!-- Si el rol no es 3, mostramos los botones habilitados -->
-                                <a asp-action="Edit" asp-route-id="@vehiculo.Id" class="btn btn-sm btn-warning">Editar</a>
-                                <a asp-action="Delete" asp-route-id="@vehiculo.Id" class="btn btn-sm btn-danger">Eliminar</a>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="vehiculosTable" class="table table-striped table-bordered text-center align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Año</th>
+                            <th>Placa</th>
+                            <th>Descripción</th>
+                            <th>Propietario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var vehiculo in Model)
+                        {
+                            <tr>
+                                <td>@vehiculo.Marca</td>
+                                <td>@vehiculo.Modelo</td>
+                                <td>@vehiculo.Año</td>
+                                <td>@vehiculo.Placa</td>
+                                <td>@vehiculo.Descripcion</td>
+                                <td>@vehiculo.Usuario?.Nombre</td>
+                                <td>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        @if (User.IsInRole("3"))
+                                        {
+                                            <button class="btn btn-sm btn-outline-warning rounded-circle" disabled title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger rounded-circle" disabled title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@vehiculo.Id"
+                                               class="btn btn-sm btn-outline-warning rounded-circle" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@vehiculo.Id"
+                                               class="btn btn-sm btn-outline-danger rounded-circle" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
+@section Styles {
+    <style>
+        html, body {
+            background-size: cover;
+            background-position: center;
+            background-repeat: repeat;
+            background-attachment: fixed;
+        }
+
+        .container {
+            background-color: transparent;
+        }
+
+        .card {
+            border-radius: 0.75rem;
+            background-color: #ffffff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .btn-sm.rounded-circle {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: 0.2s ease-in-out;
+        }
+
+        .btn-sm.rounded-circle:hover {
+            transform: scale(1.08);
+            opacity: 0.85;
+        }
+    </style>
+}
+
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/DataTables/datatables.min.js"></script>
     <script>

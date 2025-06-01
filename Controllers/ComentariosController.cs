@@ -309,24 +309,36 @@ namespace amazon.Controllers
         }
 
         // GET: Comentarios/Edit/5
-        [Authorize(Roles = "3")]
+        [Authorize(Roles = "1,3")]  // Modificado para permitir acceso a administradores
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
                 return NotFound();
 
             var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var comentario = await _context.Comentarios
+            var userRole = int.Parse(User.FindFirstValue(ClaimTypes.Role));
+
+            // Consulta base para obtener el comentario
+            var query = _context.Comentarios
                 .Include(c => c.ServicioRealizado)
                     .ThenInclude(s => s.Servicio)
                 .Include(c => c.ServicioRealizado)
                     .ThenInclude(s => s.Vehiculo)
-                .FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId && c.Estado);
+                .Where(c => c.Id == id && c.Estado);
+
+            // Si es administrador, puede editar cualquier comentario
+            // Si es cliente, solo puede editar sus propios comentarios
+            if (userRole != 1)
+            {
+                query = query.Where(c => c.UsuarioId == usuarioId);
+            }
+
+            var comentario = await query.FirstOrDefaultAsync();
 
             if (comentario == null)
             {
                 TempData["ErrorMessage"] = "Comentario no encontrado.";
-                return RedirectToAction(nameof(MisComentarios));
+                return RedirectToAction(userRole == 1 ? nameof(Index) : nameof(MisComentarios));
             }
 
             // Información adicional
@@ -339,20 +351,28 @@ namespace amazon.Controllers
         // POST: Comentarios/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "3")]
+        [Authorize(Roles = "1,3")]  // Modificado para permitir acceso a administradores
         public async Task<IActionResult> Edit(int id, [Bind("Id,ServicioRealizadoId,Contenido,Calificacion,AspectosDestacados")] Comentario comentario)
         {
             try
             {
                 var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var userRole = int.Parse(User.FindFirstValue(ClaimTypes.Role));
 
                 // Verificar existencia del comentario
                 var comentarioExistente = await _context.Comentarios
-                    .FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId && c.Estado);
+                    .FirstOrDefaultAsync(c => c.Id == id && c.Estado);
 
                 if (comentarioExistente == null)
                 {
                     TempData["ErrorMessage"] = "Comentario no encontrado.";
+                    return RedirectToAction(userRole == 1 ? nameof(Index) : nameof(MisComentarios));
+                }
+
+                // Si no es administrador, verificar que el comentario pertenezca al usuario
+                if (userRole != 1 && comentarioExistente.UsuarioId != usuarioId)
+                {
+                    TempData["ErrorMessage"] = "No tienes permisos para editar este comentario.";
                     return RedirectToAction(nameof(MisComentarios));
                 }
 
@@ -379,7 +399,7 @@ namespace amazon.Controllers
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Comentario actualizado exitosamente.";
-                return RedirectToAction(nameof(MisComentarios));
+                return RedirectToAction(userRole == 1 ? nameof(Index) : nameof(MisComentarios));
             }
             catch (Exception ex)
             {
@@ -409,19 +429,29 @@ namespace amazon.Controllers
         // POST: Comentarios/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "3")]
+        [Authorize(Roles = "1,3")]  // Modificado para permitir acceso a administradores
         public async Task<IActionResult> Delete(int id)
         {
             try
             {
                 var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var comentario = await _context.Comentarios
-                    .FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId && c.Estado);
+                var userRole = int.Parse(User.FindFirstValue(ClaimTypes.Role));
+
+                // Consulta base para obtener el comentario
+                var query = _context.Comentarios.Where(c => c.Id == id && c.Estado);
+
+                // Si no es administrador, solo puede eliminar sus propios comentarios
+                if (userRole != 1)
+                {
+                    query = query.Where(c => c.UsuarioId == usuarioId);
+                }
+
+                var comentario = await query.FirstOrDefaultAsync();
 
                 if (comentario == null)
                 {
                     TempData["ErrorMessage"] = "Comentario no encontrado.";
-                    return RedirectToAction(nameof(MisComentarios));
+                    return RedirectToAction(userRole == 1 ? nameof(Index) : nameof(MisComentarios));
                 }
 
                 // Eliminación lógica (cambio de estado)
@@ -435,7 +465,9 @@ namespace amazon.Controllers
                 TempData["ErrorMessage"] = "Error al eliminar el comentario: " + ex.Message;
             }
 
-            return RedirectToAction(nameof(MisComentarios));
+            // Redirigir según el rol
+            var userRoleForRedirect = int.Parse(User.FindFirstValue(ClaimTypes.Role));
+            return RedirectToAction(userRoleForRedirect == 1 ? nameof(Index) : nameof(MisComentarios));
         }
 
         // GET: Comentarios/ServiciosDestacados
@@ -626,86 +658,87 @@ namespace amazon.Controllers
 
                 column.Item().Table(table =>
                 {
-                    table.ColumnsDefinition(columns =>
-                    {
-                        columns.RelativeColumn();
-                        columns.RelativeColumn(2);
-                        columns.RelativeColumn();
-                        columns.RelativeColumn();
-                    });
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn();
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn();
+                    columns.RelativeColumn();
+                });
 
-                    table.Header(header =>
-                    {
-                        header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Calificación").Bold());
-                        header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Distribución").Bold());
-                        header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Cantidad").Bold());
-                        header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Porcentaje").Bold());
-                    });
+                table.Header(header =>
+                {
+                    header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Calificación").Bold());
+                    header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Distribución").Bold());
+                    header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Cantidad").Bold());
+                    header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Porcentaje").Bold());
+                });
 
-                    // Filas para cada calificación
-                    for (int i = 5; i >= 1; i--)
+                // Filas para cada calificación
+                for (int i = 5; i >= 1; i--)
+                {
+                    var cantidad = distribucionCalificaciones[i];
+                    var porcentaje = comentariosValidos.Count > 0 ? (double)cantidad / comentariosValidos.Count * 100 : 0;
+                    var color = i switch
                     {
-                        var cantidad = distribucionCalificaciones[i];
-                        var porcentaje = comentariosValidos.Count > 0 ? (double)cantidad / comentariosValidos.Count * 100 : 0;
-                        var color = i switch
+                        5 => Colors.Green.Medium,
+                        4 => Colors.Blue.Medium,
+                        3 => Colors.Yellow.Medium,
+                        2 => Colors.Orange.Medium,
+                        _ => Colors.Red.Medium
+                    };
+
+                    table.Cell().Element(c => c.Text($"{i} estrellas"));
+
+                    // Barra gráfica de distribución
+                    table.Cell().Element(cell =>
+                    {
+                        var width = (float)Math.Max(porcentaje, 1);
+                        cell.Row(row =>
                         {
-                            5 => Colors.Green.Medium,
-                            4 => Colors.Blue.Medium,
-                            3 => Colors.Yellow.Medium,
-                            2 => Colors.Orange.Medium,
-                            _ => Colors.Red.Medium
-                        };
-
-                        table.Cell().Element(c => c.Text($"{i} estrellas"));
-
-                        // Barra gráfica de distribución
-                        table.Cell().Element(cell =>
-                        {
-                            var width = (float)Math.Max(porcentaje, 1);
-                            cell.Row(row =>
-                            {
-                                row.RelativeItem(width).Background(color).MinHeight(15);
-                                row.RelativeItem((float)(100 - width)).MinHeight(15);
-                            });
+                            row.RelativeItem(width).Background(color).MinHeight(15);
+                            row.RelativeItem((float)(100 - width)).MinHeight(15);
                         });
+                    });
 
+                    table.Cell().Element(c => c.Text(cantidad.ToString()));
                         table.Cell().Element(c => c.Text(cantidad.ToString()));
                         table.Cell().Element(c => c.Text($"{porcentaje:F1}%"));
                     }
                 });
 
-                column.Item().PaddingBottom(1, Unit.Centimetre);
+                    column.Item().PaddingBottom(1, Unit.Centimetre);
 
-                // Servicios mejor calificados
-                if (serviciosMejorCalificados.Any())
-                {
-                    column.Item().Text("SERVICIOS MEJOR CALIFICADOS").Bold().FontSize(14);
-                    column.Item().PaddingBottom(0.5f, Unit.Centimetre);
-
-                    column.Item().Table(table =>
+                    // Servicios mejor calificados
+                    if (serviciosMejorCalificados.Any())
                     {
-                    table.ColumnsDefinition(columns =>
-                    {
-                        columns.RelativeColumn(3);
-                        columns.RelativeColumn();
-                        columns.RelativeColumn();
-                    });
+                        column.Item().Text("SERVICIOS MEJOR CALIFICADOS").Bold().FontSize(14);
+                        column.Item().PaddingBottom(0.5f, Unit.Centimetre);
 
-                    table.Header(header =>
-                    {
-                        header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Servicio").Bold());
-                        header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Comentarios").Bold());
-                        header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Calificación").Bold());
-                    });
-
-
-                        foreach (var servicio in serviciosMejorCalificados)
+                        column.Item().Table(table =>
                         {
-                            table.Cell().Element(c => c.Text(servicio.Nombre));
-                            table.Cell().Element(c => c.Text(servicio.TotalComentarios.ToString()));
-                            table.Cell().Element(c => c.Text($"{servicio.PromedioCalificacion:F1} de 5.0"));
-                        }
-                    });
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(3);
+                                columns.RelativeColumn();
+                                columns.RelativeColumn();
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Servicio").Bold());
+                                header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Comentarios").Bold());
+                                header.Cell().Background(Colors.Grey.Medium).Element(c => c.Text("Calificación").Bold());
+                            });
+
+
+                            foreach (var servicio in serviciosMejorCalificados)
+                            {
+                                table.Cell().Element(c => c.Text(servicio.Nombre));
+                                table.Cell().Element(c => c.Text(servicio.TotalComentarios.ToString()));
+                                table.Cell().Element(c => c.Text($"{servicio.PromedioCalificacion:F1} de 5.0"));
+                            }
+                        });
 
                         column.Item().PaddingBottom(1, Unit.Centimetre);
                     }
