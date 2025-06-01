@@ -15,6 +15,8 @@ namespace amazon.Controllers
 {
     public class FacturacionController : Controller
     {
+        //variables de solo lectura para la inyeccion de dependencia
+
         private readonly DbamazonContext _context;
         private readonly PdfService _pdfService;
 
@@ -88,7 +90,7 @@ namespace amazon.Controllers
             try
             {
                 var cliente = await _context.Usuarios
-                    .FirstOrDefaultAsync(u => u.Dui == dui && u.Rol == 3);
+                    .FirstOrDefaultAsync(u => u.Dui == dui && u.Rol == 3); //linq para buscar solos los usuarios del rol de cliente
 
                 if (cliente != null)
                 {
@@ -109,6 +111,7 @@ namespace amazon.Controllers
             }
         }
 
+        //aqui se busca los servicios del cliente
         [HttpGet]
         public async Task<JsonResult> GetServiciosDisponibles(int usuarioId)
         {
@@ -143,6 +146,7 @@ namespace amazon.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        //aqui se crea la factura
         public async Task<IActionResult> Create(int UsuarioId, DateTime FechaFacturacion, string MetodoPago, decimal MontoTotal, string serviciosSeleccionados)
         {
             try
@@ -223,7 +227,7 @@ namespace amazon.Controllers
                 return Json(new { success = false, message = $"Error al generar la factura: {ex.Message}" });
             }
         }
-
+        //para editar la factura
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -251,6 +255,7 @@ namespace amazon.Controllers
             return View(facturacion);
         }
 
+        //para editar la factura
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,UsuarioId,FechaFacturacion,MontoTotal,MetodoPago,EstadoFactura")] Facturacion facturacion)
@@ -293,7 +298,7 @@ namespace amazon.Controllers
 
             return View(facturacion);
         }
-
+        //para eliminar la factura
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -358,6 +363,7 @@ namespace amazon.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+        //para descarga del pdf
         [HttpGet]
         public async Task<IActionResult> DownloadPdf(int id)
         {
@@ -374,7 +380,7 @@ namespace amazon.Controllers
         }
 
 
-
+        //validacion de la existencia de la factura
 
         private bool FacturacionExists(int id)
         {

@@ -24,11 +24,11 @@
                 <div class="card-body">
                     <form asp-controller="Tareas" asp-action="Create" method="post" id="createTaskForm">
                         @Html.AntiForgeryToken()
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div asp-validation-summary="All" class="text-danger"></div>
 
                         <div class="mb-3">
                             <label asp-for="Titulo" class="form-label">Título</label>
-                            <input asp-for="Titulo" class="form-control" />
+                            <input asp-for="Titulo" class="form-control" required />
                             <span asp-validation-for="Titulo" class="text-danger"></span>
                         </div>
 
@@ -40,7 +40,7 @@
 
                         <div class="mb-3">
                             <label asp-for="Estado" class="form-label">Estado</label>
-                            <select asp-for="Estado" class="form-control" asp-items="ViewBag.Estados"></select>
+                            <select asp-for="Estado" class="form-control" asp-items="ViewBag.Estados" required></select>
                             <span asp-validation-for="Estado" class="text-danger"></span>
                         </div>
 
@@ -52,16 +52,15 @@
 
                         <div class="mb-3">
                             <label asp-for="MecanicoAsignadoId" class="form-label">Mecánico Asignado</label>
-                            <select asp-for="MecanicoAsignadoId" class="form-control" asp-items="ViewBag.Mecanicos">
+                            <select asp-for="MecanicoAsignadoId" class="form-control" asp-items="ViewBag.Mecanicos" required>
                                 <option value="">-- Seleccionar Mecánico --</option>
                             </select>
                             <span asp-validation-for="MecanicoAsignadoId" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-
                             <label asp-for="VehiculoId" class="form-label">Vehículo</label>
-                            <select asp-for="VehiculoId" class="form-control" asp-items="ViewBag.Vehiculos">
+                            <select asp-for="VehiculoId" class="form-control" asp-items="ViewBag.Vehiculos" required>
                                 <option value="">-- Seleccionar Vehículo --</option>
                             </select>
                             <span asp-validation-for="VehiculoId" class="text-danger"></span>
@@ -85,38 +84,67 @@
 
     <script>
         $(document).ready(function() {
-            // Interceptar envío del formulario para depuración
+            // Asegurarse de que se están seleccionando valores correctos
             $('#createTaskForm').on('submit', function(e) {
                 console.log('Formulario enviado');
 
-                // Verificar datos del formulario
+                // Verificamos que los campos requeridos estén completos
                 var titulo = $('#Titulo').val();
                 var estado = $('#Estado').val();
                 var mecanicoId = $('#MecanicoAsignadoId').val();
                 var vehiculoId = $('#VehiculoId').val();
 
-                console.log('Datos del formulario:', {
-                    titulo: titulo,
-                    estado: estado,
-                    mecanicoId: mecanicoId,
-                    vehiculoId: vehiculoId
-                });
+                // Imprimir valores para depuración
+                console.log('Título:', titulo);
+                console.log('Estado:', estado);
+                console.log('MecánicoId:', mecanicoId);
+                console.log('VehículoId:', vehiculoId);
 
-                // Desactivar botón para evitar múltiples envíos
-                $('#btnSubmit').prop('disabled', true)
-                    .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...');
+                var isValid = true;
+
+                if (!titulo) {
+                    console.log('Error: El título es obligatorio');
+                    isValid = false;
+                    $('#Titulo').addClass('is-invalid');
+                } else {
+                    $('#Titulo').removeClass('is-invalid');
+                }
+
+                if (!estado) {
+                    console.log('Error: El estado es obligatorio');
+                    isValid = false;
+                    $('#Estado').addClass('is-invalid');
+                } else {
+                    $('#Estado').removeClass('is-invalid');
+                }
+
+                if (!mecanicoId) {
+                    console.log('Error: Debe seleccionar un mecánico');
+                    isValid = false;
+                    $('#MecanicoAsignadoId').addClass('is-invalid');
+                } else {
+                    $('#MecanicoAsignadoId').removeClass('is-invalid');
+                }
+
+                if (!vehiculoId) {
+                    console.log('Error: Debe seleccionar un vehículo');
+                    isValid = false;
+                    $('#VehiculoId').addClass('is-invalid');
+                } else {
+                    $('#VehiculoId').removeClass('is-invalid');
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Registrar evento de formulario válido
+                console.log('Formulario válido, enviando...');
+
+                // Desactivamos el botón para evitar múltiples envíos
+                $('#btnSubmit').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...');
             });
-
-            // Inicializar elementos de formulario con clases de bootstrap
-            $('.form-control').addClass('shadow-sm');
-
-            // Mostrar mensajes de alerta automáticamente
-            $('.alert').alert();
-
-            // Auto-cerrar alertas después de 5 segundos
-            setTimeout(function() {
-                $('.alert').alert('close');
-            }, 5000);
         });
     </script>
 }

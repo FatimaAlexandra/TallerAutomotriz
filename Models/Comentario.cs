@@ -20,7 +20,12 @@ namespace amazon.Models
 
         [Required(ErrorMessage = "La calificación es requerida")]
         [Range(1, 5, ErrorMessage = "La calificación debe estar entre 1 y 5")]
+        [Display(Name = "Calificación general")]
         public int Calificacion { get; set; }
+
+        [StringLength(500, ErrorMessage = "Los aspectos destacados no pueden exceder los 500 caracteres")]
+        [Display(Name = "Aspectos destacados")]
+        public string AspectosDestacados { get; set; }
 
         public DateTime FechaCreacion { get; set; }
 

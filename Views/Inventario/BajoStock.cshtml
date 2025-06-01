@@ -1,0 +1,109 @@
+﻿@model IEnumerable<amazon.Models.Inventario>
+
+@{
+    ViewData["Title"] = "Productos con Bajo Stock";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Productos con Bajo Stock</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="mb-3">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Inventario
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-warning text-dark">
+            <h4><i class="fas fa-exclamation-triangle"></i> Productos que requieren reabastecimiento</h4>
+        </div>
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> ¡Genial! No hay productos con bajo stock actualmente.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover" id="bajoStockTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Producto</th>
+                                <th>Tipo</th>
+                                <th>Cantidad</th>
+                                <th>Última Actualización</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Producto.Nombre</td>
+                                    <td>@item.Producto.Tipo</td>
+                                    <td>
+                                        <span class="badge bg-danger p-2">
+                                            @item.Cantidad
+                                        </span>
+                                    </td>
+                                    <td>@item.FechaActualizacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="ActualizarStock" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-edit"></i> Actualizar Stock
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/DataTables/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#bajoStockTable').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "No se encontraron registros",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+                "order": [[2, 'asc']] // Ordenar por cantidad ascendente por defecto
+            });
+        });
+    </script>
+}

@@ -3,6 +3,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using amazon.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace amazon.Controllers
 {
@@ -42,6 +44,7 @@ namespace amazon.Controllers
         }
 
         // GET: Productos/Create
+        [Authorize(Roles = "1")] // Solo administradores
         public IActionResult Create()
         {
             return View();
@@ -50,18 +53,39 @@ namespace amazon.Controllers
         // POST: Productos/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "1")] // Solo administradores
         public async Task<IActionResult> Create([Bind("Nombre,Descripcion,Tipo,Precio")] Producto producto)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(producto);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Add(producto);
+                    await _context.SaveChangesAsync();
+
+                    // Crear entrada en inventario con cantidad inicial 0
+                    var inventario = new Inventario
+                    {
+                        ProductoId = producto.Id,
+                        Cantidad = 0,
+                        FechaActualizacion = DateTime.Now
+                    };
+                    _context.Inventario.Add(inventario);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Producto creado correctamente y añadido al inventario.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Error al crear el producto: " + ex.Message);
+                }
             }
             return View(producto);
         }
 
         // GET: Producto/Edit/5
+        [Authorize(Roles = "1")] // Solo administradores
         public IActionResult Edit(int id)
         {
             var producto = _context.Productos.Find(id);
@@ -75,6 +99,7 @@ namespace amazon.Controllers
         // POST: Producto/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "1")] // Solo administradores
         public IActionResult Edit(Producto producto)
         {
             if (ModelState.IsValid)
@@ -83,6 +108,7 @@ namespace amazon.Controllers
                 {
                     _context.Entry(producto).State = EntityState.Modified;
                     _context.SaveChanges();
+                    TempData["SuccessMessage"] = "Producto actualizado correctamente.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
@@ -96,6 +122,10 @@ namespace amazon.Controllers
                         throw;
                     }
                 }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Error al actualizar el producto: " + ex.Message);
+                }
             }
             return View(producto);
         }
@@ -106,6 +136,7 @@ namespace amazon.Controllers
         }
 
         // GET: Producto/Delete/5
+        [Authorize(Roles = "1")] // Solo administradores
         public IActionResult Delete(int id)
         {
             var producto = _context.Productos.Find(id);
@@ -118,17 +149,37 @@ namespace amazon.Controllers
 
         // POST: Producto/DeleteConfirmed/5
         [HttpPost, ActionName("DeleteConfirmed")]
-        public IActionResult DeleteConfirmed(int id)
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "1")] // Solo administradores
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var producto = _context.Productos.FirstOrDefault(m => m.Id == id);
-            if (producto == null)
+            try
             {
-                return NotFound();
-            }
+                var producto = await _context.Productos.FindAsync(id);
+                if (producto == null)
+                {
+                    return NotFound();
+                }
 
-            _context.Productos.Remove(producto);
-            _context.SaveChanges();
-            return RedirectToAction(nameof(Index));
+                // Verificar si hay inventario asociado
+                var inventario = await _context.Inventario.FirstOrDefaultAsync(i => i.ProductoId == id);
+                if (inventario != null)
+                {
+                    // Eliminar primero el inventario
+                    _context.Inventario.Remove(inventario);
+                }
+
+                _context.Productos.Remove(producto);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Producto eliminado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error al eliminar el producto: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }

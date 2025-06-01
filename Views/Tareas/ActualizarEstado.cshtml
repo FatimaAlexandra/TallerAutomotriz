@@ -1,0 +1,72 @@
+﻿    @model amazon.Models.Tarea
+
+    @{
+        ViewData["Title"] = "Actualizar Estado de Tarea";
+    }
+
+    <div class="container mt-4">
+        <h2 class="mb-4">Actualizar Estado de Tarea</h2>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4>@Model.Titulo</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <p>
+                                <strong>Estado Actual:</strong>
+                                <span class="badge bg-@(Model.Estado == "Pendiente" ? "warning" :
+                                             Model.Estado == "En progreso" ? "info" :
+                                             Model.Estado == "Completada" ? "success" : "danger") p-2">
+                                    @Model.Estado
+                                </span>
+                            </p>
+                        </div>
+
+                        @if (Model.MecanicoAsignado != null)
+                        {
+                            <div class="mb-3">
+                                <p><strong>Mecánico Asignado:</strong> @Model.MecanicoAsignado.Nombre</p>
+                            </div>
+                        }
+
+                        @if (Model.Vehiculo != null)
+                        {
+                            <div class="mb-3">
+                                <p><strong>Vehículo:</strong> @($"{Model.Vehiculo.Marca} {Model.Vehiculo.Modelo} ({Model.Vehiculo.Placa})")</p>
+                            </div>
+                        }
+
+                        <form asp-action="ActualizarEstado" method="post">
+                            <input type="hidden" name="id" value="@Model.Id" />
+
+                            <div class="mb-3">
+                                <label for="Estado" class="form-label">Nuevo Estado</label>
+                                <select name="Estado" id="Estado" class="form-select" asp-items="ViewBag.Estados"></select>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                @if (User.IsInRole("1"))
+                                {
+                                    <a asp-action="Index" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                                }
+                                else
+                                {
+                                    <a asp-action="MisTareas" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                                }
+                                <button type="submit" class="btn btn-primary">Actualizar Estado</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    }

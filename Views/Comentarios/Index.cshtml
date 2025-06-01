@@ -2,35 +2,239 @@
 
 @{
     ViewData["Title"] = "Comentarios de Servicios";
-    var comentariosAgrupados = Model.GroupBy(c => c.ServicioRealizado?.Servicio?.Nombre);
+    
+    // Garantizar que Model nunca sea nulo
+    var comentarios = Model ?? new List<amazon.Models.Comentario>();
+    
+    // Agrupar comentarios por servicio (manejo seguro)
+    var comentariosAgrupados = comentarios
+        .GroupBy(c => c.ServicioRealizado?.Servicio?.Nombre ?? "Sin categoría")
+        .ToList();
+    
+    // Valores por defecto para ViewBag
+    ViewBag.PromedioCalificacion ??= 0;
+    ViewBag.TotalComentarios ??= 0;
+    ViewBag.DistribucionCalificaciones ??= new Dictionary<int, int> { 
+        { 5, 0 }, { 4, 0 }, { 3, 0 }, { 2, 0 }, { 1, 0 } 
+    };
 }
 
 <div class="container">
+    <!-- Encabezado -->
     <div class="row mb-4">
         <div class="col">
             <div class="d-flex justify-content-between align-items-center">
                 <h2 class="text-primary">
                     <i class="fas fa-comments"></i> @ViewData["Title"]
                 </h2>
-                @if (User.IsInRole("3"))
-                {
-                    <a asp-action="MisComentarios" class="btn btn-outline-primary">
-                        <i class="fas fa-user-comments"></i> Ver Mis Comentarios
-                    </a>
-                }
+                <div>
+                    @if (User.IsInRole("3"))
+                    {
+                        <a asp-action="MisComentarios" class="btn btn-outline-primary">
+                            <i class="fas fa-user-comments"></i> Ver Mis Comentarios
+                        </a>
+                    }
+                    @if (User.IsInRole("1"))
+                    {
+                        <a href="@Url.Action("GenerarReporteComentarios", "Comentarios")" class="btn btn-danger">
+                            <i class="fas fa-file-pdf"></i> Generar Reporte PDF
+                        </a>
+                    }
+                </div>
             </div>
         </div>
     </div>
 
-    @if (TempData["SuccessMessage"] != null)
+    <!-- Mensajes de error -->
+    @if (ViewBag.ErrorMessage != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @ViewBag.ErrorMessage
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    @if (!Model.Any())
+    <!-- Estadísticas para administradores -->
+    @if (User.IsInRole("1"))
+    {
+        <div class="row mb-4">
+            <!-- Estadísticas generales -->
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Estadísticas Generales</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span><i class="fas fa-star text-warning"></i> Promedio calificación:</span>
+                            <span class="badge bg-warning">@(((double)ViewBag.PromedioCalificacion).ToString("F1"))</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span><i class="fas fa-comments"></i> Total comentarios:</span>
+                            <span class="badge bg-primary">@ViewBag.TotalComentarios</span>
+                        </div>
+
+                        <!-- Distribución de calificaciones -->
+                        <div class="mt-4">
+                            <p class="mb-2"><strong>Distribución de calificaciones:</strong></p>
+                            <div class="rating-bars">
+                                @for (int i = 5; i >= 1; i--)
+                                {
+                                    var count = ViewBag.DistribucionCalificaciones[i];
+                                    var percentage = ViewBag.TotalComentarios > 0
+                                    ? (count * 100 / ViewBag.TotalComentarios)
+                                    : 0;
+
+                                    var barClass = i switch
+                                    {
+                                        5 => "bg-success",
+                                        4 => "bg-primary",
+                                        3 => "bg-info",
+                                        2 => "bg-warning",
+                                        _ => "bg-danger"
+                                    };
+
+                                    <div class="rating-bar-row d-flex align-items-center mb-2">
+                                        <div class="d-flex align-items-center me-2" style="width: 80px;">
+                                            <span class="me-1">@i</span>
+                                            @for (int s = 0; s < i; s++)
+                                            {
+                                                <i class="fas fa-star text-warning small"></i>
+                                            }
+                                        </div>
+                                        <div class="progress flex-grow-1" style="height: 12px;">
+                                            <div class="progress-bar @barClass" role="progressbar"
+                                                 style="width: @percentage%;"
+                                                 aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="ms-2 small">@count</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Servicios mejor calificados -->
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-trophy"></i> Servicios Mejor Calificados</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (ViewBag.ServiciosMejorCalificados != null && ViewBag.ServiciosMejorCalificados.Count > 0)
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Servicio</th>
+                                            <th>Calificación</th>
+                                            <th>Comentarios</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var servicio in ViewBag.ServiciosMejorCalificados)
+                                        {
+                                            <tr>
+                                                <td>@servicio.Nombre</td>
+                                                <td class="text-center">
+                                                    <div class="stars">
+                                                        @for (int i = 1; i <= 5; i++)
+                                                        {
+                                                            if (i <= Math.Floor(servicio.PromedioCalificacion))
+                                                            {
+                                                                <i class="fas fa-star text-warning small"></i>
+                                                            }
+                                                            else if (i - 0.5 <= servicio.PromedioCalificacion && servicio.PromedioCalificacion < i)
+                                                            {
+                                                                <i class="fas fa-star-half-alt text-warning small"></i>
+                                                            }
+                                                            else
+                                                            {
+                                                                <i class="far fa-star text-warning small"></i>
+                                                            }
+                                                        }
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">@servicio.TotalComentarios</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No hay datos disponibles o suficientes comentarios.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mecánicos mejor calificados -->
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-user-check"></i> Mecánicos Mejor Calificados</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (ViewBag.MecanicosMejorCalificados != null && ViewBag.MecanicosMejorCalificados.Count > 0)
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Mecánico</th>
+                                            <th>Calificación</th>
+                                            <th>Servicios</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var mecanico in ViewBag.MecanicosMejorCalificados)
+                                        {
+                                            <tr>
+                                                <td>@mecanico.Nombre</td>
+                                                <td class="text-center">
+                                                    <div class="stars">
+                                                        @for (int i = 1; i <= 5; i++)
+                                                        {
+                                                            if (i <= Math.Floor(mecanico.PromedioCalificacion))
+                                                            {
+                                                                <i class="fas fa-star text-warning small"></i>
+                                                            }
+                                                            else if (i - 0.5 <= mecanico.PromedioCalificacion && mecanico.PromedioCalificacion < i)
+                                                            {
+                                                                <i class="fas fa-star-half-alt text-warning small"></i>
+                                                            }
+                                                            else
+                                                            {
+                                                                <i class="far fa-star text-warning small"></i>
+                                                            }
+                                                        }
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">@mecanico.TotalServicios</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No hay datos disponibles o suficientes comentarios para mecánicos.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+
+    <!-- Lista de comentarios -->
+    @if (!comentarios.Any())
     {
         <div class="alert alert-info">
             <i class="fas fa-info-circle"></i> No hay comentarios disponibles en este momento.
@@ -38,126 +242,89 @@
     }
     else
     {
-        <!-- Estadísticas generales -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Estadísticas</h5>
+        <div id="comentarios-container">
+            @foreach (var grupo in comentariosAgrupados)
+            {
+                <div class="card shadow-sm mb-4 servicio-card" data-servicio="@grupo.Key">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="fas fa-wrench text-primary"></i> @grupo.Key
+                            <span class="badge bg-secondary ms-2">
+                                @grupo.Count() comentario@(grupo.Count() != 1 ? "s" : "")
+                            </span>
+                        </h5>
                     </div>
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span>
-                                <i class="fas fa-star text-warning"></i> Promedio calificación:
-                            </span>
-                            <span class="badge bg-warning">
-                                @Model.Average(c => c.Calificacion).ToString("F1")
-                            </span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span>
-                                <i class="fas fa-comments"></i> Total comentarios:
-                            </span>
-                            <span class="badge bg-primary">@Model.Count()</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        <div class="row comentarios-row">
+                            @foreach (var comentario in grupo)
+                            {
+                                <div class="col-md-6 mb-3 comentario-card"
+                                     data-rating="@comentario.Calificacion"
+                                     data-aspectos="@comentario.AspectosDestacados"
+                                     data-fecha="@comentario.FechaCreacion.Ticks">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-header bg-white">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-0">@comentario.Usuario?.Nombre</h6>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-calendar-alt"></i>
+                                                        @comentario.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                                                    </small>
+                                                </div>
+                                                <div class="rating">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        <i class="fas fa-star @(i <= comentario.Calificacion ? "text-warning" : "text-muted")"></i>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <!-- Información del vehículo -->
+                                            <div class="mb-2">
+                                                <strong><i class="fas fa-car"></i> Vehículo:</strong>
+                                                <span>
+                                                    @comentario.ServicioRealizado?.Vehiculo?.Marca @comentario.ServicioRealizado?.Vehiculo?.Modelo
+                                                    (@comentario.ServicioRealizado?.Vehiculo?.Placa)
+                                                </span>
+                                            </div>
 
-        <!-- Lista de comentarios agrupados por servicio -->
-        @foreach (var grupo in comentariosAgrupados)
-        {
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">
-                        <i class="fas fa-wrench text-primary"></i> @grupo.Key
-                        <span class="badge bg-secondary ms-2">
-                            @grupo.Count() comentario@(grupo.Count() != 1 ? "s" : "")
-                        </span>
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        @foreach (var comentario in grupo)
-                        {
-                            <div class="col-md-6 mb-3">
-                                <div class="card h-100 border-0 shadow-sm">
-                                    <div class="card-header bg-white">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-0">@comentario.Usuario.Nombre</h6>
-                                                <small class="text-muted">
-                                                    <i class="fas fa-calendar-alt"></i>
-                                                    @comentario.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
-                                                </small>
-                                            </div>
-                                            <div class="rating">
-                                                @for (int i = 1; i <= 5; i++)
-                                                {
-                                                    <i class="fas fa-star @(i <= comentario.Calificacion ? "text-warning" : "text-muted")"></i>
-                                                }
-                                            </div>
+                                            <!-- Aspectos destacados -->
+                                            @if (!string.IsNullOrWhiteSpace(comentario.AspectosDestacados))
+                                            {
+                                                <div class="mb-3">
+                                                    <strong><i class="fas fa-thumbs-up"></i> Aspectos destacados:</strong>
+                                                    <div class="mt-2">
+                                                        @foreach (var aspecto in comentario.AspectosDestacados?.Split(',').Select(a => a.Trim()) ?? Array.Empty<string>())
+                                                        {
+                                                            <span class="badge bg-success me-1 mb-1">@aspecto</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            <p class="card-text">@comentario.Contenido</p>
+                                            @if (comentario.FechaModificacion.HasValue)
+                                            {
+                                                <div class="mt-2">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-edit"></i>
+                                                        Editado: @comentario.FechaModificacion.Value.ToString("dd/MM/yyyy HH:mm")
+                                                    </small>
+                                                </div>
+                                            }
                                         </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <!-- Información del vehículo -->
-                                        <div class="mb-2">
-                                            <strong><i class="fas fa-car"></i> Vehículo:</strong>
-                                            @comentario.ServicioRealizado?.Vehiculo?.Marca
-                                            @comentario.ServicioRealizado?.Vehiculo?.Modelo
-                                            (@comentario.ServicioRealizado?.Vehiculo?.Placa)
-                                        </div>
-                                        <!-- Información del servicio -->
-                                        <div class="mb-2">
-                                            <strong><i class="fas fa-wrench"></i> Servicio:</strong>
-                                            @comentario.ServicioRealizado?.Servicio?.Nombre
-                                        </div>
-                                        <p class="card-text">@comentario.Contenido</p>
-                                        @if (comentario.FechaModificacion.HasValue)
-                                        {
-                                            <div class="mt-2">
-                                                <small class="text-muted">
-                                                    <i class="fas fa-edit"></i>
-                                                    Editado: @comentario.FechaModificacion.Value.ToString("dd/MM/yyyy HH:mm")
-                                                </small>
-                                            </div>
-                                        }
                                     </div>
                                 </div>
-                            </div>
-                        }
+                            }
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     }
 </div>
-
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            // Inicializar tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
-
-            // Auto-dismiss alerts
-            setTimeout(function () {
-                $('.alert').alert('close');
-            }, 5000);
-
-            // Animación de entrada para las cards
-            $('.card').each(function (index) {
-                $(this).delay(index * 100).animate({
-                    opacity: 1,
-                    transform: 'translateY(0)'
-                }, 500);
-            });
-        });
-    </script>
-}
 
 @section Styles {
     <style>
@@ -166,23 +333,99 @@
         }
 
         .card {
-            transition: transform 0.2s;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 0.5rem;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
             .card:hover {
                 transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
             }
 
-        .btn-group .btn {
-            padding: 0.25rem 0.5rem;
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-            .btn-group .btn i {
-                margin: 0;
+        .badge {
+            font-weight: 500;
+            padding: 0.4rem 0.7rem;
+        }
+
+        .progress {
+            border-radius: 1rem;
+            background-color: #f1f1f1;
+        }
+
+        .progress-bar {
+            border-radius: 1rem;
+        }
+
+        .comentario-card {
+            transition: all 0.3s ease;
+            opacity: 1;
+        }
+
+            .comentario-card.hidden {
+                display: none;
             }
 
-        .card-footer {
-            background-color: rgba(0, 0, 0, 0.03);
+        .rating-bars {
+            font-size: 0.9rem;
         }
+
+        .small {
+            font-size: 0.8rem;
+        }
+
+        .servicio-card {
+            margin-bottom: 30px;
+        }
+
+        .comentario-card .card-body {
+            padding: 1.25rem;
+        }
+
+        .comentario-card .card-header {
+            background-color: #f8f9fa;
+        }
+
+        .badge.bg-success {
+            transition: all 0.2s ease;
+        }
+
+            .badge.bg-success:hover {
+                transform: scale(1.1);
+            }
     </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Auto-dismiss alerts
+            setTimeout(function() {
+                $('.alert').alert('close');
+            }, 5000);
+
+            // Animación de entrada para las tarjetas
+            $('.comentario-card').each(function(index) {
+                const card = $(this);
+                card.css({
+                    'opacity': '0',
+                    'transform': 'translateY(20px)'
+                });
+
+                setTimeout(function() {
+                    card.css({
+                        'opacity': '1',
+                        'transform': 'translateY(0)',
+                        'transition': 'opacity 0.5s ease, transform 0.5s ease'
+                    });
+                }, index * 50);
+            });
+        });
+    </script>
 }

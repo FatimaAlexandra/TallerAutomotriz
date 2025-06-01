@@ -514,15 +514,14 @@
             $('[data-bs-toggle="tooltip"]').tooltip();
         });
 
-        // Manejo de teclas rápidas
+        
         $(document).on('keydown', function (e) {
-            // Alt + B para enfocarse en la búsqueda
+           
             if (e.altKey && e.key === 'b') {
                 e.preventDefault();
                 $('#duiCliente').focus();
             }
 
-            // Alt + G para generar factura (si está habilitado)
             if (e.altKey && e.key === 'g') {
                 e.preventDefault();
                 if (!$('#btnGenerarFactura').prop('disabled')) {

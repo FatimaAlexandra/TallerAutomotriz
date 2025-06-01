@@ -104,7 +104,7 @@ namespace amazon.Controllers
             }
             catch (Exception ex)
             {
-                // Registra el error en el log si es necesario
+                
                 Console.WriteLine($"Error en ObtenerServicios: {ex.Message}");
                 return BadRequest("Error al obtener los servicios.");
             }
@@ -141,11 +141,6 @@ namespace amazon.Controllers
 
             return Json(modelos);
         }
-
-
-
-
-
 
 
     }

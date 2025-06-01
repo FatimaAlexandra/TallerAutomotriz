@@ -6,11 +6,11 @@
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-warning">
-                    <h4 class="mb-0 text-dark">
-                        <i class="fas fa-edit"></i> @ViewData["Title"]
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit"></i> Editar Comentario
                     </h4>
                 </div>
                 <div class="card-body">
@@ -29,81 +29,157 @@
                             </div>
                         }
 
+                        <!-- Información del servicio -->
                         <div class="row mb-4">
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label">Servicio</label>
-                                    <input type="text" class="form-control" readonly
-                                           value="@Model.ServicioRealizado?.Servicio?.Nombre" />
+                                <div class="card bg-light h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="fas fa-wrench text-primary"></i> Detalles del Servicio
+                                        </h5>
+                                        <div class="mb-2">
+                                            <strong>Servicio:</strong> @Model.ServicioRealizado?.Servicio?.Nombre
+                                        </div>
+                                        <div class="mb-2">
+                                            <strong>Vehículo:</strong> @($"{Model.ServicioRealizado?.Vehiculo?.Marca} {Model.ServicioRealizado?.Vehiculo?.Modelo} ({Model.ServicioRealizado?.Vehiculo?.Placa})")
+                                        </div>
+                                        <div class="mb-2">
+                                            <strong>Fecha:</strong> @Model.ServicioRealizado?.Fecha
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label">Vehículo</label>
-                                    <input type="text" class="form-control" readonly
-                                           value="@($"{Model.ServicioRealizado?.Vehiculo?.Marca} {Model.ServicioRealizado?.Vehiculo?.Modelo} ({Model.ServicioRealizado?.Vehiculo?.Placa})")" />
+                                <div class="card bg-light h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="fas fa-history text-primary"></i> Información del Comentario
+                                        </h5>
+                                        <div class="mb-2">
+                                            <strong>Creado:</strong> @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                                        </div>
+                                        @if (Model.FechaModificacion.HasValue)
+                                        {
+                                            <div class="mb-2">
+                                                <strong>Última edición:</strong> @Model.FechaModificacion.Value.ToString("dd/MM/yyyy HH:mm")
+                                            </div>
+                                        }
+                                        <div class="mb-2">
+                                            <strong>Mecánico:</strong> @ViewBag.MecanicoNombre
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i>
-                            Comentario creado el: @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
-                            @if (Model.FechaModificacion.HasValue)
-                            {
-                                <br />
-                                <i class="fas fa-edit"></i>
-                                <text>Última modificación: </text>
-
-                                @Model.FechaModificacion.Value.ToString("dd/MM/yyyy HH:mm")
-                            }
-                        </div>
-
+                        <!-- Sistema de calificación con estrellas -->
                         <div class="mb-4">
-                            <label class="form-label">Calificación <span class="text-danger">*</span></label>
-                            <div class="rating-container">
-                                <div class="rating-input text-center">
-                                    @for (int i = 5; i >= 1; i--)
-                                    {
-                                        <input type="radio" id="star@(i)" name="Calificacion" value="@i"
-                                        @(Model.Calificacion == i ? "checked" : "") required />
-                                        <label for="star@(i)" class="rating-label" title="@i estrellas">
-                                            <i class="@(Model.Calificacion >= i ? "fas" : "far") fa-star"></i>
-                                        </label>
-                                    }
-                                </div>
-                                <div class="rating-text text-center mt-2">
-                                    <span id="ratingText">
+                            <h5 class="mb-3">
+                                <i class="fas fa-star text-warning"></i> Calificación General
+                                <small class="text-muted">(Servicio y atención del mecánico)</small>
+                            </h5>
+                            <div class="rating-container card bg-light">
+                                <div class="card-body">
+                                    <div class="rating-input text-center">
+                                        @for (int i = 5; i >= 1; i--)
+                                        {
+                                            <input type="radio" id="star@(i)" name="Calificacion" value="@i" 
+                                                   @(Model.Calificacion == i ? "checked" : "") required 
+                                                   class="visually-hidden" />
+                                            <label for="star@(i)" class="rating-label" title="@i estrellas">
+                                                <i class="@(Model.Calificacion >= i ? "fas" : "far") fa-star fa-2x"></i>
+                                            </label>
+                                        }
+                                    </div>
+                                    <div class="rating-text text-center mt-3">
                                         @{
                                             var ratingText = Model.Calificacion switch
                                             {
-                                                1 => "Muy malo",
-                                                2 => "Malo",
-                                                3 => "Regular",
-                                                4 => "Bueno",
+                                                1 => "Malo",
+                                                2 => "Regular",
+                                                3 => "Bueno",
+                                                4 => "Muy Bueno",
                                                 5 => "Excelente",
                                                 _ => "Seleccione una calificación"
                                             };
+
+                                            var ratingClass = Model.Calificacion switch
+                                            {
+                                                1 => "bg-danger",
+                                                2 => "bg-warning",
+                                                3 => "bg-info",
+                                                4 => "bg-primary",
+                                                5 => "bg-success",
+                                                _ => "bg-secondary"
+                                            };
                                         }
-                                        @ratingText
-                                    </span>
+                                        <span id="ratingText" class="badge @ratingClass px-3 py-2">@ratingText</span>
+                                    </div>
+                                    <span asp-validation-for="Calificacion" class="text-danger d-block text-center mt-2"></span>
                                 </div>
-                                <span asp-validation-for="Calificacion" class="text-danger d-block text-center"></span>
                             </div>
                         </div>
 
+                        <!-- Aspectos destacados -->
                         <div class="mb-4">
-                            <label asp-for="Contenido" class="form-label">Comentario <span class="text-danger">*</span></label>
-                            <textarea asp-for="Contenido" class="form-control" rows="5"
-                                      placeholder="Escriba su opinión sobre el servicio recibido (mínimo 10 caracteres)..."
-                                      maxlength="1000" required></textarea>
-                            <div class="form-text text-end">
-                                <span id="charCount">@(Model.Contenido?.Length ?? 0)</span>/1000 caracteres
+                            <h5 class="mb-3">
+                                <i class="fas fa-thumbs-up text-success"></i> Aspectos Destacados
+                            </h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <p class="text-muted mb-3">Seleccione los aspectos positivos que destacaría de este servicio:</p>
+                                    <div class="aspect-badges mb-3" id="aspectBadges">
+                                        @{
+                                            var aspectosSeleccionados = Model.AspectosDestacados?.Split(',').Select(a => a.Trim()).ToList() ?? new List<string>();
+                                            
+                                            var aspectos = new[] {
+                                                new { Key = "Atención al cliente", Icon = "headset" },
+                                                new { Key = "Profesionalismo", Icon = "user-tie" },
+                                                new { Key = "Calidad del trabajo", Icon = "check-circle" },
+                                                new { Key = "Precio justo", Icon = "dollar-sign" },
+                                                new { Key = "Rapidez", Icon = "bolt" },
+                                                new { Key = "Conocimiento técnico", Icon = "brain" },
+                                                new { Key = "Limpieza", Icon = "broom" },
+                                                new { Key = "Explicación clara", Icon = "comments" }
+                                            };
+
+                                            foreach (var aspecto in aspectos)
+                                            {
+                                                var isSelected = aspectosSeleccionados.Any(a => a.Contains(aspecto.Key));
+                                                <span class="badge bg-primary me-2 mb-2 aspect-badge @(isSelected ? "selected" : "")" 
+                                                      data-aspect="@aspecto.Key">
+                                                    <i class="fas fa-@aspecto.Icon"></i> @aspecto.Key
+                                                </span>
+                                            }
+                                        }
+                                    </div>
+                                    <input type="hidden" asp-for="AspectosDestacados" id="aspectosDestacadosInput" />
+                                    <div id="selectedAspects" class="mt-2 mb-3">
+                                        <p class="text-muted">Aspectos seleccionados: <span id="aspectCount">@(aspectosSeleccionados.Count)</span></p>
+                                    </div>
+                                </div>
                             </div>
-                            <span asp-validation-for="Contenido" class="text-danger"></span>
                         </div>
 
-                        <div class="d-flex justify-content-between">
+                        <!-- Comentario detallado -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-comment-alt text-info"></i> Su Opinión
+                            </h5>
+                            <div class="form-floating">
+                                <textarea asp-for="Contenido" class="form-control" id="comentarioTextarea" 
+                                          placeholder="Comparta su experiencia con el servicio y el mecánico..." 
+                                          style="height: 150px; min-height: 150px;" required></textarea>
+                                <label for="comentarioTextarea">Escriba su comentario (mínimo 10 caracteres)</label>
+                                <div class="form-text text-end mt-1">
+                                    <span id="charCount">@(Model.Contenido?.Length ?? 0)</span>/1000 caracteres
+                                </div>
+                                <span asp-validation-for="Contenido" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="d-flex justify-content-between mt-4">
                             <a asp-action="MisComentarios" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Volver
                             </a>
@@ -118,13 +194,16 @@
     </div>
 </div>
 
+
+
+
+
+
 @section Styles {
     <style>
         .rating-container {
             padding: 1.5rem;
-            background-color: #f8f9fa;
             border-radius: 0.5rem;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,.1);
         }
 
         .rating-input {
@@ -156,26 +235,50 @@
                 transform: scale(1.2);
             }
 
-        .rating-text {
-            font-weight: 500;
-            color: #6c757d;
-            margin-top: 1rem;
+        .card {
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: all 0.3s ease;
         }
 
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-            textarea:focus {
-                border-color: #ffb107;
-                box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+            .card:hover {
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+                transform: translateY(-5px);
             }
 
-        .form-text {
-            font-size: 0.875rem;
-            color: #6c757d;
+        .card-header {
+            border-bottom: none;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .form-floating > .form-control {
+            padding-top: 1.625rem;
+        }
+
+        .aspect-badge {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            padding: 0.5rem 0.75rem;
+            font-weight: normal;
+        }
+
+            .aspect-badge:hover {
+                transform: scale(1.05);
+            }
+
+            .aspect-badge.selected {
+                background-color: #28a745 !important;
+                font-weight: bold;
+            }
+
+        .badge {
+            font-size: 0.85rem;
+        }
+
+        #selectedAspects {
+            min-height: 1.5rem;
         }
 
         .btn {
@@ -186,27 +289,17 @@
             .btn:hover {
                 transform: translateY(-2px);
             }
-
-        .card {
-            border: none;
-            transition: transform 0.3s ease;
-            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.1);
-        }
-
-        .card-header {
-            border-radius: 0.5rem 0.5rem 0 0;
-            padding: 1rem 1.5rem;
-        }
-
-        .alert {
-            margin-bottom: 1.5rem;
-        }
-
-        .invalid-feedback {
-            font-size: 0.875rem;
-        }
     </style>
 }
+
+
+
+
+
+
+
+
+
 
 @section Scripts {
     @{
@@ -215,65 +308,98 @@
 
     <script>
         $(document).ready(function () {
+            // Variables para los textos de calificación
             const ratingTexts = {
-                1: 'Muy malo',
-                2: 'Malo',
-                3: 'Regular',
-                4: 'Bueno',
+                1: 'Malo',
+                2: 'Regular',
+                3: 'Bueno',
+                4: 'Muy Bueno',
                 5: 'Excelente'
+            };
+
+            const ratingClasses = {
+                1: 'bg-danger',
+                2: 'bg-warning',
+                3: 'bg-info',
+                4: 'bg-primary', 
+                5: 'bg-success'
             };
 
             // Manejar la selección de estrellas
             $('input[name="Calificacion"]').change(function () {
                 const rating = $(this).val();
-                $('#ratingText').text(ratingTexts[rating]);
+                
+                // Actualizar texto
+                $('#ratingText').text(ratingTexts[rating])
+                    .removeClass('bg-secondary bg-danger bg-warning bg-info bg-primary bg-success')
+                    .addClass(ratingClasses[rating]);
 
                 // Actualizar estrellas
+                $('.rating-label i').removeClass('fas').addClass('far');
+
                 $('.rating-label i').removeClass('fas').addClass('far');
                 $(this).nextAll('.rating-label').find('i').removeClass('far').addClass('fas');
                 $(this).next('.rating-label').find('i').removeClass('far').addClass('fas');
             });
 
+            // Manejar selección de aspectos destacados
+            $('.aspect-badge').click(function() {
+                $(this).toggleClass('selected');
+                updateAspectosDestacados();
+            });
+
+            // Actualizar campo oculto con aspectos destacados
+            function updateAspectosDestacados() {
+                let aspectos = [];
+                $('.aspect-badge.selected').each(function() {
+                    aspectos.push($(this).data('aspect'));
+                });
+
+                $('#aspectosDestacadosInput').val(aspectos.join(', '));
+                $('#aspectCount').text(aspectos.length);
+            }
+
             // Contador de caracteres
-            $('#Contenido').on('input', function () {
+            $('#comentarioTextarea').on('input', function() {
                 const maxLength = 1000;
                 const currentLength = $(this).val().length;
                 $('#charCount').text(currentLength);
 
                 if (currentLength >= maxLength) {
-                    $('#charCount').addClass('text-danger');
+                    $('#charCount').addClass('text-danger fw-bold');
                 } else {
-                    $('#charCount').removeClass('text-danger');
+                    $('#charCount').removeClass('text-danger fw-bold');
                 }
             });
 
             // Validación del formulario
-            $('#editCommentForm').submit(function (e) {
+            $('#editCommentForm').submit(function(e) {
+                // Prevenir envío por defecto
                 e.preventDefault();
 
-                // Validar calificación
+                // Validar que haya una calificación
                 const rating = $('input[name="Calificacion"]:checked').val();
                 if (!rating) {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error',
-                        text: 'Por favor, seleccione una calificación'
+                        title: 'Calificación requerida',
+                        text: 'Por favor, seleccione una calificación de 1 a 5 estrellas'
                     });
                     return false;
                 }
 
-                // Validar contenido
-                const contenido = $('#Contenido').val().trim();
-                if (!contenido || contenido.length < 10) {
+                // Validar comentario
+                const contenido = $('#comentarioTextarea').val().trim();
+                if (contenido.length < 10) {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error',
-                        text: 'El comentario debe tener al menos 10 caracteres'
+                        title: 'Comentario muy corto',
+                        text: 'Por favor, escriba un comentario de al menos 10 caracteres'
                     });
                     return false;
                 }
 
-                // Confirmación antes de guardar
+                // Confirmar antes de enviar
                 Swal.fire({
                     title: '¿Guardar cambios?',
                     text: "¿Está seguro que desea actualizar este comentario?",
@@ -285,35 +411,26 @@
                     cancelButtonText: 'Cancelar'
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        // Mostrar spinner en el botón
                         $('#submitButton').prop('disabled', true)
                             .html('<i class="fas fa-spinner fa-spin"></i> Guardando...');
+
+                        // Enviar el formulario
                         $(this).unbind('submit').submit();
                     }
                 });
             });
 
-            // Mostrar mensajes si existen
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <text>
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Éxito',
-                        text: '@TempData["SuccessMessage"]'
-                    });
-            </text>
-        }
+            // Inicializar contador de caracteres
+            $('#comentarioTextarea').trigger('input');
 
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <text>
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: '@TempData["ErrorMessage"]'
-                    });
-            </text>
-        }
-                });
+            // Efecto de aparición gradual
+            $('.card').each(function(index) {
+                $(this).css('opacity', 0).css('transform', 'translateY(20px)');
+                setTimeout(() => {
+                    $(this).css('opacity', 1).css('transform', 'translateY(0)');
+                }, 100 * index);
+            });
+        });
     </script>
 }

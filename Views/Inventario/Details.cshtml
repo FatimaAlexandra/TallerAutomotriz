@@ -1,0 +1,62 @@
+﻿@model amazon.Models.Inventario
+
+@{
+    ViewData["Title"] = "Detalles del Inventario";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Detalles del Producto en Inventario</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4>@Model.Producto.Nombre</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5 class="card-title">Información del Producto</h5>
+                        <dl class="row">
+                            <dt class="col-sm-4">Descripción:</dt>
+                            <dd class="col-sm-8">@Model.Producto.Descripcion</dd>
+
+                            <dt class="col-sm-4">Tipo:</dt>
+                            <dd class="col-sm-8">@Model.Producto.Tipo</dd>
+
+                            <dt class="col-sm-4">Precio:</dt>
+                            <dd class="col-sm-8">@Model.Producto.Precio.ToString("C")</dd>
+                        </dl>
+                    </div>
+
+                    <div>
+                        <h5 class="card-title">Información de Inventario</h5>
+                        <dl class="row">
+                            <dt class="col-sm-4">Cantidad Actual:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-@(Model.Cantidad < 10 ? "danger" : (Model.Cantidad < 20 ? "warning" : "success")) p-2">
+                                    @Model.Cantidad
+                                </span>
+                            </dd>
+
+                            <dt class="col-sm-4">Última Actualización:</dt>
+                            <dd class="col-sm-8">@Model.FechaActualizacion.ToString("dd/MM/yyyy HH:mm")</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="btn-group">
+                        <a asp-action="ActualizarStock" asp-route-id="@Model.Id" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Actualizar Stock
+                        </a>
+                        <a asp-action="AjustarStock" asp-route-id="@Model.Id" class="btn btn-secondary">
+                            <i class="fas fa-plus-minus"></i> Ajustar Stock
+                        </a>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
