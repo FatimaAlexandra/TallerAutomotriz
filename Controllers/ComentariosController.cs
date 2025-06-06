@@ -702,8 +702,8 @@ namespace amazon.Controllers
                     });
 
                     table.Cell().Element(c => c.Text(cantidad.ToString()));
-                        table.Cell().Element(c => c.Text(cantidad.ToString()));
-                        table.Cell().Element(c => c.Text($"{porcentaje:F1}%"));
+
+                    table.Cell().Element(c => c.Text($"{porcentaje:F1}%"));
                     }
                 });
 

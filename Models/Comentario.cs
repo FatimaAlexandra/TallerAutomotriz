@@ -25,7 +25,7 @@ namespace amazon.Models
 
         [StringLength(500, ErrorMessage = "Los aspectos destacados no pueden exceder los 500 caracteres")]
         [Display(Name = "Aspectos destacados")]
-        public string AspectosDestacados { get; set; }
+        public string? AspectosDestacados { get; set; }
 
         public DateTime FechaCreacion { get; set; }
 

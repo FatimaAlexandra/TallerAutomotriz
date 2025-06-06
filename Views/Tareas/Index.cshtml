@@ -150,58 +150,6 @@
     </div>
 
     <!-- Filtros -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <div class="row g-2">
-                <div class="col-md-3">
-                    <label class="form-label small">Estado</label>
-                    <select id="filtroEstado" class="form-select">
-                        <option value="">Todos los estados</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="En progreso">En progreso</option>
-                        <option value="Completada">Completada</option>
-                        <option value="Cancelada">Cancelada</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small">Mecánico</label>
-                    <select id="filtroMecanico" class="form-select">
-                        <option value="">Todos los mecánicos</option>
-                        @foreach (var mecanico in Model.Where(t => t.MecanicoAsignado != null)
-                        .Select(t => t.MecanicoAsignado)
-                        .Distinct()
-                        .OrderBy(m => m.Nombre))
-                        {
-                            <option value="@mecanico.Id">@mecanico.Nombre</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small">Vehículo</label>
-                    <select id="filtroVehiculo" class="form-select">
-                        <option value="">Todos los vehículos</option>
-                        @foreach (var vehiculo in Model.Where(t => t.Vehiculo != null)
-                        .Select(t => t.Vehiculo)
-                        .Distinct()
-                        .OrderBy(v => v.Marca))
-                        {
-                            <option value="@vehiculo.Id">@vehiculo.Marca @vehiculo.Modelo (@vehiculo.Placa)</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small">Búsqueda</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0">
-                            <i class="fas fa-search text-muted"></i>
-                        </span>
-                        <input type="text" id="searchInput" class="form-control border-start-0"
-                               placeholder="Buscar tareas...">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Tabla de tareas -->
     <div class="card border-0 shadow-sm mb-4">
